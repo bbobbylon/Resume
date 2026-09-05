@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.0 (Nocturne redesign) |
+| **Version** | 0.3.0 (prerendered) |
 | **Date** | 2026-09-04 |
-| **Status** | Draft — pending owner review of hosting decision (see [DEPLOYMENT.md](DEPLOYMENT.md)) |
+| **Status** | Baseline complete; hosting decided (see [DEPLOYMENT.md](DEPLOYMENT.md)), go-live pending the owner; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
 
 ## 1. Executive Summary
@@ -56,30 +56,39 @@ opens each project's live app.
 | FR-9 | `frontend/public/resume.pdf` is generated from the `/resume` page's print stylesheet (`npm run resume:pdf`). | `scripts/resume-pdf.mjs` |
 | FR-10 | Nav marks the current section with `aria-current="page"`; external links open in a new tab with `rel="noopener"`. | `Nav`, all layouts |
 | FR-11 | While data loads, pages render skeleton blocks of the same footprint rather than "Loading…" text. | all pages |
-| FR-12 | Unknown routes render a not-found page (404 kicker, the requested path, links home and to the resume) with the app's nav and footer; the Pages deploy serves it for deep links via `404.html`. | `NotFound`, `app.routes.ts` |
+| FR-12 | Unknown routes render a not-found page (404 kicker, the requested path, links home and to the resume) with the app's nav and footer; on Pages the client shell (`index.csr.html`) is served as `404.html`, so unknown deep links boot the app and reach it. | `NotFound`, `app.routes.ts` |
 | FR-13 | CORS allows only the origins listed in `ALLOWED_ORIGIN` (comma-separated), GET/OPTIONS only. | `WebConfig` |
 | FR-14 | `/api/**` responses are gzipped and carry `Cache-Control: max-age=300, public` plus a weak ETag; `If-None-Match` revalidates with 304. | `WebConfig`, `application.yml` |
 | FR-15 | The API publishes an OpenAPI 3.1 document at `/v3/api-docs` (the four `/api` paths only) and Swagger UI at `/docs`. | `OpenApiConfig`, controllers |
-| FR-16 | The frontend shows deploy-time snapshot data or live API data, whichever arrives first, and lets the live response replace the snapshot. | `Api`, `scripts/snapshot.mjs` |
+| FR-16 | The frontend shows build-time data immediately — the prerendered page's `TransferState`, else the deploy-time snapshot — and lets the live API response replace it. | `Api`, `scripts/snapshot.mjs` |
+| FR-17 | Every route is prerendered to static HTML at build time (`/`, `/resume`, each `/projects/<id>` the API lists) and hydrated in the browser; an id unknown at build time renders client-side. | `app.routes.server.ts`, `main.server.ts` |
+| FR-18 | Each page sets its own `<title>`, meta description and Open Graph/Twitter tags; a project page uses its first screenshot (1200×630 JPEG) as the preview image. | `PageMeta` |
+| FR-19 | Screenshots are served as WebP with an 800 px `srcset` variant; the first image on a page loads eagerly with high fetch priority, the rest lazily. | `ProjectImage`, `scripts/screenshots.mjs` |
+| FR-20 | `sitemap.xml` is generated from the prerendered routes on every build. | `scripts/sitemap.mjs` |
+| FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
+| FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
 
 ## 4. Non-Functional Requirements
 
-- **Performance.** Static frontend ≤ 350 kB raw initial JS (currently ~324 kB / ~83 kB
-  transferred). Lighthouse on the static build, mobile emulation, API unreachable:
-  performance 88, accessibility 100, best practices 96, SEO 100; CLS 0.02 because
-  loading skeletons occupy the loaded content's exact line boxes (2026-09-04). API responses are in-memory and answer in single-digit milliseconds
-  once the JVM is warm. Cold starts on scale-to-zero hosting are hidden by the
-  deploy-time snapshot: full content in well under a second even when the API is asleep.
+- **Performance.** Static frontend ≤ 400 kB raw initial JS (currently ~370 kB / ~96 kB
+  transferred). Lighthouse on the static build served with gzip, mobile emulation,
+  API unreachable: performance 99, accessibility 100, best practices 96, SEO 100;
+  FCP 1.7 s, LCP 1.9 s, CLS 0.01; 200 kB total transfer and no third-party host
+  (fonts self-hosted, screenshots WebP with `srcset`) (2026-09-04). API responses
+  are in-memory and answer in single-digit milliseconds once the JVM is warm. Cold
+  starts on scale-to-zero hosting are hidden by prerendering: every page arrives
+  complete from the static host even when the API is asleep.
 - **Cost.** Target $0/month for hosting; domain ≤ ~$15/year. No paid tier without
   the owner's explicit decision.
 - **Security.** Read-only public API, no authentication, no user data. HTTPS is
   provided by the host. CORS whitelist. No secrets in the repo; configuration via
   environment variables.
 - **Availability.** Best-effort; free tiers may sleep. The frontend must render full
-  content from the deploy-time snapshot when the API is cold or down, and at least
-  its shell (nav, skeletons) when even that is missing.
+  content from the prerendered HTML (or the deploy-time snapshot) when the API is
+  cold or down, and at least its shell (nav, skeletons) when even that is missing.
 - **Accessibility.** Semantic landmarks, `aria-current`, keyboard-visible focus
-  rings (2 px accent), reduced-motion respected for skeleton shimmer. Target WCAG 2.1 AA.
+  rings (2 px accent), reduced motion respected for the skeleton shimmer, the
+  live-status pulse and route transitions. Target WCAG 2.1 AA.
 - **Responsiveness.** Usable from 360 px to 1440 px wide; breakpoints at 880 / 720 / 480 px.
 - **Maintainability.** Controller → Service → Repository layering on the backend;
   standalone signal-based components on the frontend; every new endpoint gets a
@@ -103,7 +112,11 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (29 tests) + `ng build`.
+  frontend `ng test` (37 tests) + `npm run build`, which must prerender every
+  project page.
+- Every page's HTML carries its content and its own title, description and social
+  tags before any JavaScript runs, and Lighthouse stays ≥ 95 on performance with
+  100 on accessibility and SEO.
 - The site is reachable on a custom domain over HTTPS at $0/month hosting.
 - At least one project (TesseraApp) is `LIVE` with a working "Open" button; each
   further project flips to `LIVE` as it is deployed.

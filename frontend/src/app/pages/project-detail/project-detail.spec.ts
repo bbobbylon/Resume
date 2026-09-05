@@ -14,6 +14,10 @@ const tessera: Project = {
 };
 
 describe('ProjectDetail', () => {
+  // LiveStatus probes p.url after render; keep the test off the network.
+  beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => new Response())));
+  afterEach(() => vi.unstubAllGlobals());
+
   function setup(id: string) {
     const paramMap = convertToParamMap({ id });
     TestBed.configureTestingModule({

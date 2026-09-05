@@ -7,6 +7,7 @@ import { isLandingLayout, LandingLayout } from '../../models/landing-layout';
 import { Ledger } from './ledger/ledger';
 import { Gallery } from './gallery/gallery';
 import { Dossier } from './dossier/dossier';
+import { PageMeta, SITE_DESCRIPTION, SITE_TITLE } from '../../services/page-meta';
 
 /**
  * The `/` route. Picks one of the three Nocturne landing layouts and renders it
@@ -32,6 +33,10 @@ import { Dossier } from './dossier/dossier';
 })
 export class Landing {
   private readonly route = inject(ActivatedRoute);
+
+  constructor() {
+    inject(PageMeta).apply({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: '/' });
+  }
 
   private readonly queryLayout = toSignal(
     this.route.queryParamMap.pipe(map((q) => q.get('layout'))),

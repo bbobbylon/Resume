@@ -40,11 +40,8 @@
     "knowsAbout": ["Identity and access management", "OAuth 2.0", "OpenID Connect", "Spring Boot", "Angular", "Java"]
   }
   </script>
-  <!-- Inter, the Nocturne typeface. Loaded here (not via CSS @import) so the
-       request starts in parallel with the stylesheet instead of after it. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Inter is self-hosted: declared in styles.css, files in src/fonts/. No web-font
+       service, so nothing on the critical path leaves this origin. -->
 </head>
 <body>
   <app-root></app-root>

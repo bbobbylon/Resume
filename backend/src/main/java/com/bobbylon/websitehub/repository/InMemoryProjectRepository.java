@@ -16,7 +16,7 @@ import java.util.Optional;
  * layouts and the {@code /projects/:id} page pick it up with no other change.
  *
  * <p>{@code imageUrls} point at screenshots in {@code frontend/public/shots/} as
- * {@code "shots/<id>-<n>.png"} — relative to the site root, no leading slash, so they
+ * {@code "shots/<id>-<n>.webp"} — relative to the site root, no leading slash, so they
  * resolve under a {@code <base href>} sub-path too. {@code frontend/scripts/screenshots.mjs}
  * ({@code npm run shots}) captures them from each project's live URL; the first is the
  * hero (16:10, cropped to 21:9 on the detail page), the next two are the extra shots.
@@ -40,7 +40,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ProjectStatus.LIVE,
                     List.of("Angular 21", "Spring Boot 4", "Java 21", "Spring Security", "MySQL", "JWT",
                             "Docker", "Azure CI/CD"),
-                    List.of("shots/tesseraapp-1.png", "shots/tesseraapp-2.png", "shots/tesseraapp-3.png"),
+                    List.of("shots/tesseraapp-1.webp", "shots/tesseraapp-2.webp", "shots/tesseraapp-3.webp"),
                     List.of(
                             new Highlight("Hybrid zero-trust sessions",
                                     "Stateless HMAC-SHA512 JWTs backed by a stateful refresh-session store, "
@@ -100,7 +100,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     "https://github.com/bbobbylon/Resume",
                     ProjectStatus.WIP,
                     List.of("Angular 21", "Spring Boot 4.1", "Java 21", "Docker", "GitHub Actions"),
-                    List.of("shots/websitehub-1.png", "shots/websitehub-2.png", "shots/websitehub-3.png"),
+                    List.of("shots/websitehub-1.webp", "shots/websitehub-2.webp", "shots/websitehub-3.webp"),
                     List.of(
                             new Highlight("Links out, never embeds",
                                     "The hub only knows a project's name, description and URLs; every "

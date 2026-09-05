@@ -1,6 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { Project } from '../../models/project.model';
@@ -11,6 +10,8 @@ import { StatusTag } from '../../shared/status-tag/status-tag';
 import { ProjectImage } from '../../shared/project-image/project-image';
 import { ArrowUpRight } from '../../shared/icons/arrow-up-right';
 import { DomainPipe } from '../../shared/pipes/domain.pipe';
+import { LiveStatus } from '../../shared/live-status/live-status';
+import { PageMeta } from '../../services/page-meta';
 
 /** What the detail route is showing: still loading, a project, or nothing found. */
 type DetailState = { kind: 'loading' } | { kind: 'found'; project: Project } | { kind: 'missing'; id: string };
@@ -21,17 +22,19 @@ type DetailState = { kind: 'loading' } | { kind: 'found'; project: Project } | {
  * another detail page without the component being recreated. The project comes
  * from the shared list in {@link ProjectService}; an unknown id errors and lands
  * in the `missing` state, which renders a not-found block instead of a blank page.
+ * The "Live at" row carries a {@link LiveStatus} dot that probes the project's URL
+ * from the visitor's browser, so the page says whether the deployment answers now.
  */
 @Component({
   selector: 'app-project-detail',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus],
   templateUrl: './project-detail.html',
   styleUrl: './project-detail.css',
 })
 export class ProjectDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly projectService = inject(ProjectService);
-  private readonly title = inject(Title);
+  private readonly pageMeta = inject(PageMeta);
 
   protected readonly state = toSignal(
     this.route.paramMap.pipe(
@@ -39,8 +42,9 @@ export class ProjectDetail {
       switchMap((id) =>
         this.projectService.getById(id).pipe(
           map((project): DetailState => ({ kind: 'found', project })),
-          tap((s) => s.kind === 'found' && this.title.setTitle(`${s.project.name} — Robert Oliver, Jr.`)),
+          tap((s) => s.kind === 'found' && this.describe(s.project)),
           catchError(() => of<DetailState>({ kind: 'missing', id })),
+          tap((s) => s.kind === 'missing' && this.pageMeta.apply({ title: 'Project not found — Robert Oliver, Jr.', description: `There is no project "${id}".`, path: `/projects/${id}/` })),
         ),
       ),
     ),
@@ -60,6 +64,18 @@ export class ProjectDetail {
     const i = list.findIndex((p) => p.id === current.id);
     return list[(i + 1) % list.length];
   });
+
+  /** Title + social tags for a found project; its social image follows the shots naming convention. */
+  private describe(project: Project): void {
+    this.pageMeta.apply({
+      title: `${project.name} — Robert Oliver, Jr.`,
+      description: `${project.tagline.replace(/\.$/, '')}. ${project.description}`,
+      path: `/projects/${project.id}/`,
+      image: project.imageUrls.length
+        ? { url: `shots/${project.id}-social.jpg`, width: 1200, height: 630, alt: `${project.name} screenshot` }
+        : undefined,
+    });
+  }
 
   protected index(i: number): string {
     return String(i + 1).padStart(2, '0');

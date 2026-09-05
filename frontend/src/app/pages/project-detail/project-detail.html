@@ -24,14 +24,14 @@
             </div>
             <dl class="meta">
               <dt>Live at</dt>
-              <dd>@if (p.url; as url) { <a [href]="url" target="_blank" rel="noopener">{{ url | domain }}</a> } @else { <span class="muted-55">Not deployed yet</span> }</dd>
+              <dd>@if (p.url; as url) { <a [href]="url" target="_blank" rel="noopener">{{ url | domain }}</a> <app-live-status [url]="url" /> } @else { <span class="muted-55">Not deployed yet</span> }</dd>
               @if (p.hosting) { <dt>Hosting</dt><dd>{{ p.hosting }}</dd> }
               @if (p.delivery) { <dt>Delivery</dt><dd>{{ p.delivery }}</dd> }
             </dl>
           </div>
         </header>
 
-        <app-project-image [src]="p.imageUrls[0]" [name]="p.name" ratio="21:9" [alt]="p.name + ' screenshot'" />
+        <app-project-image [src]="p.imageUrls[0]" [name]="p.name" ratio="21:9" [alt]="p.name + ' screenshot'" sizes="(max-width: 1168px) 100vw, 1120px" [priority]="true" />
 
         <section class="body">
           <div class="body-main">
@@ -47,7 +47,7 @@
             @if (p.imageUrls.length > 1) {
               <div class="shots">
                 @for (shot of p.imageUrls.slice(1, 3); track shot) {
-                  <app-project-image [src]="shot" [name]="p.name" [alt]="p.name + ' screenshot'" />
+                  <app-project-image [src]="shot" [name]="p.name" [alt]="p.name + ' screenshot'" sizes="(max-width: 880px) 100vw, 760px" />
                 }
               </div>
             }

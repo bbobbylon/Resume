@@ -3,6 +3,10 @@ name: CI
 # Builds and tests both halves of WebsiteHub on every push and PR to main, and
 # on demand (workflow_dispatch). Free for public repos. Deployment is a separate
 # workflow (deploy-pages.yml) — CI never deploys anything.
+#
+# The frontend job starts the backend first, because `ng build` prerenders every
+# route against it: a build that silently produced skeleton pages would still
+# "pass" otherwise. It is the same composite action the deploy uses.
 on:
   push:
     branches: [main]
@@ -30,6 +34,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -41,6 +50,12 @@ jobs:
       - name: Run unit tests
         working-directory: frontend
         run: npm test -- --watch=false
-      - name: Build frontend
+      - name: Start the backend (build-time data source)
+        uses: ./.github/actions/start-backend
+      - name: Build frontend (prerenders every route)
         working-directory: frontend
-        run: npm run build
+        run: |
+          npm run build
+          node -e "const r = Object.keys(require('./dist/frontend/prerendered-routes.json').routes);
+                   console.log('prerendered:', r.join(' '));
+                   if (!r.some((p) => p.startsWith('/projects/'))) { console.error('no project pages were prerendered'); process.exit(1); }"

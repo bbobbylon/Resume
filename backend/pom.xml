@@ -71,6 +71,15 @@
 
     <build>
         <plugins>
+            <!-- Mockito attaches Byte Buddy as a dynamic agent; JDK 21 prints a warning per
+                 test run unless that is allowed explicitly. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                </configuration>
+            </plugin>
             <!-- Packages the app as an executable "fat" jar; the Dockerfile runs this jar directly. -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

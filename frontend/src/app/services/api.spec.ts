@@ -1,3 +1,4 @@
+import { makeStateKey, PLATFORM_ID, TransferState } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -60,11 +61,48 @@ describe('Api', () => {
     expect(console.warn).toHaveBeenCalledOnce();
   });
 
+  it('starts from prerendered TransferState data instead of fetching the snapshot', () => {
+    TestBed.inject(TransferState).set(makeStateKey<string[]>('api:profile'), ['prerendered']);
+    const r = collect<string[]>('profile');
+    expect(r.values).toEqual([['prerendered']]);
+    http.expectNone('data/profile.json');
+    http.expectOne(`${environment.apiBaseUrl}/api/profile`).flush(['live']);
+    expect(r.values).toEqual([['prerendered'], ['live']]);
+  });
+
   it('completes without a value when both fail', () => {
     const r = collect('resume');
     http.expectOne('data/resume.json').flush('', { status: 404, statusText: 'Not Found' });
     http.expectOne(`${environment.apiBaseUrl}/api/resume`).flush('', { status: 500, statusText: 'Error' });
     expect(r.values).toEqual([]);
     expect(r.done()).toBe(true);
+  });
+
+  describe('at build time (server platform)', () => {
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [provideHttpClient(), provideHttpClientTesting(), { provide: PLATFORM_ID, useValue: 'server' }],
+      });
+      api = TestBed.inject(Api);
+      http = TestBed.inject(HttpTestingController);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    it('reads the local backend and hands the data to the browser via TransferState', () => {
+      const r = collect<string[]>('projects');
+      http.expectNone('data/projects.json');
+      http.expectOne(`${environment.prerenderApiBaseUrl}/api/projects`).flush(['built']);
+      expect(r.values).toEqual([['built']]);
+      expect(TestBed.inject(TransferState).get(makeStateKey<string[] | null>('api:projects'), null)).toEqual(['built']);
+    });
+
+    it('prerenders without data when the backend is not running', () => {
+      const r = collect('resume');
+      http.expectOne(`${environment.prerenderApiBaseUrl}/api/resume`).flush('', { status: 0, statusText: 'Refused' });
+      expect(r.values).toEqual([]);
+      expect(r.done()).toBe(true);
+      expect(console.warn).toHaveBeenCalledOnce();
+    });
   });
 });

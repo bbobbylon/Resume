@@ -15,7 +15,12 @@ app:
   allowed-origin: ${ALLOWED_ORIGIN:http://localhost:4222}
 
 springdoc:
+  # Both stated explicitly — springdoc warns at startup otherwise. The description
+  # and the UI are public on purpose: the API is read-only and has no secrets.
+  api-docs:
+    enabled: true
   swagger-ui:
+    enabled: true
     # Interactive docs at /docs (the JSON description stays at /v3/api-docs).
     path: /docs
     operations-sorter: alpha

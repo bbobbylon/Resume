@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-09-04 |
 | **Related** | [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) |
 
@@ -10,7 +10,7 @@
 
 ```
  Browser ──HTTPS──▶ GitHub Pages (static host)
-    │                 └─ Angular SPA + resume.pdf, shots/, data/*.json (API snapshot taken at deploy time)
+    │                 └─ prerendered HTML per route + Angular bundle, fonts, resume.pdf, shots/, data/*.json (API snapshot taken at deploy time)
     │
     └──HTTPS/JSON──▶ Spring Boot API (Render free web service, Docker image; Cloud Run is the alternative)
                         ├─ GET /api/profile        ProfileController → ProfileService → ProfileRepository
@@ -23,15 +23,30 @@
  WebsiteHub never proxies or embeds another project.
 ```
 
-**Data flow.** The SPA boots, the routed page injects the data services, each service
-asks `Api` for one resource and exposes the result as a signal (`toSignal`). `Api`
-GETs the live endpoint and the same-named file under `data/` (the snapshot the Pages
-workflow captured from the backend at deploy time) together, emits whichever answers
-first and lets the live response replace the snapshot, so the site renders fully in
-milliseconds while a free-tier API wakes up.
+**Data flow.** The routed page injects the data services, each service asks `Api`
+for one resource and exposes the result as a signal (`toSignal`). What `Api` does
+depends on where it runs (see *Rendering* below): at build time it GETs the local
+backend and stores the answer in `TransferState`; in the browser it emits the
+transferred data at once — or, when the page was not prerendered, the same-named
+file under `data/` (the snapshot the Pages workflow captured at deploy time) — and
+requests the live endpoint in parallel, letting the live response replace the
+build-time data. The site therefore renders fully from the first byte while a
+free-tier API wakes up.
 Templates render skeletons until the signal is defined. `ProjectService` fetches the
 list once (`shareReplay`) and serves both the landing layouts and the detail route,
 which looks its `:id` up in that list on every param change (`switchMap`).
+
+**Rendering.** `ng build` runs the app once in Node (`main.server.ts`,
+`app.config.server.ts`, `outputMode: static`) and writes finished HTML for `/`,
+`/resume` and every `/projects/<id>` the backend lists (`app.routes.server.ts` —
+`getPrerenderParams` asks `/api/projects`; an id that appears later falls back to
+client rendering). In the browser `provideClientHydration(withEventReplay())` adopts
+that HTML instead of re-creating it. `index.csr.html` — the empty client shell —
+becomes the Pages `404.html`, so unknown deep links still boot the app and land on
+the not-found page. `ng serve` renders the same way on the fly, so dev matches
+production. Per-page `<title>`, description and Open Graph tags are set by
+`PageMeta` during that render, which is why each project page has its own social
+preview.
 
 **Hub-with-links-out** was chosen over a monorepo that hosts everything (couples
 release cycles) and over embedding project UIs (iframes / micro-frontends — needless
@@ -41,12 +56,12 @@ complexity for a links page).
 
 | Layer | Choice | Notes |
 |-------|--------|-------|
-| Frontend | Angular 21 (standalone components, signals, zoneless), TypeScript 5.9, RxJS 7.8 | Vitest + jsdom for unit tests; `@angular/build:application` builder |
-| Styling | Plain CSS; Nocturne design-system token sheet copied into `src/styles.css` | No CSS framework by design |
+| Frontend | Angular 21 (standalone components, signals, zoneless), TypeScript 5.9, RxJS 7.8 | Vitest + jsdom for unit tests; `@angular/build:application` builder with `@angular/ssr` static prerendering + hydration |
+| Styling | Plain CSS; Nocturne design-system token sheet copied into `src/styles.css`; Inter self-hosted from `src/fonts/` | No CSS framework, no third-party requests |
 | Backend | Spring Boot 4.1.1, Java 21, Maven 3.9 | `spring-boot-starter-webmvc` + `-tomcat` + `-actuator`; slice tests via `spring-boot-starter-webmvc-test` |
 | Data | In-memory Java records behind repository interfaces | No database yet — see §5 |
 | Packaging | Multi-stage Docker image (`backend/Dockerfile`), Boot fat jar | `PORT` env var honoured for Cloud Run / Render |
-| CI/CD | GitHub Actions (`ci.yml`, `deploy-pages.yml`), Render Blueprint (`render.yaml`) | Free for public repos |
+| CI/CD | GitHub Actions (`ci.yml`, `deploy-pages.yml`, composite `actions/start-backend`), Render Blueprint (`render.yaml`) | Free for public repos; both workflows run the backend so builds prerender real data |
 
 ## 3. Directory Structure
 
@@ -67,26 +82,28 @@ Resume/
 │   └── src/test/java/…                     @WebMvcTest slices + repository unit tests (13 tests)
 ├── frontend/
 │   ├── angular.json · package.json · tsconfig*.json
-│   ├── public/                             favicon.ico, resume.pdf, og.png, robots.txt, sitemap.xml, shots/, data/ (generated, git-ignored)
-│   ├── scripts/                            chrome.mjs (shared), resume-pdf.mjs, screenshots.mjs, snapshot.mjs
+│   ├── public/                             favicon.ico, resume.pdf, og.png, robots.txt, shots/ (WebP + social JPEG), data/ (generated, git-ignored)
+│   ├── scripts/                            chrome.mjs (shared), resume-pdf.mjs, screenshots.mjs, snapshot.mjs, sitemap.mjs (postbuild: prerendered routes → sitemap.xml)
 │   └── src/
-│       ├── index.html · main.ts · styles.css (Nocturne tokens + page primitives + print)
-│       ├── environments/                   apiBaseUrl, apiTimeoutMs, landingLayout (prod vs development)
+│       ├── index.html · main.ts · main.server.ts · styles.css (Nocturne tokens, @font-face, page primitives, print)
+│       ├── fonts/                          Inter variable woff2 (latin, latin-ext) + OFL licence
+│       ├── environments/                   apiBaseUrl, apiTimeoutMs, prerenderApiBaseUrl, siteUrl, landingLayout
 │       └── app/
-│           ├── app.ts · app.config.ts · app.routes.ts
+│           ├── app.ts · app.config.ts · app.routes.ts · app.config.server.ts · app.routes.server.ts
 │           ├── models/                     project, profile, resume, landing-layout
-│           ├── services/                   Api (snapshot ∥ live, first wins, live replaces), ProfileService, ProjectService, ResumeService
-│           ├── shared/                     nav, footer, status-tag, project-image, icons, pipes
+│           ├── services/                   Api (build-time data ∥ live, live replaces), ProfileService, ProjectService, ResumeService, PageMeta
+│           ├── shared/                     nav, footer, status-tag, project-image (srcset), live-status, icons, pipes
 │           └── pages/
 │               ├── landing/                Landing (@switch) + ledger/ gallery/ dossier/
 │               ├── resume/                 ResumePage
 │               ├── project-detail/         ProjectDetail
 │               └── not-found/              NotFound (catch-all route)
-├── docs/                                   SRS, ARCHITECTURE, UI-DESIGN, DEPLOYMENT,
+├── docs/                                   SRS, ARCHITECTURE, UI-DESIGN, DEPLOYMENT, BACKLOG,
 │   ├── design-handoff.md                   the original Nocturne handoff spec
 │   └── design/                             .dc.html mocks + _ds/ token sheet (references only)
-├── .github/workflows/ci.yml                build + test both halves, build Docker image
-├── .github/workflows/deploy-pages.yml      snapshot the API, build, publish frontend to GitHub Pages
+├── .github/actions/start-backend/          composite: build the jar, run it, wait for /actuator/health
+├── .github/workflows/ci.yml                build + test both halves (the frontend build prerenders against the backend), Docker image
+├── .github/workflows/deploy-pages.yml      run backend → snapshot → prerender build → stamp site URL → publish to GitHub Pages
 ├── .github/dependabot.yml                  weekly npm / Maven / Docker / Actions updates
 ├── render.yaml · docker-compose.yml · run.sh
 └── README.md
@@ -109,6 +126,14 @@ Resume/
   `ArrowUpRight` and `DomainPipe`.
 - **Skeleton states.** Every data-bound block has an `@else` branch rendering
   `.skeleton` spans of the same footprint, so layout does not shift when data lands.
+- **Render where the data is.** `Api` branches on `PLATFORM_ID`: during the build it
+  fetches the local backend and stores the answer in `TransferState`; in the browser
+  it reads that back (or the `data/` snapshot) and refreshes from the live API.
+  Nothing else in the app knows whether it is prerendering.
+- **Browser-side reachability.** `LiveStatus` probes a project's URL with a `no-cors`
+  fetch from the visitor's browser after hydration: an opaque response means the host
+  answered, a rejection or the 6 s timeout means it did not. No backend polling, and
+  nothing baked into the prerendered HTML that could go stale.
 - **Design tokens in one file.** All colours, spacing, radii and shadows are CSS
   custom properties in `styles.css`; component CSS only consumes them.
 
@@ -170,9 +195,9 @@ Traffic is tiny (a portfolio). The API is stateless and in-memory, so it scales
 horizontally trivially and, more relevantly, scales **to zero** on Cloud Run/Render
 free tiers. The frontend is static and CDN-served. The only real "bottleneck" is
 cold start latency on scale-to-zero hosts (seconds on Cloud Run, ~a minute on Render
-free). The deploy-time snapshot in `Api` absorbs it: the full site renders from
-`data/*.json` as soon as it arrives, and the live response replaces it if it comes
-within `apiTimeoutMs`. API responses are gzipped and cacheable (weak ETag + 304,
+free). Prerendered HTML absorbs it (with the deploy-time snapshot behind it for a page
+that was not prerendered): the full site renders from the static host, and the live
+response replaces it if it comes within `apiTimeoutMs`. API responses are gzipped and cacheable (weak ETag + 304,
 `Cache-Control: max-age=300`), which keeps a metered free host's bandwidth low.
 
 ## 8. Security Considerations
@@ -185,5 +210,9 @@ within `apiTimeoutMs`. API responses are gzipped and cacheable (weak ETag + 304,
 - Docker image runs a JRE (no build tools) and reads `PORT` from the environment;
   no secrets are needed, so none are stored.
 - External links use `rel="noopener"`; no user-supplied HTML is rendered.
+- Fonts are self-hosted and screenshots are local files, so a visit makes no
+  third-party request. The only cross-origin calls are to the API and the
+  `LiveStatus` probe: a credential-less `no-cors` GET of each project's public URL
+  from its detail page, which learns nothing but whether the host answered.
 - Dependencies are pinned by `package-lock.json` / Maven; CI builds from scratch on
   every push so drift is caught early.

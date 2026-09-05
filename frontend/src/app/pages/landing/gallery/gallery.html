@@ -29,7 +29,7 @@
       @if (featured(); as lead) {
         <article class="card elev-sm featured">
           <a class="shot" [routerLink]="['/projects', lead.id]" tabindex="-1" aria-hidden="true">
-            <app-project-image [src]="lead.imageUrls[0]" [name]="lead.name" [alt]="lead.name + ' screenshot'" />
+            <app-project-image [src]="lead.imageUrls[0]" [name]="lead.name" [alt]="lead.name + ' screenshot'" sizes="(max-width: 880px) 100vw, 640px" [priority]="true" />
           </a>
           <div class="featured-copy">
             <div class="tag-row">

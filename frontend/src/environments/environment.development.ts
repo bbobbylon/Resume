@@ -11,5 +11,17 @@ export const environment = {
   apiBaseUrl: 'http://localhost:8420',
   /** Upper bound for the live API request; the snapshot renders regardless (see services/api.ts). */
   apiTimeoutMs: 4000,
+  /**
+   * Where the prerender step (`ng build`, server bundle) reads its data: the backend
+   * that run.sh / the Pages workflow start on this machine, never the public API.
+   * See services/api.ts.
+   */
+  prerenderApiBaseUrl: 'http://localhost:8420',
+  /**
+   * Public origin of the site, used for absolute URLs in social-preview tags
+   * (services/page-meta.ts). A placeholder, like the one in index.html: the Pages
+   * workflow stamps the real origin into the built HTML and JS at deploy time.
+   */
+  siteUrl: 'https://bobbylon.dev',
   landingLayout: 'ledger' as LandingLayout,
 };

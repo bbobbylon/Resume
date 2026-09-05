@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-09-04 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
 | **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) |
@@ -27,7 +27,9 @@ the ground), no pure black or white, headings never bolder than 500.
 | Accent ramp 100–900 | `#f5f4ff … #2b2741` | 800/100 = accent tag fill/text; 900 feeds the page bloom |
 | `--color-section` / `-glow` | `#262a60` / `#353b80` | the Gallery stat band — the one saturated surface allowed |
 
-**Typography.** Inter (Google Fonts, 400/500/600/700; `<link>` in `index.html`).
+**Typography.** Inter, self-hosted: one variable woff2 (weights 100–900,
+`font-display: swap`) per unicode-range subset — latin (48 kB) and latin-ext — under
+`src/fonts/`, declared with `@font-face` at the top of `styles.css`; no font CDN.
 Body 15 px / 1.55. Headings weight 500, line-height 1.1–1.15, letter-spacing −0.015 em,
 display sizes optically outdented with `margin-left: −0.06em`. Sizes in use:
 72 (Ledger H1), 60 (detail H1), 52 (Gallery H1), 44 (stats), 36 (aside H1),
@@ -44,11 +46,15 @@ neutral-800 hairline (`.elev-sm`), `--shadow-md` adds ambient darkness.
 
 **Icons / imagery.** Phosphor `arrow-up-right` (regular) as inline SVG on
 `currentColor`, 12–14 px inside buttons (`ArrowUpRight` component). Screenshots at
-16:10 (cards, rows) and 21:9 (detail hero), radius 8, `.lighten`. Captures are
-1600×1000 PNGs in `public/shots/<id>-<n>.png` made by `npm run shots`
-(`scripts/screenshots.mjs`); one image serves both ratios because the hero crops it
-from the top (`object-position: top`). A project with no captures gets a
-surface-coloured box with its initial in neutral-600 from `ProjectImage`.
+16:10 (cards, rows) and 21:9 (detail hero), radius 8, `.lighten`. Captures are WebP
+in `public/shots/`: `<id>-<n>.webp` (1600×1000) plus `<id>-<n>-800.webp` for the
+`srcset`, and `<id>-social.jpg` (1200×630, top crop) as the page's social preview,
+all written by `npm run shots` (`scripts/screenshots.mjs`, sharp). `ProjectImage`
+emits `srcset`/`sizes`, so a 320 px card slot on a 1× screen downloads the 800 px
+file (≈ 12 kB) while heroes and retina screens get the 1600 px one; the first image
+on a page is eager with `fetchpriority="high"`, the rest lazy. One capture serves
+both ratios because the hero crops it from the top (`object-position: top`). A
+project with no captures gets a surface-coloured box with its initial in neutral-600.
 
 ## 2. Component Library
 
@@ -69,14 +75,17 @@ Angular components (`frontend/src/app/shared/`):
 | `Nav` | `app-nav` | brand → `/`, Projects → `/#projects` (current on `/` and `/projects/*`), Resume (`routerLinkActive`), Contact (mailto), primary "Download PDF". Links hide < 480 px. |
 | `Footer` | `app-footer` | © left, Email / LinkedIn / GitHub right; `compact` input for the one-line Ledger footer. |
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
-| `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial. |
+| `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
+| `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
 | `ArrowUpRight` | `app-arrow-up-right` | Phosphor icon, `size` input. |
 | `DomainPipe` | `| domain` | `https://tesseraapp.dev/` → `tesseraapp.dev`; `domain:true` keeps the path. |
 
 ## 3. Layout Patterns
 
-**Routes.** `/` (landing), `/resume`, `/projects/:id`, `**` → `/`. Anchor scrolling
-and scroll restoration are enabled so `/#projects` and Back behave.
+**Routes.** `/` (landing), `/resume`, `/projects/:id`, `**` (not found). All are
+prerendered at build time and hydrated. Anchor scrolling and scroll restoration are
+enabled so `/#projects` and Back behave; route changes cross-fade for 160 ms through
+the View Transitions API where the browser supports it (skipped under reduced motion).
 
 **Landing variants** (`?layout=` or `environment.landingLayout`, default `ledger`):
 
@@ -104,14 +113,15 @@ summary, Experience grid `130px | 1fr`, Projects list with ghost domain link and
 
 **Project detail.** "← All projects", header `7fr | 5fr` (tags incl. the route as a
 neutral tag, 60 px H1, 17/28 lede ≤ 52ch; actions + `auto | 1fr` meta grid for Live
-at / Hosting / Delivery), 21:9 hero, body `1fr | 320px` (numbered highlights with a
+at — domain link plus the live-status dot — / Hosting / Delivery), 21:9 hero, body `1fr | 320px` (numbered highlights with a
 48 px accent index column, two 16:10 screenshots; stack chips and a "Next project"
 card), space-between footer.
 
 **Not found.** Nav, a `.missing` block (kicker "404", H1 "Page not found", the
 requested path in `<code>`, primary button home + ghost button to the resume),
-Footer. It is the `**` route and, on GitHub Pages, also the `404.html` the host
-serves for deep links, so the app boots and routes them itself.
+Footer. It is the `**` route; on GitHub Pages the client shell `index.csr.html` is
+the `404.html` the host serves for unknown deep links, so the app boots and routes
+them here.
 
 **Responsive breakpoints.**
 
@@ -146,7 +156,10 @@ margins. This is what `npm run resume:pdf` captures.
 - Keyboard: every action is a real `<a>`/`<button>`; `:focus-visible` shows a 2 px
   accent ring (from the sheet). Duplicate image links are `tabindex="-1"` +
   `aria-hidden` so tab order isn't doubled.
-- Motion: skeleton shimmer disabled under `prefers-reduced-motion`.
+- Motion: the skeleton shimmer, the live-status pulse and the route cross-fade are
+  all disabled under `prefers-reduced-motion`.
+- Live status is a `role="status"` element with an `aria-label` ("Live site Up now"),
+  so the dot's colour is never the only signal.
 - Images: real screenshots get descriptive `alt`; placeholders expose the project
   name via `role="img"` + `aria-label`.
 
@@ -166,7 +179,7 @@ margins. This is what `npm run resume:pdf` captures.
   `background-clip: content-box`, and the bar count mirrors the seed profile at the
   Lighthouse viewports — Ledger 3 heading + 4 summary lines (7 on phones), Gallery
   2 name lines above 880 px, 3 role lines, 5 summary lines (7 on phones), plus a
-  `.sk-btn` row. Measured pixel-equal at 1350 px and 412 px on 2026-09-04 (CLS 0.02).
+  `.sk-btn` row. Measured pixel-equal at 1350 px and 412 px on 2026-09-04 (CLS 0.01).
 
 ## 7. Mockups & References
 
@@ -177,4 +190,5 @@ margins. This is what `npm run resume:pdf` captures.
   all five pages; no visual regressions against the mocks. Real captures for
   TesseraApp and WebsiteHub were then wired in and checked in the `.lighten`
   treatment at 16:10 (rows, cards, extra shots) and 21:9 (detail hero).
-- `public/og.png` (1200×630) is the landing hero, used for social previews.
+- `public/og.png` (1200×630) is the landing hero, used for social previews of `/` and
+  `/resume`; each project page previews with its own `shots/<id>-social.jpg`.

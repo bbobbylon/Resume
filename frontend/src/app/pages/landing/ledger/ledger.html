@@ -45,7 +45,7 @@
             </div>
           </div>
           <a class="shot" [routerLink]="['/projects', project.id]" tabindex="-1" aria-hidden="true">
-            <app-project-image [src]="project.imageUrls[0]" [name]="project.name" [alt]="project.name + ' screenshot'" />
+            <app-project-image [src]="project.imageUrls[0]" [name]="project.name" [alt]="project.name + ' screenshot'" [priority]="i === 0" />
           </a>
         </article>
         @if (!last) { <hr class="rule-row"> }

@@ -14,7 +14,7 @@
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
 .meta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 20px; color: var(--color-neutral-500); margin: 0; }
 .meta dt, .meta dd { margin: 0; }
-.meta dd { color: var(--color-text); }
+.meta dd { color: var(--color-text); display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
 .meta a { text-decoration: none; }
 .meta a:hover { text-decoration: underline; }
 

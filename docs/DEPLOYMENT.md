@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.0 |
+| **Version** | 0.3.0 |
 | **Date** | 2026-09-04 (provider limits verified against vendor docs on this date — re-check before relying on them) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) |
 
@@ -48,7 +48,7 @@ workspace, which is exactly what this repo deploys.
 
 | Setting | Where | Local | Production |
 |---------|-------|-------|------------|
-| API base URL | `frontend/src/environments/environment*.ts` → `apiBaseUrl` | `http://localhost:8420` | `https://websitehub-backend.onrender.com`, the URL Render derives from the service name in `render.yaml`. If Render had to add a suffix, set repo variable `API_BASE_URL` instead of editing the file — the Pages workflow substitutes it |
+| API base URL | `frontend/src/environments/environment*.ts` → `apiBaseUrl` | `http://localhost:8420` | `https://bobs-resume.onrender.com`, the live service (Render derives the URL from the service name, `bobs-resume` in `render.yaml`). If the service is ever recreated under another name, set repo variable `API_BASE_URL` instead of editing the file — the Pages workflow substitutes it |
 | Live API timeout | same files → `apiTimeoutMs` (the snapshot stays on screen if the API takes longer) | 4000 | 4000 |
 | Landing layout | same files → `landingLayout` | `ledger` | owner's choice; `?layout=` still overrides |
 | Allowed CORS origins | env var `ALLOWED_ORIGIN` (comma-separated), set in `render.yaml` | `http://localhost:4222` | `https://bbobbylon.github.io`; append `,https://bobbylon.dev` when the domain exists |
@@ -56,7 +56,7 @@ workspace, which is exactly what this repo deploys.
 | JVM flags | env var `JAVA_TOOL_OPTIONS`, set in `render.yaml` | — | C1-only JIT, SerialGC, 70 % of the 512 MB for heap |
 | Pages base href | repo variable `PAGES_BASE_HREF` | — | `/` with a custom domain, `/Resume/` (default) on `bbobbylon.github.io/Resume` |
 | Pages custom domain | repo variable `PAGES_CNAME` | — | e.g. `bobbylon.dev` |
-| Site URL in SEO files | placeholder `https://bobbylon.dev` in `index.html` (Open Graph), `robots.txt`, `sitemap.xml` | left as-is | stamped by the Pages workflow: `https://<PAGES_CNAME>`, else `https://bbobbylon.github.io/Resume` |
+| Site URL in SEO files | placeholder `https://bobbylon.dev` (`environment.siteUrl`, `index.html`, `robots.txt`, the generated `sitemap.xml`) | left as-is | stamped by the Pages workflow into every `*.html`, `*.js`, `robots.txt` and `sitemap.xml`: `https://<PAGES_CNAME>`, else `https://bbobbylon.github.io/Resume` |
 | API data snapshot | `frontend/public/data/*.json` (git-ignored) | `npm run snapshot` with the backend running | captured by the Pages workflow on every deploy |
 
 No secrets exist. If any are added, use GitHub Actions secrets / Render environment
@@ -88,23 +88,26 @@ ready for all of them.
    Pages" → Run workflow. The site comes up at `https://bbobbylon.github.io/Resume/`,
    rendering from the snapshot until the API exists.
 
-3. **Create the API on Render.** render.com → sign in with GitHub → New →
-   **Blueprint** → select `bbobbylon/Resume` → Apply. Render builds
-   `backend/Dockerfile` and starts `websitehub-backend` on the free plan with
-   `ALLOWED_ORIGIN` and the JVM flags already set from `render.yaml`. The first
-   build takes a few minutes. Note the service URL on its page.
+3. **Create the API on Render.** ✅ Done 2026-09-04, by hand: New → Web Service →
+   `bbobbylon/Resume`, name `bobs-resume`, runtime Docker, root directory `backend`,
+   Free instance, env vars `ALLOWED_ORIGIN=https://bbobbylon.github.io` and the
+   `JAVA_TOOL_OPTIONS` from `render.yaml`, health check `/actuator/health`,
+   auto-deploy on commit. Live at `https://bobs-resume.onrender.com` (verified:
+   `/actuator/health` 200, `/api/projects` answers with CORS for the Pages origin).
+   `render.yaml` mirrors these settings for a rebuild in a fresh workspace. The
+   Render deploy hook and outbound IPs are not used by anything — keep the hook
+   private.
 
-4. **Connect the two.** If the URL is exactly `https://websitehub-backend.onrender.com`
-   there is nothing to do — it is already built into the app. Otherwise: repo →
-   Settings → Secrets and variables → Actions → Variables → New repository variable
-   `API_BASE_URL` = that URL, then re-run the Pages workflow.
+4. **Connect the two.** ✅ Nothing to set: `apiBaseUrl` in `environment.ts` is the
+   live URL, so the next push builds the frontend against it. The repo variable
+   `API_BASE_URL` is only for a service recreated under another name.
 
 5. **Smoke test** on the live site: `/`, `/resume`, `/projects/tesseraapp`,
    `/projects/nope` (not-found state), `/any/typo` (not-found page), the Download
-   PDF button, `https://websitehub-backend.onrender.com/docs` (Swagger UI), and
+   PDF button, `https://bobs-resume.onrender.com/docs` (Swagger UI), and
 
    ```bash
-   curl https://websitehub-backend.onrender.com/actuator/health    # first call may take ~1 min
+   curl https://bobs-resume.onrender.com/actuator/health    # first call may take ~1 min
    ```
 
    In the browser dev tools, a fresh visit after the API slept should show
@@ -118,17 +121,24 @@ ready for all of them.
 
 `.github/workflows/ci.yml` runs on push/PR to `main` and on demand:
 backend `mvn -B verify` (13 tests) + Docker image build; frontend `npm ci`,
-`npm test -- --watch=false` (29 tests), `npm run build`. CI never deploys.
+`npm test -- --watch=false` (37 tests), then the backend is started (composite
+action `.github/actions/start-backend`: build the jar, run it, wait for
+`/actuator/health`) and `npm run build` prerenders every route against it — the
+job fails if no `/projects/<id>` page came out. CI never deploys.
 
 ## 5. Frontend on GitHub Pages (what the deploy workflow does)
 
 `.github/workflows/deploy-pages.yml` runs on every push to `main` that touches
 `frontend/**` or `backend/src/main/**` (seed-data edits change the snapshot), and on
-demand. Steps: enable Pages if needed → build the backend jar and run it just long
-enough for `npm run snapshot` → substitute `API_BASE_URL` into `environment.ts` if
-the variable is set → `ng build --base-href` → stamp the site URL into the Open
-Graph tags, `robots.txt` and `sitemap.xml` → copy `index.html` to `404.html` (so deep
-links such as `/projects/tesseraapp` boot the SPA) → write `CNAME` → deploy.
+demand. Steps: enable Pages if needed → start the backend (the same composite action
+CI uses) → `npm run snapshot` → substitute `API_BASE_URL` into `environment.ts` if
+the variable is set → `npm run build -- --base-href …`, which prerenders every route
+against the local backend and writes `sitemap.xml` (fails if no project page was
+prerendered) → stop the backend → stamp the site URL into every `*.html`, `*.js`,
+`robots.txt` and `sitemap.xml` (replacing the `https://bobbylon.dev` placeholder) →
+copy the client shell `index.csr.html` to `404.html` (known deep links such as
+`/projects/tesseraapp` are real files; unknown ones boot the SPA and reach the
+not-found page) → write `CNAME` → deploy.
 
 Without a custom domain the site lives at `https://bbobbylon.github.io/Resume/`
 (base href `/Resume/`, the workflow default).
@@ -205,10 +215,13 @@ Check: `http://localhost:4222/?layout=ledger|gallery|dossier`, `/resume`,
 `/projects/tesseraapp`, `/projects/nope` (not-found state), and
 `curl localhost:8420/actuator/health`.
 
-To see the production fallback path locally: `npm run snapshot` (backend running),
-`npm run build`, serve `dist/frontend/browser` with any static server — the build
-points at the Render URL, which fails or times out, and the pages fill from
-`data/*.json` immediately. Verified this way on 2026-09-04.
+To see the production path locally: with the backend running, `npm run snapshot` and
+`npm run build` (the build prerenders against `prerenderApiBaseUrl`, the local
+backend), then serve `dist/frontend/browser` with a gzip-capable static server
+(`npx serve -l 4334 dist/frontend/browser`) — the build points at the Render URL,
+which fails or times out, and every page is already complete from its prerendered
+HTML (`data/*.json` covers a page that was not prerendered). Verified this way on
+2026-09-04: Lighthouse mobile 99 / 100 / 96 / 100, 200 kB transferred.
 
 ## 10. Regenerating the resume PDF, screenshots and snapshot
 
@@ -221,8 +234,10 @@ cd frontend && npm run resume:pdf        # needs Chrome; override with CHROME=/p
 
 Commit the new PDF alongside the content change that motivated it.
 
-Project screenshots (`frontend/public/shots/<id>-<n>.png`, 1600×1000) and the social
-preview (`public/og.png`, 1200×630) come from the same setup:
+Project screenshots — `frontend/public/shots/<id>-<n>.webp` (1600×1000), the
+`-800.webp` variant for `srcset`, and `<id>-social.jpg` (1200×630) for the page's
+social preview — and the landing preview (`public/og.png`, 1200×630) come from the
+same setup (sharp encodes the WebP/JPEG):
 
 ```bash
 cd frontend && npm run shots                     # every project with a live URL, + og.png
@@ -237,13 +252,18 @@ in `scripts/screenshots.mjs`; new files are referenced from `imageUrls` in
 The API snapshot (`public/data/*.json`) is `npm run snapshot` with the backend
 running. It is git-ignored: the Pages workflow regenerates it on every deploy.
 
+The sitemap is not a file to edit: `npm run build` writes
+`dist/frontend/browser/sitemap.xml` from the routes it prerendered
+(`scripts/sitemap.mjs`, the `postbuild` hook), so a new project is listed as soon as
+the API returns it.
+
 ## 11. Release checklist
 
 - [ ] `mvn -B verify` and `npm test -- --watch=false` green locally.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
 - [ ] `landingLayout` set to the chosen layout.
 - [ ] `resume.pdf` regenerated if resume content changed; `npm run shots` re-run if a project's UI changed.
-- [ ] `sitemap.xml` lists every project id in `InMemoryProjectRepository`.
+- [ ] The build log's `prerendered:` line lists every project id in `InMemoryProjectRepository` (`sitemap.xml` follows from it).
 - [ ] Push to `main` → CI green → Pages deploy green → Render deploy green → smoke-test the five pages on the real domain, once with the API awake and once after it slept.
 
 ## 12. Cost flags outside this repo

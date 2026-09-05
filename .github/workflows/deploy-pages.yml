@@ -12,13 +12,15 @@ name: Deploy frontend to GitHub Pages
 #                           ("/Resume/" — the default — on bbobbylon.github.io/Resume)
 #        PAGES_CNAME      = your custom domain (e.g. bobbylon.dev), if any.
 #
-# Besides building, it captures a snapshot of the API data from a freshly built
-# backend (public/data/*.json). The app renders from that snapshot whenever the
-# live API is asleep or slow, which is what makes Render's free tier acceptable.
+# How a deploy works: the backend is built and started on the runner, `ng build`
+# prerenders every route against it (static HTML per page, hydrated in the
+# browser) and `npm run snapshot` captures its data into public/data/*.json for
+# the pages that are not prerendered. The live API is only layered on top, so
+# the site is complete even while Render's free tier is asleep.
 on:
   push:
     branches: [main]
-    paths: ['frontend/**', 'backend/src/main/**', '.github/workflows/deploy-pages.yml']
+    paths: ['frontend/**', 'backend/src/main/**', '.github/workflows/deploy-pages.yml', '.github/actions/**']
   workflow_dispatch:
 
 permissions:
@@ -51,19 +53,11 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
+      - name: Start the backend (build-time data source)
+        uses: ./.github/actions/start-backend
       - name: Snapshot the API data
-        # Builds and starts the backend just long enough to capture its three
-        # endpoints into frontend/public/data/*.json.
-        run: |
-          mvn -B -q -DskipTests -f backend/pom.xml package
-          java -jar backend/target/websitehub-backend-*.jar > backend.log 2>&1 &
-          JAR_PID=$!
-          for i in $(seq 1 60); do
-            curl -sf localhost:8420/actuator/health > /dev/null && break
-            sleep 1
-          done
-          (cd frontend && API_URL=http://localhost:8420 npm run snapshot)
-          kill "$JAR_PID"
+        working-directory: frontend
+        run: API_URL=http://localhost:8420 npm run snapshot
       - name: Point the build at the API
         working-directory: frontend
         env:
@@ -74,26 +68,37 @@ jobs:
             sed -i "s#apiBaseUrl: '[^']*'#apiBaseUrl: '${API_BASE_URL%/}'#" src/environments/environment.ts
           fi
           grep -n apiBaseUrl src/environments/environment.ts
-      - name: Build
+      - name: Build (prerenders every route, then writes sitemap.xml)
         working-directory: frontend
         env:
           BASE_HREF: ${{ vars.PAGES_BASE_HREF || '/Resume/' }}
-        run: npx ng build --base-href "$BASE_HREF"
+        run: |
+          npm run build -- --base-href "$BASE_HREF"
+          # Fail loudly if the project pages were not prerendered (backend unreachable).
+          node -e "const r = Object.keys(require('./dist/frontend/prerendered-routes.json').routes);
+                   console.log('prerendered:', r.join(' '));
+                   if (!r.some((p) => p.startsWith('/projects/'))) { console.error('no project pages were prerendered'); process.exit(1); }"
+      - name: Stop the backend
+        if: always()
+        run: kill "$BACKEND_PID" 2>/dev/null || true
       - name: Site URL, SPA fallback, CNAME
         working-directory: frontend/dist/frontend/browser
         env:
           CNAME: ${{ vars.PAGES_CNAME }}
           BASE_HREF: ${{ vars.PAGES_BASE_HREF || '/Resume/' }}
         run: |
-          # index.html (Open Graph tags), robots.txt and sitemap.xml carry the
-          # placeholder origin https://bobbylon.dev; stamp the real one in.
+          # Every prerendered page (Open Graph tags), the JS bundle (per-page og:url),
+          # robots.txt and sitemap.xml carry the placeholder origin https://bobbylon.dev;
+          # stamp the real one in.
           if [ -n "$CNAME" ]; then SITE_URL="https://$CNAME"
           else SITE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${BASE_HREF%/}"; fi
           echo "Site URL: $SITE_URL"
-          sed -i "s#https://bobbylon\.dev#${SITE_URL}#g" index.html robots.txt sitemap.xml
-          # GitHub Pages serves 404.html for unknown paths; making it a copy of
-          # index.html lets deep links like /projects/tesseraapp boot the app.
-          cp index.html 404.html
+          find . \( -name '*.html' -o -name '*.js' -o -name 'robots.txt' -o -name 'sitemap.xml' \) \
+            -exec sed -i "s#https://bobbylon\.dev#${SITE_URL}#g" {} +
+          # GitHub Pages serves 404.html for unknown paths. The client-rendered shell
+          # boots the app there, so deep links to non-prerendered pages and typos
+          # land on the not-found page instead of GitHub's.
+          cp index.csr.html 404.html
           if [ -n "$CNAME" ]; then echo "$CNAME" > CNAME; fi
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,0 +1,27 @@
+name: Start the backend
+description: >
+  Builds the Spring Boot jar and starts it on localhost:8420 for the rest of the job.
+  `ng build` prerenders every route against it and `npm run snapshot` captures the
+  fallback data from it (docs/DEPLOYMENT.md → "How a deploy works"). Expects JDK 21
+  and Maven on the runner (actions/setup-java). Exports BACKEND_PID for a later
+  `kill`; the job's VM is discarded anyway.
+runs:
+  using: composite
+  steps:
+    - name: Build the jar
+      shell: bash
+      run: mvn -B -q -DskipTests -f backend/pom.xml package
+    - name: Start it and wait for /actuator/health
+      shell: bash
+      run: |
+        nohup java -jar backend/target/websitehub-backend-*.jar > backend.log 2>&1 &
+        echo "BACKEND_PID=$!" >> "$GITHUB_ENV"
+        for i in $(seq 1 90); do
+          if curl -sf localhost:8420/actuator/health > /dev/null; then
+            echo "Backend up after ${i}s"; exit 0
+          fi
+          sleep 1
+        done
+        echo "::error::the backend did not come up on :8420 within 90s"
+        tail -n 50 backend.log
+        exit 1

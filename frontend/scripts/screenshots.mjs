@@ -1,12 +1,14 @@
-// Captures project screenshots with headless Chrome into public/shots/<id>-<n>.png.
-//
-// Every project the API returns with a live `url` gets a capture of that URL; the
-// PAGES table below adds further pages per project (and a base URL for projects
-// that have no live URL yet, such as WebsiteHub itself, captured from the dev
-// server). Shots are 1600×1000 (16:10 — what cards and rows show); the project
-// detail hero crops the same image to 21:9 from the top. The landing page is also
-// captured at 1200×630 as public/og.png, the social-preview image referenced from
-// index.html.
+// Captures project screenshots with headless Chrome and writes them as WebP into
+// public/shots/:
+//   <id>-<n>.webp       1600×1000 (16:10 — what cards and rows show; the detail
+//                       hero crops it to 21:9 from the top)
+//   <id>-<n>-800.webp   half size, for the 320 px row/card slots (srcset)
+//   <id>-social.jpg     1200×630 crop of shot 1, the page's Open Graph image
+//                       (JPEG because link unfurlers do not all read WebP)
+// plus public/og.png, a 1200×630 capture of the landing page for the site-wide
+// social preview. Every project the API returns with a live `url` is captured;
+// the PAGES table adds further pages per project and a base URL for projects
+// without a live URL yet (WebsiteHub itself, captured from the dev server).
 //
 //   1. Start the backend (port 8420) and `npm start` (port 4222).
 //   2. npm run shots                       all projects
@@ -15,11 +17,14 @@
 //   Environment: API_URL (default http://localhost:8420), SELF_URL (default
 //   http://localhost:4222), CHROME (path to the browser).
 //
-// After capturing, reference the files from the project's `imageUrls` in
-// backend/…/repository/InMemoryProjectRepository.java as "shots/<id>-1.png" etc.
-// (no leading slash, so the <base href> of a GitHub Pages sub-path still works).
-import { existsSync, mkdirSync } from 'node:fs';
-import { resolve } from 'node:path';
+// Then reference the files from the project's `imageUrls` in
+// backend/…/repository/InMemoryProjectRepository.java as "shots/<id>-1.webp" etc.
+// (no leading slash, so the <base href> of a GitHub Pages sub-path still works);
+// ProjectImage derives the -800 variant and PageMeta the -social.jpg from that.
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import sharp from 'sharp';
 import { findChrome, runChrome, withProfile } from './chrome.mjs';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:8420';
@@ -46,9 +51,12 @@ if (!response?.ok) {
 const projects = (await response.json()).filter((p) => !only || only.includes(p.id));
 
 mkdirSync(OUT_DIR, { recursive: true });
+const tmp = mkdtempSync(join(tmpdir(), 'websitehub-shots-'));
 const chrome = findChrome();
+const captured = [];
 let failures = 0;
 
+// Chrome runs synchronously (one process per capture); conversion happens after.
 withProfile((profile) => {
   for (const project of projects) {
     const config = PAGES[project.id] ?? { paths: ['/'] };
@@ -58,14 +66,15 @@ withProfile((profile) => {
       continue;
     }
     config.paths.forEach((path, i) => {
-      const out = resolve(OUT_DIR, `${project.id}-${i + 1}.png`);
+      const png = join(tmp, `${project.id}-${i + 1}.png`);
       const url = base + path;
       const status = runChrome(chrome, profile, [
-        `--window-size=${SIZE.width},${SIZE.height}`, `--screenshot=${out}`, url,
+        `--window-size=${SIZE.width},${SIZE.height}`, `--screenshot=${png}`, url,
       ], 15000);
-      const ok = status === 0 && existsSync(out);
-      if (!ok) failures++;
-      console.log(`${ok ? '✓' : '✗'} ${project.id}-${i + 1}.png  ← ${url}`);
+      const ok = status === 0 && existsSync(png);
+      if (ok) captured.push({ png, id: project.id, n: i + 1 });
+      else failures++;
+      console.log(`${ok ? '✓' : '✗'} ${project.id}-${i + 1}  ← ${url}`);
     });
   }
 
@@ -77,6 +86,18 @@ withProfile((profile) => {
     console.log(`${ok ? '✓' : '✗'} og.png  ← ${SELF_URL}/`);
   }
 });
+
+for (const { png, id, n } of captured) {
+  const source = sharp(png);
+  await source.clone().webp({ quality: 82 }).toFile(resolve(OUT_DIR, `${id}-${n}.webp`));
+  await source.clone().resize({ width: 800 }).webp({ quality: 80 }).toFile(resolve(OUT_DIR, `${id}-${n}-800.webp`));
+  if (n === 1) {
+    await source.clone().resize(1200, 630, { fit: 'cover', position: 'top' }).jpeg({ quality: 82 })
+      .toFile(resolve(OUT_DIR, `${id}-social.jpg`));
+  }
+  console.log(`  → ${id}-${n}.webp, ${id}-${n}-800.webp${n === 1 ? `, ${id}-social.jpg` : ''}`);
+}
+rmSync(tmp, { recursive: true, force: true });
 
 if (failures) {
   console.error(`${failures} capture(s) failed.`);
