@@ -41,12 +41,15 @@ the top of each section. Dates are when the item was added. See
 
 ## Next up (no accounts needed)
 
-- [ ] Tablet-width hero skeleton (700–880 px) is one heading line taller than the
-  loaded hero; harmless, but could mirror the tagline wrap there too.
 - [ ] Regenerate `resume.pdf` in the Pages workflow so it can never lag the seed data.
 
 ## Done
 
+- 2026-09-05 — Tablet-width hero skeleton: measured the real breakpoint where the
+  Ledger hero's heading drops from 3 wrapped lines to 2 (viewport ≳614px, up to the
+  existing 880px cutoff) and hid the skeleton's third bar (`.sk-h1.short`) in that
+  range so the loading state matches the loaded content's line count instead of
+  overshooting by one line.
 - 2026-09-05 — Live-status dots on the landing cards: `LiveStatus` gained a
   `compact` input (dot only, label moved to `title`/`aria-label`) and now probes
   lazily behind an `IntersectionObserver` — a dot only fires its `no-cors` fetch
