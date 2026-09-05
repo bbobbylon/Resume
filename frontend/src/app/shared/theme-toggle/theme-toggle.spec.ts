@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { ThemeToggle } from './theme-toggle';
-import { ThemeService } from '../../services/theme';
+import { ThemeService, THEME_STORAGE_KEY } from '../../services/theme';
 
 describe('ThemeToggle', () => {
   it('is a labelled button that flips the theme', () => {
+    // A saved choice from another spec file must not leak in here (order-dependent
+    // otherwise: ThemeService.initial() reads localStorage before the OS preference).
+    localStorage.removeItem(THEME_STORAGE_KEY);
     document.documentElement.removeAttribute('data-theme');
     const fixture = TestBed.createComponent(ThemeToggle);
     fixture.detectChanges();
@@ -13,7 +16,7 @@ describe('ThemeToggle', () => {
 
     button.click();
     expect(TestBed.inject(ThemeService).theme()).toBe('light');
-    localStorage.removeItem('theme');
+    localStorage.removeItem(THEME_STORAGE_KEY);
     document.documentElement.removeAttribute('data-theme');
   });
 });

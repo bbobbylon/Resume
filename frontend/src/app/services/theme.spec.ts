@@ -12,6 +12,7 @@ describe('ThemeService', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     html.removeAttribute('data-theme');
+    localStorage.removeItem(THEME_STORAGE_KEY);
   });
 
   /** A fresh injector, as on a new page load. */
