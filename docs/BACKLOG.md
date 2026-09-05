@@ -17,9 +17,18 @@ the top of each section. Dates are when the item was added. See
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
-- [ ] Confirm the Pages deploy is green and the site answers at
-  `https://bbobbylon.github.io/Resume/` (DEPLOYMENT.md §3 step 2); then push the
-  prerendered frontend so it talks to the live API.
+- [x] Enable Pages (2026-09-05): `Settings → Pages → Source: GitHub Actions` — the
+  workflow's own `configure-pages --enablement` can't do this on a repo's first
+  deploy (needs repo-admin rights the default `GITHUB_TOKEN` doesn't have), so it
+  needed the one-time manual flip. Confirm the next `deploy-pages` run goes green at
+  `https://bbobbylon.github.io/Resume/`.
+- [x] Two more repos brought live (2026-09-05): `angular-concepts`
+  (`AngularDevelopment`, an Angular 21 learning curriculum) and `dev-learning-hub`
+  (`OOPFundamentals`, a 515-visualizer learning hub for Java/Spring Boot/Angular/
+  TypeScript/Python) — both added to `InMemoryProjectRepository` with real
+  screenshots (`npm run shots -- --only angular-concepts,dev-learning-hub`). Note:
+  `OOPFundamentals` 404s on the public GitHub API, so it's likely a private repo —
+  its "Source on GitHub" link may 404 for visitors until it's made public.
 - [ ] Bring the other repos onto Render the same way (Dockerfile + `render.yaml`,
   free web service) and flip each project's entry to `LIVE` with its URL.
 - [ ] Decide whether the phone number and work e-mail in `InMemoryProfileRepository`
@@ -37,11 +46,16 @@ the top of each section. Dates are when the item was added. See
 - [ ] Tablet-width hero skeleton (700–880 px) is one heading line taller than the
   loaded hero; harmless, but could mirror the tagline wrap there too.
 - [ ] Regenerate `resume.pdf` in the Pages workflow so it can never lag the seed data.
-- [ ] Give the detail hero a `view-transition-name` so opening a project morphs the
-  card image into the hero instead of cross-fading the whole page.
 
 ## Done
 
+- 2026-09-05 — Shared-element hero transition: every `app-project-image` that shows
+  a project's first screenshot (landing cards/rows and the detail hero) now carries
+  `[viewTransitionName]="'shot-' + project.id"`, bound to `view-transition-name` on
+  its `.frame`. Combined with the router's existing `withViewTransitions`, opening a
+  project morphs its card image into the detail hero instead of cross-fading the
+  whole page (Dossier has no card imagery, so it still gets a plain fade). Skipped
+  automatically under reduced motion via the existing global check.
 - 2026-09-05 — Light theme toggle: `data-theme` on `<html>` over the Nocturne tokens
   (`:root[data-theme="light"]` in `styles.css`), a pre-paint script in `index.html`
   (saved choice → OS preference → dark, no flash on prerendered pages),

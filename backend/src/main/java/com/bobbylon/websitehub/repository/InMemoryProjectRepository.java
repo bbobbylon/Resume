@@ -180,6 +180,68 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     null,
                     "GitHub Pages",
                     false
+            ),
+            new Project(
+                    "angular-concepts",
+                    "Angular Concepts",
+                    "Angular curriculum, zero to expert",
+                    "A hands-on Angular 21 curriculum — 100 concepts, 200+ exercises and interview prep "
+                            + "from zero to expert.",
+                    "A complete, hands-on Angular 21 curriculum built with standalone components and "
+                            + "signals: 100 concepts and 100 live lessons across five difficulty tracks, "
+                            + "200+ practice exercises, 253 interview questions and project walkthroughs — "
+                            + "built while learning the framework and still live as a static site.",
+                    "https://bbobbylon.github.io/AngularDevelopment/",
+                    "https://github.com/bbobbylon/AngularDevelopment",
+                    ProjectStatus.LIVE,
+                    List.of("Angular 21", "TypeScript"),
+                    List.of("shots/angular-concepts-1.webp"),
+                    List.of(
+                            new Highlight("Zero to expert",
+                                    "100 concepts and 100 live lessons across five difficulty tracks, from "
+                                            + "Foundations and TypeScript through Expert Angular."),
+                            new Highlight("Practice, not just reading",
+                                    "200+ practice exercises, 253 interview questions with flashcard mode, "
+                                            + "and timeboxed coding-task simulations."),
+                            new Highlight("Angular 21, standalone, signals",
+                                    "Built with the current Angular standalone-component and signals APIs, "
+                                            + "shipped as a static site on GitHub Pages.")
+                    ),
+                    "GitHub Pages",
+                    null,
+                    false
+            ),
+            new Project(
+                    "dev-learning-hub",
+                    "Dev Learning Hub",
+                    "515 visualizers, 34 learning tracks",
+                    "Interactive visualizers for Java, Spring Boot, Angular, TypeScript, Python and more, "
+                            + "with per-account progress tracking and streaks.",
+                    "An interactive learning hub of 515 visualizers across 34 tracks — Java and OOP, "
+                            + "Spring Boot, Angular, TypeScript, Python, data structures and algorithms and "
+                            + "more — organized by difficulty from beginner to expert. Progress, streaks "
+                            + "and completion save per account or anonymously, with an admin dashboard for "
+                            + "usage stats.",
+                    "https://bbobbylon.github.io/OOPFundamentals/app.html",
+                    "https://github.com/bbobbylon/OOPFundamentals",
+                    ProjectStatus.LIVE,
+                    List.of("Java", "Spring Boot", "Angular", "TypeScript", "Python"),
+                    List.of("shots/dev-learning-hub-1.webp"),
+                    List.of(
+                            new Highlight("515 visualizers, 34 tracks",
+                                    "Java and OOP, Spring Boot, Angular, TypeScript, Python, data "
+                                            + "structures and algorithms and more, each broken into "
+                                            + "beginner-to-expert topics."),
+                            new Highlight("Accounts optional",
+                                    "Sign in to sync progress across devices, or browse and learn "
+                                            + "anonymously with local-only saving."),
+                            new Highlight("An admin view",
+                                    "A stats dashboard reports total users and completion across the "
+                                            + "whole learning hub.")
+                    ),
+                    "GitHub Pages",
+                    null,
+                    false
             )
     );
 

@@ -37,6 +37,8 @@ const PAGES = {
   tesseraapp: { paths: ['/', '/features', '/register'] },
   // No live URL yet — captured from the local dev server instead.
   websitehub: { base: SELF_URL, paths: ['/', '/resume', '/projects/tesseraapp'] },
+  // Live URL is a specific file (app.html), not a directory — an appended '/' 404s.
+  'dev-learning-hub': { paths: [''] },
 };
 
 const args = process.argv.slice(2);

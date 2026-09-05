@@ -31,7 +31,7 @@
           </div>
         </header>
 
-        <app-project-image [src]="p.imageUrls[0]" [name]="p.name" ratio="21:9" [alt]="p.name + ' screenshot'" sizes="(max-width: 1168px) 100vw, 1120px" [priority]="true" />
+        <app-project-image [src]="p.imageUrls[0]" [name]="p.name" ratio="21:9" [alt]="p.name + ' screenshot'" sizes="(max-width: 1168px) 100vw, 1120px" [priority]="true" [viewTransitionName]="'shot-' + p.id" />
 
         <section class="body">
           <div class="body-main">

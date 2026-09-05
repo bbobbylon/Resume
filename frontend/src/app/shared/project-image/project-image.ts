@@ -16,7 +16,7 @@ import { Component, computed, input } from '@angular/core';
 @Component({
   selector: 'app-project-image',
   template: `
-    <div class="frame" [class.wide]="ratio() === '21:9'">
+    <div class="frame" [class.wide]="ratio() === '21:9'" [style.view-transition-name]="viewTransitionName()">
       @if (src(); as src) {
         <img class="lighten" [src]="src" [attr.srcset]="srcset()" [sizes]="sizes()" [alt]="alt()"
              [attr.loading]="priority() ? 'eager' : 'lazy'" [attr.fetchpriority]="priority() ? 'high' : null" decoding="async">
@@ -56,6 +56,13 @@ export class ProjectImage {
   readonly sizes = input('(max-width: 880px) 100vw, 320px');
   /** Load eagerly at high priority — for the largest above-the-fold image only. */
   readonly priority = input(false);
+  /**
+   * CSS `view-transition-name` for this image's box, e.g. `shot-tesseraapp` — shared
+   * between a project's card/row and its detail hero so the router's cross-fade
+   * (see `app.config.ts`) morphs one into the other instead of fading both. Leave
+   * unset for images that should just fade (extra detail-page shots).
+   */
+  readonly viewTransitionName = input<string | null>(null);
 
   /** Both widths of a `shots/` WebP; other URLs get a plain `src`. */
   protected readonly srcset = computed(() => {

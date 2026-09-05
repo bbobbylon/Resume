@@ -29,7 +29,7 @@
       @if (featured(); as lead) {
         <article class="card elev-sm featured">
           <a class="shot" [routerLink]="['/projects', lead.id]" tabindex="-1" aria-hidden="true">
-            <app-project-image [src]="lead.imageUrls[0]" [name]="lead.name" [alt]="lead.name + ' screenshot'" sizes="(max-width: 880px) 100vw, 640px" [priority]="true" />
+            <app-project-image [src]="lead.imageUrls[0]" [name]="lead.name" [alt]="lead.name + ' screenshot'" sizes="(max-width: 880px) 100vw, 640px" [priority]="true" [viewTransitionName]="'shot-' + lead.id" />
           </a>
           <div class="featured-copy">
             <div class="tag-row">
@@ -59,7 +59,7 @@
           @for (project of list; track project.id) {
             <article class="card elev-sm">
               <a class="shot" [routerLink]="['/projects', project.id]" tabindex="-1" aria-hidden="true">
-                <app-project-image [src]="project.imageUrls[0]" [name]="project.name" [alt]="project.name + ' screenshot'" />
+                <app-project-image [src]="project.imageUrls[0]" [name]="project.name" [alt]="project.name + ' screenshot'" [viewTransitionName]="'shot-' + project.id" />
               </a>
               <div class="title-row">
                 <a class="card-title" [routerLink]="['/projects', project.id]">{{ project.name }}</a>
