@@ -1,5 +1,9 @@
 # Weekly dependency PRs for every ecosystem in the repo. Free on public repos.
-# Angular packages move together, so they are grouped into one PR.
+# Angular packages move together, so they are grouped into one PR. TypeScript
+# rides in that same group (not dev-tooling): @angular/build pins a narrow
+# `typescript` peer range (e.g. only 6.0.x), so bumping Angular and TypeScript
+# in separate PRs leaves one of them unable to `npm ci` until the other lands —
+# this split caused repeated CI failures on 2026-09-05 (PRs #9 and #10).
 version: 2
 updates:
   - package-ecosystem: npm
@@ -9,10 +13,10 @@ updates:
     open-pull-requests-limit: 5
     groups:
       angular:
-        patterns: ["@angular/*", "@angular-devkit/*", "@angular-builders/*"]
+        patterns: ["@angular/*", "@angular-devkit/*", "@angular-builders/*", "typescript"]
       dev-tooling:
         dependency-type: development
-        exclude-patterns: ["@angular/*", "@angular-devkit/*"]
+        exclude-patterns: ["@angular/*", "@angular-devkit/*", "typescript"]
   - package-ecosystem: maven
     directory: /backend
     schedule:
