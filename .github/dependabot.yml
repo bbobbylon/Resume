@@ -1,9 +1,14 @@
 # Weekly dependency PRs for every ecosystem in the repo. Free on public repos.
-# Angular packages move together, so they are grouped into one PR. TypeScript
-# rides in that same group (not dev-tooling): @angular/build pins a narrow
-# `typescript` peer range (e.g. only 6.0.x), so bumping Angular and TypeScript
-# in separate PRs leaves one of them unable to `npm ci` until the other lands —
-# this split caused repeated CI failures on 2026-09-05 (PRs #9 and #10).
+# Angular packages move together, so they are grouped into one PR, and
+# TypeScript rides in that same group (not dev-tooling) since @angular/build
+# pins a narrow `typescript` peer range. That grouping only keeps them in the
+# same PR, though — Dependabot still bumps each package to its own latest
+# independently, so it can (and did, 2026-09-05) put an incompatible pair in
+# one PR: Angular 22 (wants typescript ~6.0.x) alongside typescript 7.0.2. A
+# major Angular/TypeScript bump also needs `ng update`'s schematics, not a
+# blind npm version bump, so major versions are left for a human to do
+# deliberately; Dependabot here only auto-proposes minor/patch, which stay
+# peer-compatible within a major line.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -17,6 +22,15 @@ updates:
       dev-tooling:
         dependency-type: development
         exclude-patterns: ["@angular/*", "@angular-devkit/*", "typescript"]
+    ignore:
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-builders/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: maven
     directory: /backend
     schedule:
