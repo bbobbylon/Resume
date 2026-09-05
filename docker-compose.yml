@@ -1,0 +1,19 @@
+# Local development only. Render deploys the backend and frontend as two
+# separate services (see render.yaml) — this file is just a convenient way to
+# run the backend in something close to its production shape (a container)
+# while developing locally.
+#
+# The frontend is deliberately NOT containerized here: `ng serve` (run
+# directly on your machine — see the root README) gives hot-reload, which a
+# rebuild-the-image-on-every-change workflow can't match, and it deploys as a
+# plain static site in production anyway, never as its own running server.
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8420:8420"
+    environment:
+      PORT: 8420
+      # Matches the Angular dev server's default address so `ng serve`
+      # (run outside Docker, on the host) can call this container's API.
+      ALLOWED_ORIGIN: http://localhost:4222

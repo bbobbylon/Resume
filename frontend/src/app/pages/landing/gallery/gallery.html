@@ -1,0 +1,107 @@
+<app-nav />
+<main>
+  <div class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      @if (profile(); as p) {
+        <div>
+          <h1 id="hero-title">{{ p.name }}</h1>
+          <p class="role">{{ p.title }}<br>{{ p.employer }}</p>
+          <div class="actions">
+            <a class="btn btn-primary" routerLink="/" fragment="projects">See projects</a>
+            <a class="btn btn-ghost" routerLink="/resume">Resume</a>
+          </div>
+        </div>
+        <p class="summary muted">{{ p.bio }}</p>
+      } @else {
+        <!-- Same footprint as the loaded hero: 2 name lines (1 below 880px), 3 role lines, buttons; 5 summary lines (7 on phones). -->
+        <div aria-busy="true">
+          <h1 id="hero-title"><span class="skeleton sk-h1"></span><span class="skeleton sk-h1 short desk"></span></h1>
+          <p class="role"><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line short"></span></p>
+          <div class="actions"><span class="skeleton sk-btn"></span><span class="skeleton sk-btn"></span></div>
+        </div>
+        <p class="summary"><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line phone"></span><span class="skeleton sk-line phone"></span><span class="skeleton sk-line short"></span></p>
+      }
+    </section>
+
+    <section id="projects" class="projects" aria-labelledby="projects-kicker">
+      <p id="projects-kicker" class="kicker">Projects</p>
+
+      @if (featured(); as lead) {
+        <article class="card elev-sm featured">
+          <a class="shot" [routerLink]="['/projects', lead.id]" tabindex="-1" aria-hidden="true">
+            <app-project-image [src]="lead.imageUrls[0]" [name]="lead.name" [alt]="lead.name + ' screenshot'" />
+          </a>
+          <div class="featured-copy">
+            <div class="tag-row">
+              @if (lead.featured) { <app-status-tag [featured]="true" /> }
+              <app-status-tag [status]="lead.status" />
+            </div>
+            <h2><a [routerLink]="['/projects', lead.id]">{{ lead.name }}</a></h2>
+            <p class="muted">{{ lead.tagline }}</p>
+            <div class="tag-row">
+              @for (tech of lead.techStack; track tech) { <span class="tag tag-neutral">{{ tech }}</span> }
+            </div>
+            <div class="links">
+              @if (lead.url; as url) {
+                <a class="btn btn-primary" [href]="url" target="_blank" rel="noopener">{{ url | domain }} <app-arrow-up-right /></a>
+              }
+              <a class="btn btn-secondary" [href]="lead.repoUrl" target="_blank" rel="noopener">Source</a>
+              <a class="btn btn-ghost" [routerLink]="['/projects', lead.id]">Details</a>
+            </div>
+          </div>
+        </article>
+      } @else {
+        <div class="card elev-sm featured" aria-hidden="true"><span class="skeleton sk-shot"></span><div class="featured-copy"><span class="skeleton sk-title"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line short"></span></div></div>
+      }
+
+      <div class="grid">
+        @if (rest(); as list) {
+          @for (project of list; track project.id) {
+            <article class="card elev-sm">
+              <a class="shot" [routerLink]="['/projects', project.id]" tabindex="-1" aria-hidden="true">
+                <app-project-image [src]="project.imageUrls[0]" [name]="project.name" [alt]="project.name + ' screenshot'" />
+              </a>
+              <div class="title-row">
+                <a class="card-title" [routerLink]="['/projects', project.id]">{{ project.name }}</a>
+                <app-status-tag [status]="project.status" />
+              </div>
+              <p class="card-body">{{ project.tagline }}</p>
+              <div class="tag-row">
+                @for (tech of project.techStack.slice(0, 3); track tech) { <span class="tag tag-neutral">{{ tech }}</span> }
+              </div>
+              <div class="card-meta">
+                @if (project.url; as url) { <a [href]="url" target="_blank" rel="noopener">Live site</a> }
+                <a [href]="project.repoUrl" target="_blank" rel="noopener">Source</a>
+                <a [routerLink]="['/projects', project.id]">Details</a>
+              </div>
+            </article>
+          }
+          @for (slot of emptySlots(); track slot) {
+            <div class="slot" aria-hidden="true">Next project<br>slots fill from /api/projects</div>
+          }
+        } @else {
+          @for (n of [0, 1, 2]; track n) {
+            <div class="card elev-sm" aria-hidden="true"><span class="skeleton sk-shot"></span><span class="skeleton sk-title"></span><span class="skeleton sk-line"></span></div>
+          }
+        }
+      </div>
+    </section>
+  </div>
+
+  <section id="resume" class="band" aria-label="Career at a glance">
+    <div class="band-grid">
+      @if (profile(); as p) {
+        @for (stat of p.stats; track stat.label) {
+          <div class="stat">
+            <p class="value tnum">{{ stat.value }}</p>
+            <p class="label">{{ stat.label }}</p>
+          </div>
+        }
+      } @else {
+        @for (n of [0, 1, 2]; track n) { <div class="stat" aria-hidden="true"><span class="skeleton sk-stat"></span></div> }
+      }
+      <div class="band-cta"><a class="btn btn-primary" routerLink="/resume">Full resume</a></div>
+    </div>
+  </section>
+</main>
+<app-footer />

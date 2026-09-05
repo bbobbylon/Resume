@@ -1,0 +1,27 @@
+# Weekly dependency PRs for every ecosystem in the repo. Free on public repos.
+# Angular packages move together, so they are grouped into one PR.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*", "@angular-builders/*"]
+      dev-tooling:
+        dependency-type: development
+        exclude-patterns: ["@angular/*", "@angular-devkit/*"]
+  - package-ecosystem: maven
+    directory: /backend
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /backend
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

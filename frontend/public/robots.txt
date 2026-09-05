@@ -1,0 +1,6 @@
+# https://bobbylon.dev is a placeholder for the production origin; the Pages
+# workflow rewrites it to the real site URL at deploy time (see docs/DEPLOYMENT.md).
+User-agent: *
+Allow: /
+
+Sitemap: https://bobbylon.dev/sitemap.xml

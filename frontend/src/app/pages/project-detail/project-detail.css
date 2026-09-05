@@ -1,0 +1,60 @@
+.page { padding-top: 28px; }
+.back { font-size: 13px; color: var(--color-neutral-500); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.back:hover { color: var(--color-accent); }
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+.head {
+  display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 28px 72px; align-items: end; padding: 42px 0 56px;
+}
+.head .tag-row { margin-bottom: 20px; }
+.head h1 { font-size: 60px; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 0 -0.06em; font-weight: 500; }
+.lede { font-size: 17px; line-height: 28px; margin: 20px 0 0; max-width: 52ch; }
+.side { display: flex; flex-direction: column; gap: 14px; font-size: 14px; line-height: 24px; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.meta { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 20px; color: var(--color-neutral-500); margin: 0; }
+.meta dt, .meta dd { margin: 0; }
+.meta dd { color: var(--color-text); }
+.meta a { text-decoration: none; }
+.meta a:hover { text-decoration: underline; }
+
+/* ── Body ─────────────────────────────────────────────────────────────── */
+.body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px 72px; padding: 70px 0 0; }
+.body-main { display: flex; flex-direction: column; gap: 56px; }
+.highlights {
+  display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 28px;
+  font-size: 15.5px; line-height: 28px; color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+.highlights .index { color: var(--color-accent); }
+.highlights h2 { font-size: 20px; line-height: 28px; margin: 0 0 6px; font-weight: 500; color: var(--color-text); }
+.shots { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.aside { display: flex; flex-direction: column; gap: 28px; }
+.label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 10px; color: var(--color-neutral-500); }
+.teaser { padding: 16.8px; gap: 8px; }
+.teaser .card-title { text-decoration: none; color: inherit; }
+.teaser .card-title:hover { color: var(--color-accent); }
+.teaser .card-meta a { margin-left: auto; }
+.foot-space { padding-top: 84px; }
+
+/* ── Not found ────────────────────────────────────────────────────────── */
+.missing { padding: 84px 0 112px; max-width: 52ch; }
+.missing h1 { font-size: 36px; margin: 0 0 14px; }
+.missing code { font-family: ui-monospace, monospace; color: var(--color-neutral-400); }
+
+/* ── Skeletons ────────────────────────────────────────────────────────── */
+.sk-h1 { width: 320px; max-width: 100%; height: 56px; margin-top: 20px; }
+.sk-line { width: 100%; height: 14px; margin: 8px 0; }
+.sk-line.short { width: 55%; }
+.sk-hero { aspect-ratio: 21 / 9; width: 100%; border-radius: var(--radius-md); }
+.sk-tag { width: 56px; height: 22px; border-radius: 999px; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 880px) {
+  .head { grid-template-columns: 1fr; padding: 28px 0 42px; }
+  .head h1 { font-size: 40px; }
+  .body { grid-template-columns: 1fr; padding-top: 42px; }
+  .shots { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .highlights { grid-template-columns: 32px 1fr; gap: 20px 14px; }
+}

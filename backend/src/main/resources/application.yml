@@ -1,0 +1,31 @@
+# Render injects PORT at runtime; 8420 is only used for local `mvn spring-boot:run`
+# (non-default so it doesn't collide with other apps' backends on this machine).
+server:
+  port: ${PORT:8420}
+  compression:
+    # Gzip responses over 1 KB — /api/projects is ~8 KB raw and ~2 KB compressed.
+    # Cheap on the JVM, and bandwidth is what a free host meters.
+    enabled: true
+    min-response-size: 1KB
+
+app:
+  # Comma-separated origins allowed to call /api/**. render.yaml sets it to the
+  # GitHub Pages origin in production. Defaults to the Angular dev server's address
+  # so `ng serve` works against this API locally with no extra setup.
+  allowed-origin: ${ALLOWED_ORIGIN:http://localhost:4222}
+
+springdoc:
+  swagger-ui:
+    # Interactive docs at /docs (the JSON description stays at /v3/api-docs).
+    path: /docs
+    operations-sorter: alpha
+  # Only describe the API proper, not the actuator.
+  paths-to-match: /api/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only expose /actuator/health (not the full actuator surface) — that's all
+        # render.yaml's health check needs, and keeping the rest closed is safer.
+        include: health

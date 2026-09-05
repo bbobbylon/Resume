@@ -1,0 +1,12 @@
+<nav class="nav container" aria-label="Primary">
+  <a class="nav-brand" routerLink="/">{{ profile()?.brand ?? 'bobbylon' }}</a>
+  <a class="nav-link" routerLink="/" fragment="projects" [attr.aria-current]="projectsCurrent() ? 'page' : null">Projects</a>
+  <a class="nav-link" routerLink="/resume" routerLinkActive ariaCurrentWhenActive="page">Resume</a>
+  @if (profile(); as p) {
+    <a class="nav-link" [href]="'mailto:' + p.email">Contact</a>
+    <a class="btn btn-primary" [href]="p.resumeUrl" download>Download PDF</a>
+  } @else {
+    <span class="nav-link skeleton" aria-hidden="true"></span>
+    <span class="btn btn-primary skeleton-btn" aria-hidden="true">Download PDF</span>
+  }
+</nav>

@@ -1,0 +1,96 @@
+<app-nav />
+<div class="page container">
+  <a class="back" routerLink="/" fragment="projects">← All projects</a>
+
+  @switch (state().kind) {
+    @case ('found') {
+      @if (project(); as p) {
+        <header class="head">
+          <div>
+            <div class="tag-row">
+              @if (p.featured) { <app-status-tag [featured]="true" /> }
+              <app-status-tag [status]="p.status" />
+              <span class="tag tag-neutral">/projects/{{ p.id }}</span>
+            </div>
+            <h1>{{ p.name }}</h1>
+            <p class="lede muted">{{ p.longDescription }}</p>
+          </div>
+          <div class="side">
+            <div class="actions">
+              @if (p.url; as url) {
+                <a class="btn btn-primary" [href]="url" target="_blank" rel="noopener">Open {{ url | domain }} <app-arrow-up-right /></a>
+              }
+              <a class="btn btn-secondary" [href]="p.repoUrl" target="_blank" rel="noopener">Source on GitHub</a>
+            </div>
+            <dl class="meta">
+              <dt>Live at</dt>
+              <dd>@if (p.url; as url) { <a [href]="url" target="_blank" rel="noopener">{{ url | domain }}</a> } @else { <span class="muted-55">Not deployed yet</span> }</dd>
+              @if (p.hosting) { <dt>Hosting</dt><dd>{{ p.hosting }}</dd> }
+              @if (p.delivery) { <dt>Delivery</dt><dd>{{ p.delivery }}</dd> }
+            </dl>
+          </div>
+        </header>
+
+        <app-project-image [src]="p.imageUrls[0]" [name]="p.name" ratio="21:9" [alt]="p.name + ' screenshot'" />
+
+        <section class="body">
+          <div class="body-main">
+            <div aria-labelledby="highlights-kicker">
+              <p id="highlights-kicker" class="kicker">What it does</p>
+              <div class="highlights">
+                @for (h of p.highlights; track h.title; let i = $index) {
+                  <span class="index tnum">{{ index(i) }}</span>
+                  <div><h2>{{ h.title }}</h2>{{ h.body }}</div>
+                }
+              </div>
+            </div>
+            @if (p.imageUrls.length > 1) {
+              <div class="shots">
+                @for (shot of p.imageUrls.slice(1, 3); track shot) {
+                  <app-project-image [src]="shot" [name]="p.name" [alt]="p.name + ' screenshot'" />
+                }
+              </div>
+            }
+          </div>
+          <aside class="aside">
+            <div>
+              <p class="label">Stack</p>
+              <div class="tag-row">
+                @for (tech of p.techStack; track tech) { <span class="tag tag-neutral">{{ tech }}</span> }
+              </div>
+            </div>
+            @if (next(); as n) {
+              <div class="card elev-sm teaser">
+                <span class="card-kicker">Next project</span>
+                <a class="card-title" [routerLink]="['/projects', n.id]">{{ n.name }}</a>
+                <p class="card-body">{{ n.tagline }}</p>
+                <div class="card-meta">
+                  <app-status-tag [status]="n.status" />
+                  <a [routerLink]="['/projects', n.id]">View →</a>
+                </div>
+              </div>
+            }
+          </aside>
+        </section>
+      }
+    }
+    @case ('missing') {
+      <section class="missing">
+        <h1>Project not found</h1>
+        <p class="muted">There's no project with the id <code>{{ $any(state()).id }}</code>. It may have been renamed or unpublished.</p>
+        <a class="btn btn-primary" routerLink="/" fragment="projects">Back to all projects</a>
+      </section>
+    }
+    @default {
+      <div aria-busy="true">
+        <header class="head">
+          <div><span class="skeleton sk-tag"></span><span class="skeleton sk-h1"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line short"></span></div>
+          <div class="side"><span class="skeleton sk-line"></span><span class="skeleton sk-line short"></span></div>
+        </header>
+        <span class="skeleton sk-hero"></span>
+      </div>
+    }
+  }
+</div>
+<div class="foot-space"></div>
+<app-footer />

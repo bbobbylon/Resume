@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><link rel="stylesheet" href="_ds/nocturne-341c1f30-4c8b-47b2-ac4e-2ce2860dc9b7/styles.css"><script src="_ds/nocturne-341c1f30-4c8b-47b2-ac4e-2ce2860dc9b7/_ds_bundle.js"></script><script src="./image-slot.js"></script><style>body{margin:0;background:radial-gradient(1000px 600px at 82% -140px,color-mix(in srgb,var(--color-accent-900) 75%,transparent),transparent 60%),radial-gradient(900px 700px at -10% 100%,color-mix(in srgb,black 30%,transparent),transparent 55%),var(--color-bg);color:var(--color-text);font-family:Inter,system-ui,sans-serif}a{color:var(--color-accent-300)}a:hover{color:var(--color-accent)}</style></helmet>
+<div data-screen-label="Project detail — TesseraApp" style="min-height:100vh">
+  <nav class="nav" style="padding:12px 56px">
+    <span class="nav-brand">bobbylon</span>
+    <a href="#" aria-current="page">Projects</a>
+    <a href="#">Resume</a>
+    <a href="mailto:robeoliver@deloitte.com">Contact</a>
+    <a class="btn btn-primary" href="#">Download PDF</a>
+  </nav>
+  <div style="max-width:1120px;margin:0 auto;padding:56px 56px 84px">
+    <a href="#" style="font-size:13px;color:var(--color-neutral-500);text-decoration:none;display:inline-flex;align-items:center;gap:6px">← All projects</a>
+    <header style="display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:28px 72px;align-items:end;padding:42px 0 56px">
+      <div>
+        <div style="display:flex;gap:6px;margin-bottom:20px"><span class="tag tag-accent">Featured</span><span class="tag tag-outline">Live</span><span class="tag tag-neutral">/projects/tesseraapp</span></div>
+        <h1 style="font-size:60px;line-height:1.1;letter-spacing:-0.015em;margin:0 0 0 -0.06em;font-weight:500">TesseraApp</h1>
+        <p style="font-size:17px;line-height:28px;margin:20px 0 0;max-width:52ch;color:color-mix(in srgb,var(--color-text) 78%,transparent)">Full-stack identity and access management platform on a hybrid zero-trust model: stateless JWTs backed by a revocable session store, in-house TOTP MFA and OAuth2/OIDC federation over org-scoped RBAC.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;font-size:14px;line-height:24px">
+        <div style="display:flex;gap:8.4px"><a class="btn btn-primary" href="https://tesseraapp.dev" target="_blank" rel="noopener">Open tesseraapp.dev <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg></a><a class="btn btn-secondary" href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source on GitHub</a></div>
+        <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 20px;color:var(--color-neutral-500)">
+          <span>Live at</span><a href="https://tesseraapp.dev" target="_blank" rel="noopener">tesseraapp.dev</a>
+          <span>Hosting</span><span style="color:var(--color-text)">AWS ECS Fargate · CloudFront · Aiven MySQL</span>
+          <span>Delivery</span><span style="color:var(--color-text)">Multi-stage Docker · Azure CI/CD</span>
+        </div>
+      </div>
+    </header>
+    <div class="lighten" style="aspect-ratio:21/9"><image-slot id="detail-tessera-hero" shape="rounded" radius="8" placeholder="TesseraApp screenshot — sign-in or dashboard"></image-slot></div>
+    <section style="display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px 72px;padding:70px 0 0">
+      <div style="display:flex;flex-direction:column;gap:56px">
+        <div>
+          <div style="display:flex;align-items:center;gap:20px;margin-bottom:28px"><span style="width:44px;height:1px;background:var(--color-accent)"></span><span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">What it does</span></div>
+          <div style="display:grid;grid-template-columns:48px minmax(0,1fr);gap:28px 28px;font-size:15.5px;line-height:28px;color:color-mix(in srgb,var(--color-text) 78%,transparent)">
+            <span style="color:var(--color-accent);font-feature-settings:'tnum' 1">01</span>
+            <div><h2 style="font-size:20px;line-height:28px;margin:0 0 6px;font-weight:500;color:var(--color-text)">Hybrid zero-trust sessions</h2>Stateless HMAC-SHA512 JWTs backed by a stateful refresh-session store, enabling instant revocation, "log out everywhere," and refresh-token rotation with family-wide reuse detection.</div>
+            <span style="color:var(--color-accent);font-feature-settings:'tnum' 1">02</span>
+            <div><h2 style="font-size:20px;line-height:28px;margin:0 0 6px;font-weight:500;color:var(--color-text)">In-house MFA and federation</h2>RFC-6238 TOTP with authenticator QR enrollment and hashed recovery codes; OAuth2/OIDC federation across Google, GitHub and Microsoft over org-scoped, permission-based RBAC.</div>
+            <span style="color:var(--color-accent);font-feature-settings:'tnum' 1">03</span>
+            <div><h2 style="font-size:20px;line-height:28px;margin:0 0 6px;font-weight:500;color:var(--color-text)">Hardened by default</h2>BCrypt-12 hashing, brute-force lockout, enumeration-safe login and device/IP audit logging, shipped through multi-stage Docker and Azure CI/CD.</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px">
+          <div class="lighten" style="aspect-ratio:16/10"><image-slot id="detail-tessera-2" shape="rounded" radius="8" placeholder="MFA enrollment screen"></image-slot></div>
+          <div class="lighten" style="aspect-ratio:16/10"><image-slot id="detail-tessera-3" shape="rounded" radius="8" placeholder="Session / device audit view"></image-slot></div>
+        </div>
+      </div>
+      <aside style="display:flex;flex-direction:column;gap:28px">
+        <div>
+          <p style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 10px;color:var(--color-neutral-500)">Stack</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4</span><span class="tag tag-neutral">Java 21</span><span class="tag tag-neutral">Spring Security</span><span class="tag tag-neutral">MySQL</span><span class="tag tag-neutral">JWT</span><span class="tag tag-neutral">Docker</span><span class="tag tag-neutral">Azure CI/CD</span></div>
+        </div>
+        <div class="card elev-sm" style="padding:16.8px;gap:8px">
+          <span class="card-kicker">Next project</span>
+          <span class="card-title">Luv2Shop</span>
+          <p class="card-body">Full-stack e-commerce with Stripe checkout and Okta OIDC order history.</p>
+          <div class="card-meta"><span class="tag tag-neutral">WIP</span><a href="#" style="margin-left:auto">View →</a></div>
+        </div>
+      </aside>
+    </section>
+    <footer style="padding:84px 0 0;font-size:13px;line-height:28px;color:color-mix(in srgb,var(--color-text) 55%,transparent);display:flex;justify-content:space-between"><span>© 2026 Robert Oliver, Jr.</span><span style="display:flex;gap:20px"><a href="mailto:robeoliver@deloitte.com">Email</a><a href="https://linkedin.com/in/robert" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/bbobbylon" target="_blank" rel="noopener">GitHub</a></span></footer>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

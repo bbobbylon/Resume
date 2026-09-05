@@ -1,0 +1,11 @@
+<footer class="footer container" [class.compact]="compact()">
+  <p class="copy">© {{ year }} {{ profile()?.name ?? 'Robert Oliver, Jr.' }} · Built with Angular + Spring Boot</p>
+  @if (!compact() && profile(); as p) {
+    <ul class="links">
+      <li><a class="ext-link" [href]="'mailto:' + p.email">Email</a></li>
+      @for (link of p.socialLinks; track link.url) {
+        <li><a class="ext-link" [href]="link.url" target="_blank" rel="noopener">{{ link.platform }}</a></li>
+      }
+    </ul>
+  }
+</footer>

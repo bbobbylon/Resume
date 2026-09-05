@@ -1,0 +1,69 @@
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+.hero { padding: 112px 0 84px; max-width: 760px; }
+.hero h1 {
+  font-size: 72px; line-height: 1.1; letter-spacing: -0.015em; font-weight: 500;
+  margin: 0 0 0 -0.06em;
+}
+.hero h1 span { display: block; }
+.hero .tagline { color: var(--color-neutral-500); }
+.summary { font-size: 17px; line-height: 28px; max-width: 58ch; margin: 36px 0 0; }
+.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 28px; }
+
+/* ── Project rows ─────────────────────────────────────────────────────── */
+.projects { padding: 56px 0 28px; }
+.projects .kicker { margin-bottom: 14px; }
+.row {
+  display: grid; grid-template-columns: 120px minmax(0, 1fr) 320px;
+  gap: 28px 48px; align-items: start; padding: 42px 0;
+}
+.index { font-size: 15px; line-height: 28px; color: var(--color-accent); margin: 0; }
+.copy { display: flex; flex-direction: column; gap: 14px; }
+.title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.title-row h2 { font-size: 24px; line-height: 28px; letter-spacing: -0.01em; margin: 0; font-weight: 500; }
+.title-row h2 a { color: inherit; text-decoration: none; }
+.title-row h2 a:hover { color: var(--color-accent); }
+.description { font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; }
+.links { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 6px; }
+.shot { display: block; text-decoration: none; }
+
+/* ── Contact + footer ─────────────────────────────────────────────────── */
+.contact {
+  padding: 70px 0 56px; display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px 48px;
+}
+.contact h3 { font-size: 24px; line-height: 28px; margin: 0; font-weight: 500; }
+.contact p { font-size: 15.5px; line-height: 28px; margin: 14px 0 0; }
+.contact-links { display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 28px; }
+.contact-links a { text-decoration: none; }
+.contact-links a:hover { text-decoration: underline; }
+
+/* ── Skeletons ────────────────────────────────────────────────────────── */
+/* Each hero bar fills one line box of the text it stands in for (1lh; the px/em value is the
+   fallback for browsers without lh) and paints only its content box, so the hero measures the
+   same loading and loaded at every breakpoint and nothing shifts when the data lands. */
+.sk-h1 { width: 520px; max-width: 100%; height: 1.1em; height: 1lh; padding: 0.14em 0; box-sizing: border-box; background-clip: content-box; }
+.sk-h1.wide { width: 100%; }
+.sk-h1.short { width: 420px; }
+.hero .sk-line { height: 28px; height: 1lh; margin: 0; padding: 7px 0; box-sizing: border-box; background-clip: content-box; }
+.sk-line { width: 100%; height: 14px; margin: 8px 0; }
+.sk-line.short { width: 60%; }
+.sk-line.phone { display: none; }
+.sk-btn { width: 112px; height: calc(14px * 1.2 + 2 * var(--space-2) + 2px); border-radius: var(--radius-md); }
+.sk-index { width: 28px; height: 16px; }
+.sk-title { width: 220px; height: 24px; }
+.sk-shot { aspect-ratio: 16 / 10; width: 100%; border-radius: var(--radius-md); }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 880px) {
+  .hero { padding: 72px 0 56px; }
+  .hero h1 { font-size: 48px; }
+  .row { grid-template-columns: 1fr; gap: 16px; padding: 32px 0; }
+  .index { line-height: 1; }
+  .shot { max-width: 480px; }
+  .contact { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .hero h1 { font-size: 38px; }
+  .summary { font-size: 16px; line-height: 26px; }
+  .sk-line.phone { display: block; }
+}

@@ -1,0 +1,75 @@
+/* ── Shell ────────────────────────────────────────────────────────────── */
+.shell { display: grid; grid-template-columns: 360px minmax(0, 1fr); min-height: 100vh; max-width: 1120px; margin: 0 auto; }
+
+/* ── Aside ────────────────────────────────────────────────────────────── */
+.aside {
+  position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto;
+  padding: 56px 42px 56px 56px; display: flex; flex-direction: column; gap: 28px;
+  border-right: 1px solid var(--color-divider);
+}
+.nav-brand { margin: 0; color: inherit; text-decoration: none; }
+.aside h1 { font-size: 36px; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 0 -0.06em; font-weight: 500; }
+.role { font-size: 15px; line-height: 24px; margin: 14px 0 0; color: var(--color-neutral-400); }
+.summary { font-size: 14px; line-height: 24px; margin: 0; }
+.side-nav { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.side-nav a { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 12px; }
+.side-nav a::before { content: ""; width: 24px; height: 1px; background: var(--color-neutral-700); flex: none; }
+.side-nav a:hover, .side-nav a.current { color: var(--color-accent); }
+.side-nav a:hover::before, .side-nav a.current::before { background: var(--color-accent); }
+.aside-foot { display: flex; flex-direction: column; gap: var(--space-3); margin-top: auto; }
+.aside-foot .btn-block { margin: 0; }
+.contact { display: flex; flex-direction: column; gap: 4px; font-size: 13px; line-height: 22px; margin-top: 14px; }
+.contact a { text-decoration: none; }
+.contact a:hover { text-decoration: underline; }
+.location { color: var(--color-neutral-600); }
+
+/* ── Main ─────────────────────────────────────────────────────────────── */
+.main { padding: 56px 56px 42px 48px; display: flex; flex-direction: column; gap: 56px; }
+.main .kicker { margin-bottom: 20px; }
+.table-wrap { overflow-x: auto; }
+.table th.col-index { width: 36px; }
+.table th.col-links { text-align: right; }
+.table td { vertical-align: top; padding-top: 14px; padding-bottom: 14px; }
+.index { color: var(--color-accent); }
+.name-row { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 16px; }
+.name-row a { color: inherit; text-decoration: none; }
+.name-row a:hover { color: var(--color-accent); }
+.blurb { font-size: 13px; line-height: 20px; color: var(--color-neutral-500); margin-top: 4px; max-width: 34ch; }
+.stack { font-size: 12px; line-height: 20px; color: var(--color-neutral-400); max-width: 180px; }
+.status, .links { padding-top: 12px; }
+.links { text-align: right; white-space: nowrap; }
+.btn-sm { padding: 4px 10px; font-size: 13px; }
+.btn-ghost.btn-sm { padding-inline: 6px; }
+
+.timeline { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px 28px; font-size: 14px; line-height: 24px; }
+.period { color: var(--color-neutral-500); }
+.role-name { font-weight: 500; color: var(--color-text); }
+.org { color: var(--color-neutral-500); }
+.lead { margin: 6px 0 0; max-width: 56ch; }
+.foot { margin-top: auto; font-size: 13px; line-height: 28px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+
+/* ── Skeletons ────────────────────────────────────────────────────────── */
+.sk-h1 { width: 240px; height: 36px; margin-bottom: 12px; }
+.sk-line { width: 100%; height: 12px; margin: 6px 0; }
+.sk-line.short { width: 55%; }
+.sk-index { width: 22px; height: 14px; }
+.sk-title { width: 140px; height: 18px; }
+.sk-tag { width: 44px; height: 20px; border-radius: 999px; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 880px) {
+  .main { padding: 42px 28px; }
+  .aside { padding: 42px 28px; }
+}
+@media (max-width: 720px) {
+  .shell { grid-template-columns: minmax(0, 1fr); align-content: start; }
+  .main { min-width: 0; }
+  .aside { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--color-divider); }
+  .aside-foot { margin-top: 0; }
+  .table th:nth-child(3), .stack { display: none; }
+}
+@media (max-width: 480px) {
+  .timeline { grid-template-columns: 1fr; gap: 4px 0; }
+  .timeline .period { margin-top: 14px; }
+  .btn-ghost.btn-sm { display: none; }   /* table too narrow for two link buttons; Source stays on the detail page */
+}

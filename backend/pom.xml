@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.bobbylon</groupId>
+    <artifactId>websitehub-backend</artifactId>
+    <version>0.1.0</version>
+    <name>websitehub-backend</name>
+    <description>REST API backing Bobby's WebsiteHub project-hub frontend</description>
+
+    <properties>
+        <java.version>21</java.version>
+    </properties>
+
+    <dependencies>
+        <!--
+            Spring Boot 4.x split the old single `spring-boot-starter-web` into
+            more granular pieces: `spring-boot-starter-webmvc` brings in Spring MVC
+            itself, and the embedded servlet container is now a separate choice.
+            We pick Tomcat explicitly (Spring Boot's traditional default container).
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
+
+        <!-- Exposes /actuator/health, which render.yaml points Render's health check at. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- OpenAPI 3 description + Swagger UI for the read-only API: /v3/api-docs and /docs.
+             springdoc 3.x is the line built for Spring Boot 4 / Spring Framework 7. -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--
+            Spring Boot 4 also modularized its *test* support: the slice-test
+            annotations (@WebMvcTest, @AutoConfigureMockMvc, ...) no longer ship
+            inside spring-boot-starter-test. Each web starter now has a matching
+            "-test" starter; this one provides
+            org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Packages the app as an executable "fat" jar; the Dockerfile runs this jar directly. -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><meta name="design_doc_mode" content="canvas"><link rel="stylesheet" href="_ds/nocturne-341c1f30-4c8b-47b2-ac4e-2ce2860dc9b7/styles.css"><script src="_ds/nocturne-341c1f30-4c8b-47b2-ac4e-2ce2860dc9b7/_ds_bundle.js"></script><script src="./image-slot.js"></script><style>body{margin:0;background:#0b0c14;font-family:Inter,system-ui,sans-serif}a{color:var(--color-accent-300)}a:hover{color:var(--color-accent)}.dv-turn{padding:40px 44px 32px;scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#e9e9ed;color:#161826;border-radius:4px;text-decoration:none}.dv-tname{font:500 13px/1.2 Inter,system-ui,sans-serif;color:#9397ab}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:#292b31;color:#e9e9ed;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 Inter,system-ui,sans-serif;color:#9397ab}.dv-card{max-width:100%;border-radius:8px;box-shadow:0 0 0 1px #3f424d;overflow:hidden}.dv-opt:target .dv-oid{background:#9184d9;color:#161826}.dv-next{margin:22px 0 0;font:12px/1.5 Inter,system-ui,sans-serif;color:#75798c}.lit{background:radial-gradient(1000px 600px at 82% -140px,color-mix(in srgb,var(--color-accent-900) 75%,transparent),transparent 60%),radial-gradient(900px 700px at -10% 100%,color-mix(in srgb,black 30%,transparent),transparent 55%),var(--color-bg);color:var(--color-text);font-size:15px;line-height:1.55}.rule{height:1px;background:linear-gradient(to right,transparent,var(--color-divider) 48px calc(100% - 48px),transparent)}.rule7{height:1px;background:linear-gradient(to right,transparent,var(--color-neutral-700) 48px calc(100% - 48px),transparent)}</style></helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Three landing directions for the hub on Nocturne — same content, different structure</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Ledger — one column, projects as numbered rule-parted rows</div>
+<div class="dv-card lit" data-screen-label="1a Ledger" style="width:1120px">
+  <nav class="nav" style="padding:12px 56px">
+    <span class="nav-brand">bobbylon</span>
+    <a href="#1a-projects">Projects</a>
+    <a href="#">Resume</a>
+    <a href="#1a-contact">Contact</a>
+    <a class="btn btn-primary" href="#">Download PDF</a>
+  </nav>
+  <div style="padding:0 56px">
+    <section style="padding:112px 0 84px;max-width:760px">
+      <h1 style="font-size:72px;line-height:1.1;letter-spacing:-0.015em;margin:0 0 0 -0.06em;font-weight:500"><span style="display:block">Robert Oliver, Jr.</span><span style="display:block;color:var(--color-neutral-500)">Builds identity that holds.</span></h1>
+      <p style="font-size:17px;line-height:28px;max-width:58ch;margin:36px 0 0">Full-stack engineer at Deloitte Global (DTTL) building a global zero-trust CIAM platform in Angular and Spring Boot. Depth in secure authentication, OAuth2/OIDC, MFA and REST APIs.</p>
+      <div style="display:flex;gap:8.4px;margin-top:28px">
+        <a class="btn btn-primary" href="#">View resume</a>
+        <a class="btn btn-ghost" href="https://github.com/bbobbylon" target="_blank" rel="noopener">github.com/bbobbylon</a>
+      </div>
+    </section>
+    <section id="1a-projects" style="padding:56px 0 28px">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:14px"><span style="width:44px;height:1px;background:var(--color-accent)"></span><span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">Projects</span></div>
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 320px;gap:28px 48px;align-items:start;padding:42px 0">
+        <p style="font-size:15px;line-height:28px;color:var(--color-accent);font-feature-settings:'tnum' 1;margin:0">01</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:10px"><h2 style="font-size:24px;line-height:28px;letter-spacing:-0.01em;margin:0;font-weight:500">TesseraApp</h2><span class="tag tag-accent">Featured</span><span class="tag tag-outline">Live</span></div>
+          <p style="font-size:15.5px;line-height:28px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent);max-width:52ch">Full-stack CIAM platform on a hybrid zero-trust model: stateless HMAC-SHA512 JWTs backed by a revocable refresh-session store, in-house RFC-6238 TOTP MFA, and OAuth2/OIDC federation across Google, GitHub and Microsoft over org-scoped RBAC.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4</span><span class="tag tag-neutral">Java 21</span><span class="tag tag-neutral">Spring Security</span><span class="tag tag-neutral">MySQL</span><span class="tag tag-neutral">JWT</span><span class="tag tag-neutral">Docker</span><span class="tag tag-neutral">Azure CI/CD</span></div>
+          <div style="display:flex;gap:8.4px;margin-top:6px"><a class="btn btn-primary" href="https://tesseraapp.dev" target="_blank" rel="noopener">Open tesseraapp.dev <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg></a><a class="btn btn-secondary" href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </div>
+        <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1a-tessera" shape="rounded" radius="8" placeholder="TesseraApp screenshot"></image-slot></div>
+      </div>
+      <div class="rule7"></div>
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 320px;gap:28px 48px;align-items:start;padding:42px 0">
+        <p style="font-size:15px;line-height:28px;color:var(--color-accent);font-feature-settings:'tnum' 1;margin:0">02</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:10px"><h2 style="font-size:24px;line-height:28px;letter-spacing:-0.01em;margin:0;font-weight:500">Luv2Shop</h2><span class="tag tag-neutral">WIP</span></div>
+          <p style="font-size:15.5px;line-height:28px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent);max-width:52ch">Full-stack e-commerce store: product catalog, keyword search, category filters and server-side pagination, with a reactive Stripe checkout and Okta OIDC-protected order history behind a Spring Security resource server.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4</span><span class="tag tag-neutral">MySQL</span><span class="tag tag-neutral">Stripe</span><span class="tag tag-neutral">Okta OIDC</span><span class="tag tag-neutral">Docker</span></div>
+          <div style="display:flex;gap:8.4px;margin-top:6px"><a class="btn btn-secondary" href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </div>
+        <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1a-luv2shop" shape="rounded" radius="8" placeholder="Luv2Shop screenshot"></image-slot></div>
+      </div>
+      <div class="rule7"></div>
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 320px;gap:28px 48px;align-items:start;padding:42px 0">
+        <p style="font-size:15px;line-height:28px;color:var(--color-accent);font-feature-settings:'tnum' 1;margin:0">03</p>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:10px"><h2 style="font-size:24px;line-height:28px;letter-spacing:-0.01em;margin:0;font-weight:500">WebsiteHub</h2><span class="tag tag-outline">Live</span></div>
+          <p style="font-size:15.5px;line-height:28px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent);max-width:52ch">This site. Angular 21 frontend over a Spring Boot 4.1 REST API, deployed on Render as a static site plus a Docker web service. Each card links out to its project's own deployment.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4.1</span><span class="tag tag-neutral">Java 21</span><span class="tag tag-neutral">Render</span></div>
+          <div style="display:flex;gap:8.4px;margin-top:6px"><a class="btn btn-secondary" href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </div>
+        <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1a-websitehub" shape="rounded" radius="8" placeholder="WebsiteHub screenshot"></image-slot></div>
+      </div>
+    </section>
+    <div class="rule"></div>
+    <section id="1a-contact" style="padding:70px 0 56px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 48px">
+      <div>
+        <h3 style="font-size:24px;line-height:28px;margin:0;font-weight:500">Get in touch</h3>
+        <p style="font-size:15.5px;line-height:28px;margin:14px 0 0;color:color-mix(in srgb,var(--color-text) 78%,transparent)">Kaua‘i, Hawai‘i · open to identity, security and full-stack work.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:15px;line-height:28px">
+        <a href="mailto:robeoliver@deloitte.com">robeoliver@deloitte.com</a>
+        <a href="https://linkedin.com/in/robert" target="_blank" rel="noopener">linkedin.com/in/robert</a>
+        <a href="https://github.com/bbobbylon" target="_blank" rel="noopener">github.com/bbobbylon</a>
+      </div>
+    </section>
+    <footer style="padding:28px 0 42px;font-size:13px;line-height:28px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">© 2026 Robert Oliver, Jr.</footer>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Gallery — featured project hero, card grid, resume band on the section ground</div>
+<div class="dv-card lit" data-screen-label="1b Gallery" style="width:1120px">
+  <nav class="nav" style="padding:12px 56px">
+    <span class="nav-brand">bobbylon</span>
+    <a href="#1b-projects">Projects</a>
+    <a href="#1b-resume">Resume</a>
+    <a href="mailto:robeoliver@deloitte.com">Contact</a>
+    <a class="btn btn-primary" href="#">Download PDF</a>
+  </nav>
+  <div style="padding:0 56px">
+    <section style="padding:84px 0 56px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px 72px;align-items:end">
+      <div>
+        <h1 style="font-size:52px;line-height:1.1;letter-spacing:-0.015em;margin:0 0 0 -0.06em;font-weight:500">Robert Oliver, Jr.</h1>
+        <p style="font-size:17px;line-height:28px;margin:20px 0 0;color:var(--color-neutral-400)">Software Engineer · Identity &amp; Access Management<br>Deloitte Global / DTTL</p>
+        <div style="display:flex;gap:8.4px;margin-top:28px"><a class="btn btn-primary" href="#1b-projects">See projects</a><a class="btn btn-ghost" href="#1b-resume">Resume</a></div>
+      </div>
+      <p style="font-size:15.5px;line-height:28px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent);max-width:52ch">Full-stack engineer building a global zero-trust CIAM platform (Angular + Spring Boot) that secures a multibillion-dollar enterprise. Depth in secure authentication, OAuth2/OIDC, MFA and REST APIs. B.C.S. Software Engineering, cum laude, and M.S. Computer Science.</p>
+    </section>
+    <section id="1b-projects" style="padding:42px 0 56px">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:28px"><span style="width:44px;height:1px;background:var(--color-accent)"></span><span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">Projects</span></div>
+      <article class="card elev-sm" style="display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:0 42px;padding:28px">
+        <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1b-tessera" shape="rounded" radius="8" placeholder="TesseraApp screenshot"></image-slot></div>
+        <div style="display:flex;flex-direction:column;gap:14px;justify-content:center">
+          <div style="display:flex;gap:6px"><span class="tag tag-accent">Featured</span><span class="tag tag-outline">Live</span></div>
+          <h2 style="font-size:28px;line-height:1.15;letter-spacing:-0.01em;margin:0;font-weight:500">TesseraApp</h2>
+          <p style="font-size:15px;line-height:26px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent)">Zero-trust CIAM platform: revocable JWT sessions, in-house TOTP MFA, OAuth2/OIDC federation with Google, GitHub and Microsoft, org-scoped RBAC.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4</span><span class="tag tag-neutral">Spring Security</span><span class="tag tag-neutral">MySQL</span><span class="tag tag-neutral">Docker</span></div>
+          <div style="display:flex;gap:8.4px;margin-top:6px"><a class="btn btn-primary" href="https://tesseraapp.dev" target="_blank" rel="noopener">tesseraapp.dev <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg></a><a class="btn btn-secondary" href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </div>
+      </article>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:20px">
+        <article class="card elev-sm" style="padding:16.8px;gap:12px">
+          <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1b-luv2shop" shape="rounded" radius="6" placeholder="Luv2Shop screenshot"></image-slot></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="card-title">Luv2Shop</span><span class="tag tag-neutral">WIP</span></div>
+          <p class="card-body">E-commerce store with Stripe checkout and Okta OIDC-protected order history.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4</span><span class="tag tag-neutral">Stripe</span></div>
+          <div class="card-meta" style="margin-top:4px;gap:14px"><a href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </article>
+        <article class="card elev-sm" style="padding:16.8px;gap:12px">
+          <div class="lighten" style="aspect-ratio:16/10"><image-slot id="hub-1b-websitehub" shape="rounded" radius="6" placeholder="WebsiteHub screenshot"></image-slot></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span class="card-title">WebsiteHub</span><span class="tag tag-outline">Live</span></div>
+          <p class="card-body">This site: Angular 21 over a Spring Boot 4.1 API, deployed on Render.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5.6px"><span class="tag tag-neutral">Angular 21</span><span class="tag tag-neutral">Spring Boot 4.1</span><span class="tag tag-neutral">Render</span></div>
+          <div class="card-meta" style="margin-top:4px;gap:14px"><a href="#">Live site</a><a href="https://github.com/bbobbylon" target="_blank" rel="noopener">Source</a></div>
+        </article>
+        <article style="border:1px dashed var(--color-neutral-800);border-radius:var(--radius-md);padding:16.8px;display:flex;align-items:center;justify-content:center;color:var(--color-neutral-600);font-size:13px;text-align:center">Next project<br>slots fill from /api/projects</article>
+      </div>
+    </section>
+  </div>
+  <section id="1b-resume" style="background:radial-gradient(900px 420px at 85% -40%,color-mix(in srgb,var(--color-section-glow) 70%,transparent),transparent 64%),var(--color-section);padding:70px 56px">
+    <div style="display:grid;grid-template-columns:repeat(4,auto);justify-content:space-between;gap:42px 28px">
+      <div><p style="font-size:44px;line-height:56px;margin:0 0 0 -0.055em;font-weight:500">2022 —</p><p style="font-size:13px;line-height:14px;letter-spacing:0.06em;text-transform:uppercase;margin:14px 0 0;color:color-mix(in srgb,var(--color-text) 64%,transparent)">Deloitte DTTL, Full Stack</p></div>
+      <div><p style="font-size:44px;line-height:56px;margin:0 0 0 -0.055em;font-weight:500">100%</p><p style="font-size:13px;line-height:14px;letter-spacing:0.06em;text-transform:uppercase;margin:14px 0 0;color:color-mix(in srgb,var(--color-text) 64%,transparent)">Platform uptime through releases</p></div>
+      <div><p style="font-size:44px;line-height:56px;margin:0 0 0 -0.055em;font-weight:500">M.S. CS</p><p style="font-size:13px;line-height:14px;letter-spacing:0.06em;text-transform:uppercase;margin:14px 0 0;color:color-mix(in srgb,var(--color-text) 64%,transparent)">Lewis University · GPA 3.94</p></div>
+      <div style="align-self:center"><a class="btn btn-primary" href="#" style="color:var(--color-text);border-color:var(--color-text)">Full resume</a></div>
+    </div>
+  </section>
+  <div style="padding:0 56px">
+    <footer style="padding:42px 0;display:flex;justify-content:space-between;font-size:13px;line-height:28px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">
+      <span>© 2026 Robert Oliver, Jr. · Kaua‘i, Hawai‘i</span>
+      <span style="display:flex;gap:20px"><a href="mailto:robeoliver@deloitte.com">Email</a><a href="https://linkedin.com/in/robert" target="_blank" rel="noopener">LinkedIn</a><a href="https://github.com/bbobbylon" target="_blank" rel="noopener">GitHub</a></span>
+    </footer>
+  </div>
+</div></div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Dossier — sticky identity column, projects as a data table, experience inline</div>
+<div class="dv-card lit" data-screen-label="1c Dossier" style="width:1120px;display:grid;grid-template-columns:360px minmax(0,1fr)">
+  <aside style="padding:56px 42px 56px 56px;display:flex;flex-direction:column;gap:28px;border-right:1px solid var(--color-divider)">
+    <span class="nav-brand" style="margin:0">bobbylon</span>
+    <div>
+      <h1 style="font-size:36px;line-height:1.1;letter-spacing:-0.015em;margin:0 0 0 -0.06em;font-weight:500">Robert Oliver, Jr.</h1>
+      <p style="font-size:15px;line-height:24px;margin:14px 0 0;color:var(--color-neutral-400)">Software Engineer<br>Identity &amp; Access Management<br>Deloitte Global / DTTL</p>
+    </div>
+    <p style="font-size:14px;line-height:24px;margin:0;color:color-mix(in srgb,var(--color-text) 78%,transparent)">Full-stack engineer building a global zero-trust CIAM platform in Angular and Spring Boot. Secure authentication, OAuth2/OIDC, MFA, REST APIs.</p>
+    <nav style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <a href="#1c-projects" style="color:var(--color-accent);display:flex;align-items:center;gap:12px"><span style="width:24px;height:1px;background:var(--color-accent)"></span>Projects</a>
+      <a href="#1c-experience" style="color:inherit;display:flex;align-items:center;gap:12px"><span style="width:24px;height:1px;background:var(--color-neutral-700)"></span>Experience</a>
+      <a href="#" style="color:inherit;display:flex;align-items:center;gap:12px"><span style="width:24px;height:1px;background:var(--color-neutral-700)"></span>Resume</a>
+    </nav>
+    <div style="display:flex;flex-direction:column;gap:8.4px;margin-top:auto">
+      <a class="btn btn-primary btn-block" href="#" style="margin:0">Download resume PDF</a>
+      <div style="display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:22px;margin-top:14px">
+        <a href="mailto:robeoliver@deloitte.com">robeoliver@deloitte.com</a>
+        <a href="https://github.com/bbobbylon" target="_blank" rel="noopener">github.com/bbobbylon</a>
+        <a href="https://linkedin.com/in/robert" target="_blank" rel="noopener">linkedin.com/in/robert</a>
+        <span style="color:var(--color-neutral-600)">Kaua‘i, Hawai‘i, USA</span>
+      </div>
+    </div>
+  </aside>
+  <main style="padding:56px 56px 42px 48px;display:flex;flex-direction:column;gap:56px">
+    <section id="1c-projects">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px"><span style="width:44px;height:1px;background:var(--color-accent)"></span><span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">Projects</span></div>
+      <table class="table">
+        <thead><tr><th style="width:36px">#</th><th>Project</th><th>Stack</th><th>Status</th><th style="text-align:right">Links</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--color-accent);font-feature-settings:'tnum' 1;vertical-align:top;padding-top:14px">01</td>
+            <td style="vertical-align:top;padding-top:14px;padding-bottom:14px"><div style="display:flex;align-items:center;gap:8px;font-weight:500;font-size:16px">TesseraApp <span class="tag tag-accent">Featured</span></div><div style="font-size:13px;line-height:20px;color:var(--color-neutral-500);margin-top:4px;max-width:34ch">Zero-trust CIAM: revocable JWT sessions, TOTP MFA, OAuth2/OIDC federation.</div></td>
+            <td style="vertical-align:top;padding-top:14px;font-size:12px;line-height:20px;color:var(--color-neutral-400);max-width:180px">Angular 21 · Spring Boot 4 · Java 21 · Spring Security · MySQL · Docker</td>
+            <td style="vertical-align:top;padding-top:12px"><span class="tag tag-outline">Live</span></td>
+            <td style="vertical-align:top;padding-top:12px;text-align:right;white-space:nowrap"><a class="btn btn-primary" href="https://tesseraapp.dev" target="_blank" rel="noopener" style="padding:4px 10px;font-size:13px">Open <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg></a> <a class="btn btn-ghost" href="https://github.com/bbobbylon" target="_blank" rel="noopener" style="padding:4px 6px;font-size:13px">Source</a></td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-accent);font-feature-settings:'tnum' 1;vertical-align:top;padding-top:14px">02</td>
+            <td style="vertical-align:top;padding-top:14px;padding-bottom:14px"><div style="font-weight:500;font-size:16px">Luv2Shop</div><div style="font-size:13px;line-height:20px;color:var(--color-neutral-500);margin-top:4px;max-width:34ch">E-commerce store with Stripe checkout and Okta OIDC order history.</div></td>
+            <td style="vertical-align:top;padding-top:14px;font-size:12px;line-height:20px;color:var(--color-neutral-400);max-width:180px">Angular 21 · Spring Boot 4 · MySQL · Stripe · Okta OIDC · Docker</td>
+            <td style="vertical-align:top;padding-top:12px"><span class="tag tag-neutral">WIP</span></td>
+            <td style="vertical-align:top;padding-top:12px;text-align:right;white-space:nowrap"><a class="btn btn-ghost" href="https://github.com/bbobbylon" target="_blank" rel="noopener" style="padding:4px 6px;font-size:13px">Source</a></td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-accent);font-feature-settings:'tnum' 1;vertical-align:top;padding-top:14px">03</td>
+            <td style="vertical-align:top;padding-top:14px;padding-bottom:14px"><div style="font-weight:500;font-size:16px">WebsiteHub</div><div style="font-size:13px;line-height:20px;color:var(--color-neutral-500);margin-top:4px;max-width:34ch">This site. Angular 21 over a Spring Boot 4.1 API on Render.</div></td>
+            <td style="vertical-align:top;padding-top:14px;font-size:12px;line-height:20px;color:var(--color-neutral-400);max-width:180px">Angular 21 · Spring Boot 4.1 · Java 21 · Render</td>
+            <td style="vertical-align:top;padding-top:12px"><span class="tag tag-outline">Live</span></td>
+            <td style="vertical-align:top;padding-top:12px;text-align:right;white-space:nowrap"><a class="btn btn-primary" href="#" style="padding:4px 10px;font-size:13px">Open <svg width="12" height="12" viewBox="0 0 256 256" fill="currentColor"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"></path></svg></a> <a class="btn btn-ghost" href="https://github.com/bbobbylon" target="_blank" rel="noopener" style="padding:4px 6px;font-size:13px">Source</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="1c-experience">
+      <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px"><span style="width:44px;height:1px;background:var(--color-accent)"></span><span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-accent)">Experience</span></div>
+      <div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:14px 28px;font-size:14px;line-height:24px">
+        <span style="color:var(--color-neutral-500);font-feature-settings:'tnum' 1">2022 — Present</span>
+        <div><div style="font-weight:500;color:var(--color-text)">Junior Full Stack Developer · IT Business Operations Analyst</div><div style="color:var(--color-neutral-500)">Deloitte DTTL · Dallas, TX</div><p style="margin:6px 0 0;color:color-mix(in srgb,var(--color-text) 78%,transparent);max-width:56ch">Angular components and Spring Boot microservices for authentication, session handling and token processing on a global CIAM platform serving millions of users.</p></div>
+        <span style="color:var(--color-neutral-500);font-feature-settings:'tnum' 1">Summer 2021</span>
+        <div><div style="font-weight:500;color:var(--color-text)">IT Business Operations Analyst, Intern</div><div style="color:var(--color-neutral-500)">Deloitte Global · Chicago, IL</div></div>
+        <span style="color:var(--color-neutral-500);font-feature-settings:'tnum' 1">2026 · 2020</span>
+        <div><div style="font-weight:500;color:var(--color-text)">M.S. Computer Science · B.C.S. Software Engineering, cum laude</div><div style="color:var(--color-neutral-500)">Lewis University</div></div>
+      </div>
+    </section>
+    <footer style="font-size:13px;line-height:28px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:auto">© 2026 Robert Oliver, Jr.</footer>
+  </main>
+</div></div>
+
+</div>
+<p class="dv-next">Try next: "go with <a class="dv-oid" href="#1a">1a</a> and add the stat band from <a class="dv-oid" href="#1b">1b</a>" · "make <a class="dv-oid" href="#1c">1c</a>'s table the projects section in <a class="dv-oid" href="#1a">1a</a>" · "mobile versions"</p>
+</section>
+</x-dc>
+</body>
+</html>

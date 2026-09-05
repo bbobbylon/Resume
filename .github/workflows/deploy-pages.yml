@@ -1,0 +1,110 @@
+name: Deploy frontend to GitHub Pages
+
+# Publishes the Angular build to GitHub Pages (free, no card, custom domain
+# supported). Runs on every push to main that touches the frontend or the seed
+# data, and on demand. One-time setup — see docs/DEPLOYMENT.md → "Go-live runbook":
+#   1. Push the repo; this workflow tries to enable Pages itself (configure-pages
+#      with enablement). If that is refused: Settings → Pages → Source: "GitHub Actions".
+#   2. Optional repo variables (Settings → Secrets and variables → Actions → Variables):
+#        API_BASE_URL     = the Render service URL, only if it differs from the
+#                           placeholder in frontend/src/environments/environment.ts
+#        PAGES_BASE_HREF  = "/" when serving from a custom domain
+#                           ("/Resume/" — the default — on bbobbylon.github.io/Resume)
+#        PAGES_CNAME      = your custom domain (e.g. bobbylon.dev), if any.
+#
+# Besides building, it captures a snapshot of the API data from a freshly built
+# backend (public/data/*.json). The app renders from that snapshot whenever the
+# live API is asleep or slow, which is what makes Render's free tier acceptable.
+on:
+  push:
+    branches: [main]
+    paths: ['frontend/**', 'backend/src/main/**', '.github/workflows/deploy-pages.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Snapshot the API data
+        # Builds and starts the backend just long enough to capture its three
+        # endpoints into frontend/public/data/*.json.
+        run: |
+          mvn -B -q -DskipTests -f backend/pom.xml package
+          java -jar backend/target/websitehub-backend-*.jar > backend.log 2>&1 &
+          JAR_PID=$!
+          for i in $(seq 1 60); do
+            curl -sf localhost:8420/actuator/health > /dev/null && break
+            sleep 1
+          done
+          (cd frontend && API_URL=http://localhost:8420 npm run snapshot)
+          kill "$JAR_PID"
+      - name: Point the build at the API
+        working-directory: frontend
+        env:
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+        run: |
+          # Optional; without the variable the placeholder in environment.ts stands.
+          if [ -n "$API_BASE_URL" ]; then
+            sed -i "s#apiBaseUrl: '[^']*'#apiBaseUrl: '${API_BASE_URL%/}'#" src/environments/environment.ts
+          fi
+          grep -n apiBaseUrl src/environments/environment.ts
+      - name: Build
+        working-directory: frontend
+        env:
+          BASE_HREF: ${{ vars.PAGES_BASE_HREF || '/Resume/' }}
+        run: npx ng build --base-href "$BASE_HREF"
+      - name: Site URL, SPA fallback, CNAME
+        working-directory: frontend/dist/frontend/browser
+        env:
+          CNAME: ${{ vars.PAGES_CNAME }}
+          BASE_HREF: ${{ vars.PAGES_BASE_HREF || '/Resume/' }}
+        run: |
+          # index.html (Open Graph tags), robots.txt and sitemap.xml carry the
+          # placeholder origin https://bobbylon.dev; stamp the real one in.
+          if [ -n "$CNAME" ]; then SITE_URL="https://$CNAME"
+          else SITE_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${BASE_HREF%/}"; fi
+          echo "Site URL: $SITE_URL"
+          sed -i "s#https://bobbylon\.dev#${SITE_URL}#g" index.html robots.txt sitemap.xml
+          # GitHub Pages serves 404.html for unknown paths; making it a copy of
+          # index.html lets deep links like /projects/tesseraapp boot the app.
+          cp index.html 404.html
+          if [ -n "$CNAME" ]; then echo "$CNAME" > CNAME; fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist/frontend/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

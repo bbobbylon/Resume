@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet><style>body{margin:0;background:#0f172a;color:#f1f5f9;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.5}a{color:#38bdf8}a:hover{color:#38bdf8}</style></helmet>
+<div data-screen-label="Current site" style="min-height:100vh;background:#0f172a;color:#f1f5f9;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.5">
+  <header style="position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:#1e293b;border-bottom:1px solid rgba(255,255,255,0.08);z-index:10">
+    <a href="#top" style="font-weight:700;text-decoration:none;color:#f1f5f9">Bobby</a>
+    <nav style="display:flex;gap:24px">
+      <a href="#about" style="color:#38bdf8">About</a>
+      <a href="#projects" style="color:#38bdf8">Projects</a>
+    </nav>
+  </header>
+  <section id="top" style="max-width:960px;margin:0 auto;padding:80px 24px 48px;text-align:center">
+    <h1 style="font-size:44px;line-height:1.2;margin:0 0 8px;font-weight:700">Bobby</h1>
+    <p style="color:#94a3b8;font-size:20px;margin:0 0 24px">Software Engineer</p>
+    <a href="https://example.com/resume.pdf" target="_blank" rel="noopener" style="display:inline-block;padding:9.6px 20px;border:1px solid #38bdf8;border-radius:999px;text-decoration:none;color:#38bdf8">View Resume</a>
+  </section>
+  <section id="about" style="max-width:960px;margin:0 auto;padding:48px 24px">
+    <h2 style="font-size:24px;line-height:1.2;margin:19.92px 0;font-weight:700">About</h2>
+    <p style="color:#94a3b8;font-size:17.6px;margin:16px 0">TODO: write a two-to-three sentence bio here — what you do, what you're into, and what this hub is for.</p>
+  </section>
+  <section id="projects" style="max-width:960px;margin:0 auto;padding:48px 24px">
+    <h2 style="font-size:24px;line-height:1.2;margin:19.92px 0;font-weight:700">Projects</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:24px">
+      <article style="background:#1e293b;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px;border:1px solid #38bdf8">
+        <h3 style="font-size:18.72px;line-height:1.2;margin:18.72px 0;font-weight:700">TesseraApp</h3>
+        <p style="margin:16px 0">Full-stack Angular + Spring Boot application deployed on AWS (ECS Fargate, CloudFront, Aiven MySQL).</p>
+        <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:6.4px;padding:0;margin:0">
+          <li style="font-size:12px;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:2.4px 9.6px">Angular</li>
+          <li style="font-size:12px;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:2.4px 9.6px">Spring Boot</li>
+          <li style="font-size:12px;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:2.4px 9.6px">AWS</li>
+          <li style="font-size:12px;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:2.4px 9.6px">MySQL</li>
+        </ul>
+        <a href="https://tesseraapp.dev" target="_blank" rel="noopener" style="color:#38bdf8">Visit project →</a>
+      </article>
+      <article style="background:#1e293b;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:8px">
+        <h3 style="font-size:18.72px;line-height:1.2;margin:18.72px 0;font-weight:700">TODO: Project Name</h3>
+        <p style="margin:16px 0">TODO: one or two sentences describing what this project does.</p>
+        <ul style="list-style:none;display:flex;flex-wrap:wrap;gap:6.4px;padding:0;margin:0">
+          <li style="font-size:12px;color:#94a3b8;border:1px solid rgba(255,255,255,0.15);border-radius:999px;padding:2.4px 9.6px">TODO</li>
+        </ul>
+        <a href="https://example.com" target="_blank" rel="noopener" style="color:#38bdf8">Visit project →</a>
+      </article>
+    </div>
+  </section>
+  <footer style="max-width:960px;margin:0 auto;padding:48px 24px;text-align:center;color:#94a3b8">
+    <div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">
+      <a href="https://github.com/TODO" target="_blank" rel="noopener" style="color:#38bdf8">GitHub</a>
+      <a href="https://linkedin.com/in/TODO" target="_blank" rel="noopener" style="color:#38bdf8">LinkedIn</a>
+    </div>
+    <a href="mailto:TODO@example.com" style="color:#38bdf8">TODO@example.com</a>
+    <p style="font-size:13.6px;margin:16px 0 0">© 2026 Bobby</p>
+  </footer>
+</div>
+</x-dc>
+</body>
+</html>

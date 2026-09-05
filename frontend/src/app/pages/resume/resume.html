@@ -1,0 +1,107 @@
+<app-nav />
+<div class="page container">
+  <aside class="aside">
+    @if (profile(); as p) {
+      <div>
+        <h1>{{ p.name }}</h1>
+        <p class="title">{{ p.title }}</p>
+      </div>
+      <div class="contact">
+        <span>{{ p.location }}</span>
+        <a [href]="tel(p.phone)">{{ p.phone }}</a>
+        <a [href]="'mailto:' + p.email">{{ p.email }}</a>
+        @for (link of p.socialLinks; track link.url) {
+          <a [href]="link.url" target="_blank" rel="noopener">{{ link.url | domain:true }}</a>
+        }
+      </div>
+    } @else {
+      <div aria-busy="true"><span class="skeleton sk-h1"></span><span class="skeleton sk-line short"></span></div>
+    }
+    <div>
+      <p class="label">Technical skills</p>
+      <div class="tag-row">
+        @if (resume(); as r) {
+          @for (skill of r.skills; track skill) { <span class="tag tag-neutral">{{ skill }}</span> }
+        } @else {
+          @for (n of [0, 1, 2, 3, 4, 5]; track n) { <span class="skeleton sk-tag" aria-hidden="true"></span> }
+        }
+      </div>
+    </div>
+    @if (profile(); as p) {
+      <a class="btn btn-primary download" [href]="p.resumeUrl" download>Download PDF</a>
+    }
+  </aside>
+
+  <main class="main">
+    @if (resume(); as r) {
+      <p class="summary">{{ r.summary }}</p>
+
+      <section aria-labelledby="experience-kicker">
+        <p id="experience-kicker" class="kicker">Experience</p>
+        <div class="experience">
+          @for (job of r.experience; track job.role + job.period) {
+            <span class="period tnum">{{ job.period }}</span>
+            <div>
+              <h2>{{ job.role }}</h2>
+              <p class="org">{{ job.employer }} · {{ job.location }}</p>
+              <ul class="bullets muted">
+                @for (line of job.bullets; track line) { <li>{{ line }}</li> }
+              </ul>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section aria-labelledby="projects-kicker">
+        <p id="projects-kicker" class="kicker">Projects</p>
+        <div class="projects">
+          @for (project of r.projects; track project.name) {
+            <div>
+              <div class="project-head">
+                <h2>{{ project.name }}</h2>
+                @if (project.url; as url) {
+                  <a class="btn btn-ghost" [href]="url" target="_blank" rel="noopener">{{ url | domain }}</a>
+                }
+              </div>
+              <p class="stack">{{ project.subtitle }}</p>
+              <ul class="bullets muted">
+                @for (line of project.bullets; track line) { <li>{{ line }}</li> }
+              </ul>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="two-col">
+        <div aria-labelledby="education-kicker">
+          <p id="education-kicker" class="kicker">Education</p>
+          <div class="entries">
+            @for (edu of r.education; track edu.degree) {
+              <div>
+                <div class="entry-head"><span class="entry-name">{{ edu.degree }}</span><span class="entry-year tnum">{{ edu.year }}</span></div>
+                <div class="entry-org">{{ edu.school }}@if (edu.note) { · {{ edu.note }} }</div>
+              </div>
+            }
+          </div>
+        </div>
+        <div aria-labelledby="achievements-kicker">
+          <p id="achievements-kicker" class="kicker">Achievements</p>
+          <div class="entries">
+            @for (item of r.achievements; track item.name) {
+              <div>
+                <div class="entry-head"><span class="entry-name">{{ item.name }}</span><span class="entry-year tnum">{{ item.period }}</span></div>
+                <div class="entry-org">{{ item.org }}</div>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    } @else {
+      <div aria-busy="true" class="sk-main">
+        <span class="skeleton sk-line"></span><span class="skeleton sk-line"></span><span class="skeleton sk-line short"></span>
+        <span class="skeleton sk-block"></span><span class="skeleton sk-block"></span>
+      </div>
+    }
+  </main>
+</div>
+<app-footer />

@@ -1,0 +1,28 @@
+# Render Blueprint — Render dashboard → New → Blueprint → pick this repo → Apply.
+# Provisions the API as a Docker web service on the free plan (no card). The
+# frontend is NOT here: .github/workflows/deploy-pages.yml publishes it to GitHub
+# Pages. Full runbook: docs/DEPLOYMENT.md → "Go-live runbook".
+#
+# Free-plan behaviour: the service sleeps after 15 min idle and takes about a
+# minute to wake. The site covers that with a build-time snapshot of the API data,
+# so visitors never wait on it.
+services:
+  - type: web
+    # The public URL derives from the name: https://websitehub-backend.onrender.com
+    # (Render appends a suffix if the name is already taken; then set the repo
+    # variable API_BASE_URL to the real URL — see deploy-pages.yml).
+    name: websitehub-backend
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: ALLOWED_ORIGIN
+        # Comma-separated origins allowed to call /api/**: the GitHub Pages origin
+        # now; append the custom domain (e.g. ,https://bobbylon.dev) when it exists.
+        value: https://bbobbylon.github.io
+      - key: JAVA_TOOL_OPTIONS
+        # Tuned for a 512 MB container that wakes often and serves little:
+        # C1-only JIT starts faster, SerialGC has the smallest footprint.
+        value: -XX:TieredStopAtLevel=1 -XX:+UseSerialGC -XX:MaxRAMPercentage=70
