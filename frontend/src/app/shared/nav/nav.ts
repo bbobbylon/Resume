@@ -4,11 +4,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
+import { ThemeToggle } from '../theme-toggle/theme-toggle';
 
 /**
  * The Nocturne `.nav` shared by the Ledger and Gallery landings, the resume page and
  * the project detail page: brand mark (→ `/`), Projects (→ `/#projects`), Resume,
- * Contact (mailto) and a primary "Download PDF" button.
+ * Contact (mailto), the theme toggle and a primary "Download PDF" button.
  *
  * `aria-current="page"` is what the token sheet styles as the accent "current"
  * state, so it is set by hand: Resume via `routerLinkActive`, and Projects
@@ -17,7 +18,7 @@ import { ProfileService } from '../../services/profile.service';
  */
 @Component({
   selector: 'app-nav',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, ThemeToggle],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
 })

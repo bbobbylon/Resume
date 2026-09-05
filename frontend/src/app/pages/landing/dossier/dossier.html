@@ -1,6 +1,9 @@
 <div class="shell">
   <aside class="aside">
-    <a class="nav-brand" routerLink="/">{{ profile()?.brand ?? 'bobbylon' }}</a>
+    <div class="aside-head">
+      <a class="nav-brand" routerLink="/">{{ profile()?.brand ?? 'bobbylon' }}</a>
+      <app-theme-toggle />
+    </div>
     @if (profile(); as p) {
       <div>
         <h1>{{ p.name }}</h1>

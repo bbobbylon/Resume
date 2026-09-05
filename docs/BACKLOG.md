@@ -32,8 +32,6 @@ the top of each section. Dates are when the item was added. See
 
 ## Next up (no accounts needed)
 
-- [ ] Light theme toggle (`prefers-color-scheme` + a switch in the nav); the print
-  palette already proves the tokens flip cleanly.
 - [ ] Live-status dots on the landing cards too (kept to the detail page for now so
   the landing does not fire one request per project on every visit).
 - [ ] Tablet-width hero skeleton (700–880 px) is one heading line taller than the
@@ -44,6 +42,12 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-05 — Light theme toggle: `data-theme` on `<html>` over the Nocturne tokens
+  (`:root[data-theme="light"]` in `styles.css`), a pre-paint script in `index.html`
+  (saved choice → OS preference → dark, no flash on prerendered pages),
+  `services/theme.ts` + a sun/moon `theme-toggle` in the nav and the Dossier aside.
+  A toggle is saved to `localStorage`; an OS preference keeps following the system.
+  Verified in both themes across all three landings, resume and project detail.
 - 2026-09-04 — Live-status dot on project pages (browser-side `no-cors` probe of the
   live URL, `LiveStatus`) and cross-fade route transitions (skipped under reduced motion).
 - 2026-09-04 — Per-page title/description/Open Graph tags with a social JPEG per

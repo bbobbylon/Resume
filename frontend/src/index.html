@@ -6,8 +6,14 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Robert Oliver, Jr. — software engineer (identity & access management). Projects, live demos and resume.">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="dark light">
   <meta name="theme-color" content="#161826">
+  <!-- Theme before first paint, so a prerendered page never flashes the wrong one:
+       the saved choice, else the OS preference, else Nocturne's dark. After boot,
+       services/theme.ts owns the attribute. -->
+  <script>
+    (function () { try { var t = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); document.documentElement.setAttribute('data-theme', t); } catch (e) {} })();
+  </script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <!-- Social previews. "https://bobbylon.dev" is a placeholder for the production
        origin: the Pages workflow rewrites it to the real site URL at deploy time.

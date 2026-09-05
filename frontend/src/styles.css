@@ -116,6 +116,42 @@
   --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0,0,0,0.65);
 }
 
+/* Light theme — the same roles re-tuned for a light ground (WebsiteHub addition; the
+   print palette below was the proof the tokens flip). Switched by `data-theme` on
+   <html>: index.html's pre-paint script sets it, services/theme.ts keeps it. Ramps
+   invert (neutral-400/500 stay secondary text, 700 rules, 800 tag fills) and the
+   accent drops to its 700 step so the documented contrast ratios survive. */
+:root { color-scheme: dark; }
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f4f5fa;
+  --color-surface: #ffffff;
+  --color-text: #17181c;
+  --color-accent: #5d5294;
+  --color-accent-2: #5c5783;
+  --color-divider: color-mix(in srgb, #17181c 14%, transparent);
+  --color-neutral-100: #292b31;
+  --color-neutral-200: #3f424d;
+  --color-neutral-300: #4b4e5c;
+  --color-neutral-400: #595d6c;
+  --color-neutral-500: #6b6f82;
+  --color-neutral-600: #9397ab;
+  --color-neutral-700: #cfd3e5;
+  --color-neutral-800: #e4e7f5;
+  --color-neutral-900: #eef0f7;
+  --color-accent-100: #2b2741;
+  --color-accent-800: #e7e5fe;
+  --color-accent-900: #dcd8ff;
+  --shadow-sm: 0 0 0 1px #d9dcea;
+  --shadow-md: 0 0 0 1px #cfd3e5, 0 6px 18px rgba(23, 24, 28, 0.10);
+  --shadow-lg: 0 0 0 1px #b2b6ca, 0 16px 40px rgba(23, 24, 28, 0.16);
+  /* The one saturated surface (Gallery's stat band) becomes a lavender tint so its
+     `--color-text` copy stays readable. */
+  --color-section: #e7e5fe;
+  --color-section-glow: #cbc5ff;
+  --color-section-ghost: #a9a2e6;
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-text);
@@ -124,6 +160,8 @@ body {
 h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); }
 
 .lighten{mix-blend-mode:lighten;background-color:transparent}
+/* On a light ground `lighten` would erase a dark screenshot, so the frame shows it plainly. */
+:root[data-theme="light"] .lighten{mix-blend-mode:normal}
 
 /* ══════════════════════════════════════════════════════════════════════════
    Components — built with the tokens above. Plain CSS
@@ -344,6 +382,13 @@ body {
       color-mix(in srgb, black 30%, transparent), transparent 55%),
     var(--color-bg);
   -webkit-font-smoothing: antialiased;
+}
+/* Light ground: keep the accent bloom, drop the black shadow (a grey smudge on white). */
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(1000px 600px at 82% -140px,
+      color-mix(in srgb, var(--color-accent-900) 80%, transparent), transparent 60%),
+    var(--color-bg);
 }
 
 /* Layout */
