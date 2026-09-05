@@ -17,7 +17,7 @@ RUN mvn -B package -DskipTests
 # ---- Run stage --------------------------------------------------------------
 # A slim JRE (not a full JDK) is enough to *run* a packaged jar, and keeps the
 # final image small — per team convention (multi-stage build, slim JRE).
-FROM eclipse-temurin:21-jre-jammy
+FROM eclipse-temurin:25-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/websitehub-backend-*.jar app.jar
 
