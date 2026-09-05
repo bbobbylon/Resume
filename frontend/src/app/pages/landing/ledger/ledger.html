@@ -31,6 +31,7 @@
               <h2><a [routerLink]="['/projects', project.id]">{{ project.name }}</a></h2>
               @if (project.featured) { <app-status-tag [featured]="true" /> }
               <app-status-tag [status]="project.status" />
+              @if (project.url; as url) { <app-live-status [url]="url" [compact]="true" /> }
             </div>
             <p class="description muted">{{ project.description }}</p>
             <div class="tag-row">

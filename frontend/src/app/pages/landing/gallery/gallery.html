@@ -35,6 +35,7 @@
             <div class="tag-row">
               @if (lead.featured) { <app-status-tag [featured]="true" /> }
               <app-status-tag [status]="lead.status" />
+              @if (lead.url; as url) { <app-live-status [url]="url" [compact]="true" /> }
             </div>
             <h2><a [routerLink]="['/projects', lead.id]">{{ lead.name }}</a></h2>
             <p class="muted">{{ lead.tagline }}</p>
@@ -63,7 +64,10 @@
               </a>
               <div class="title-row">
                 <a class="card-title" [routerLink]="['/projects', project.id]">{{ project.name }}</a>
-                <app-status-tag [status]="project.status" />
+                <div class="meta">
+                  <app-status-tag [status]="project.status" />
+                  @if (project.url; as url) { <app-live-status [url]="url" [compact]="true" /> }
+                </div>
               </div>
               <p class="card-body">{{ project.tagline }}</p>
               <div class="tag-row">

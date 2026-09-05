@@ -26,6 +26,7 @@
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 20px; }
 .grid .card { padding: 16.8px; gap: 12px; }
 .title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.title-row .meta { display: flex; align-items: center; gap: 8px; }
 .card-title { text-decoration: none; color: inherit; }
 .card-title:hover { color: var(--color-accent); }
 .grid .card-meta { margin-top: 4px; gap: 14px; }

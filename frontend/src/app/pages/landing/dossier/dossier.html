@@ -49,7 +49,12 @@
                     <div class="blurb">{{ project.tagline }}</div>
                   </td>
                   <td class="stack">{{ project.techStack.join(' · ') }}</td>
-                  <td class="status"><app-status-tag [status]="project.status" /></td>
+                  <td class="status">
+                    <div class="status-row">
+                      <app-status-tag [status]="project.status" />
+                      @if (project.url; as url) { <app-live-status [url]="url" [compact]="true" /> }
+                    </div>
+                  </td>
                   <td class="links">
                     @if (project.url; as url) {
                       <a class="btn btn-primary btn-sm" [href]="url" target="_blank" rel="noopener">Open <app-arrow-up-right [size]="12" /></a>

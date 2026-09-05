@@ -41,14 +41,20 @@ the top of each section. Dates are when the item was added. See
 
 ## Next up (no accounts needed)
 
-- [ ] Live-status dots on the landing cards too (kept to the detail page for now so
-  the landing does not fire one request per project on every visit).
 - [ ] Tablet-width hero skeleton (700–880 px) is one heading line taller than the
   loaded hero; harmless, but could mirror the tagline wrap there too.
 - [ ] Regenerate `resume.pdf` in the Pages workflow so it can never lag the seed data.
 
 ## Done
 
+- 2026-09-05 — Live-status dots on the landing cards: `LiveStatus` gained a
+  `compact` input (dot only, label moved to `title`/`aria-label`) and now probes
+  lazily behind an `IntersectionObserver` — a dot only fires its `no-cors` fetch
+  once it scrolls into view, and only once, so a landing with many projects
+  doesn't fire one request per card on every visit. Wired into Ledger's title
+  row, Gallery's featured card and grid cards, and Dossier's status column.
+  Environments without `IntersectionObserver` (jsdom in tests) probe immediately;
+  tests stub `fetch` so this never hits the network in CI.
 - 2026-09-05 — Shared-element hero transition: every `app-project-image` that shows
   a project's first screenshot (landing cards/rows and the detail hero) now carries
   `[viewTransitionName]="'shot-' + project.id"`, bound to `view-transition-name` on

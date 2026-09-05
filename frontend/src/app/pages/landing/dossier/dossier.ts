@@ -7,6 +7,7 @@ import { StatusTag } from '../../../shared/status-tag/status-tag';
 import { ArrowUpRight } from '../../../shared/icons/arrow-up-right';
 import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
+import { LiveStatus } from '../../../shared/live-status/live-status';
 
 /**
  * Landing layout 1c "Dossier" (handoff → Landing variants → 1c): a `360px | 1fr`
@@ -17,7 +18,7 @@ import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
  */
 @Component({
   selector: 'app-dossier',
-  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle],
+  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus],
   templateUrl: './dossier.html',
   styleUrl: './dossier.css',
 })

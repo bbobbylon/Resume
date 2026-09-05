@@ -31,4 +31,49 @@ describe('LiveStatus', () => {
     expect(fetch).not.toHaveBeenCalled();
     expect(fixture.nativeElement.textContent).toContain('Checking');
   });
+
+  it('compact mode shows the dot with no label text', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(null, { status: 200 })));
+    const fixture = TestBed.createComponent(LiveStatus);
+    fixture.componentRef.setInput('url', 'https://tesseraapp.dev');
+    fixture.componentRef.setInput('compact', true);
+    await fixture.whenStable();
+    await new Promise((r) => setTimeout(r, 0));
+    await fixture.whenStable();
+    const status: HTMLElement = fixture.nativeElement.querySelector('.status');
+    expect(status.textContent?.trim()).toBe('');
+    expect(status.getAttribute('title')).toBe('Up now');
+    expect(status.getAttribute('aria-label')).toBe('Live site Up now');
+  });
+
+  it('only probes once the dot scrolls into view, when IntersectionObserver exists', async () => {
+    const fetchSpy = vi.fn(async () => new Response(null, { status: 200 }));
+    vi.stubGlobal('fetch', fetchSpy);
+    let observedCallback: IntersectionObserverCallback | undefined;
+    const disconnect = vi.fn();
+    class FakeIntersectionObserver {
+      constructor(callback: IntersectionObserverCallback) {
+        observedCallback = callback;
+      }
+      observe = vi.fn();
+      disconnect = disconnect;
+      unobserve = vi.fn();
+      takeRecords = vi.fn(() => []);
+      root = null;
+      rootMargin = '';
+      thresholds: number[] = [];
+    }
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver);
+
+    const fixture = TestBed.createComponent(LiveStatus);
+    fixture.componentRef.setInput('url', 'https://tesseraapp.dev');
+    await fixture.whenStable();
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    observedCallback?.([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver);
+    await new Promise((r) => setTimeout(r, 0));
+    await fixture.whenStable();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(disconnect).toHaveBeenCalled();
+  });
 });

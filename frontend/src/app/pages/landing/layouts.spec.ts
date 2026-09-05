@@ -44,6 +44,10 @@ async function render(component: Type<unknown>) {
 }
 
 describe('Landing layouts', () => {
+  // Each layout now shows an app-live-status dot per project card; keep the probes off the network.
+  beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => new Response())));
+  afterEach(() => vi.unstubAllGlobals());
+
   it('Ledger renders numbered rows with Open/Source links', async () => {
     const el = await render(Ledger);
     expect(el.querySelectorAll('article.row').length).toBe(2);
