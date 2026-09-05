@@ -2,7 +2,7 @@
 # A Maven+JDK image is only needed to compile and package the app; this whole
 # stage is discarded afterward — only the jar it produces makes it into the
 # final image below.
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3-eclipse-temurin-26 AS build
 WORKDIR /app
 
 # Copying just the pom first (before the source) means Docker can cache the
