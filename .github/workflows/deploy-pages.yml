@@ -75,9 +75,11 @@ jobs:
         run: |
           npm run build -- --base-href "$BASE_HREF"
           # Fail loudly if the project pages were not prerendered (backend unreachable).
+          # Route keys carry the base href (e.g. "/Resume/projects/x"), so check for the
+          # segment anywhere rather than anchoring to the start of the path.
           node -e "const r = Object.keys(require('./dist/frontend/prerendered-routes.json').routes);
                    console.log('prerendered:', r.join(' '));
-                   if (!r.some((p) => p.startsWith('/projects/'))) { console.error('no project pages were prerendered'); process.exit(1); }"
+                   if (!r.some((p) => p.includes('/projects/'))) { console.error('no project pages were prerendered'); process.exit(1); }"
       - name: Stop the backend
         if: always()
         run: kill "$BACKEND_PID" 2>/dev/null || true
