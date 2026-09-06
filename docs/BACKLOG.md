@@ -94,7 +94,9 @@ the top of each section. Dates are when the item was added. See
   reviewing screenshots of all three (Ledger/Gallery/Dossier) with corrected contact
   info. No code change needed — `landingLayout` in `frontend/src/environments/` was
   already `'ledger'`. `?layout=` still keeps all three reviewable.
-- [ ] Buy a domain (optional; DEPLOYMENT.md §8) and set `PAGES_CNAME`.
+- [ ] Buy a domain and set `PAGES_CNAME` — **deferred (2026-09-06)**: staying on the
+  free URLs (`bbobbylon.github.io/Resume` + `bobs-resume.onrender.com`) for now.
+  Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
 
