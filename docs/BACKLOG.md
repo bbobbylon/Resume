@@ -41,10 +41,21 @@ the top of each section. Dates are when the item was added. See
 
 ## Next up (no accounts needed)
 
-- [ ] Regenerate `resume.pdf` in the Pages workflow so it can never lag the seed data.
+_(nothing queued right now)_
 
 ## Done
 
+- 2026-09-05 — Regenerate `resume.pdf` in the Pages workflow: the `/resume` route
+  is already static HTML by the time `ng build` prerenders it, so `resume:pdf`
+  (`scripts/resume-pdf.mjs`) can now run against a throwaway static server over the
+  build output (`BUILD_DIR=…`) instead of needing the dev server — no new source
+  route, just a new way to point headless Chrome at one. Wired into
+  `deploy-pages.yml` right after the build, using `browser-actions/setup-chrome`
+  for a reliable Chrome binary. Best-effort: a Chrome hiccup logs a warning and
+  keeps the previous `resume.pdf` rather than failing the deploy — kept
+  deliberately non-blocking after seeing headless Chrome take anywhere from ~15s
+  to 60s+ for the same capture in local testing (stray Google-service network
+  calls in a fresh profile, unrelated to the page itself).
 - 2026-09-05 — Tablet-width hero skeleton: measured the real breakpoint where the
   Ledger hero's heading drops from 3 wrapped lines to 2 (viewport ≳614px, up to the
   existing 880px cutoff) and hid the skeleton's third bar (`.sk-h1.short`) in that

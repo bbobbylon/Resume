@@ -38,15 +38,17 @@ export function withProfile(fn) {
 }
 
 /**
- * Runs Chrome headless once with the given args and returns its exit status.
- * `--virtual-time-budget` lets the Angular app finish rendering (and its API
- * calls settle) before the page is captured.
+ * Runs Chrome headless once with the given args and returns its exit status
+ * (`null` if it had to be killed for running past `timeoutMs`, rather than hanging the
+ * caller forever). `--virtual-time-budget` lets the Angular app finish rendering (and
+ * its API calls settle) before the page is captured.
  */
-export function runChrome(chrome, profile, args, budgetMs = 12000) {
+export function runChrome(chrome, profile, args, budgetMs = 12000, timeoutMs = 60000) {
   const result = spawnSync(chrome, [
     '--headless=new', '--disable-gpu', '--hide-scrollbars',
     `--user-data-dir=${profile}`, `--virtual-time-budget=${budgetMs}`,
     ...args,
-  ], { stdio: 'inherit' });
+  ], { stdio: 'inherit', timeout: timeoutMs });
+  if (result.error) console.error(`Chrome did not finish within ${timeoutMs}ms: ${result.error.message}`);
   return result.status;
 }
