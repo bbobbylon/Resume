@@ -67,6 +67,7 @@ opens each project's live app.
 | FR-20 | `sitemap.xml` is generated from the prerendered routes on every build. | `scripts/sitemap.mjs` |
 | FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
 | FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
+| FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. | `GithubActivity` |
 
 ## 4. Non-Functional Requirements
 
@@ -74,7 +75,12 @@ opens each project's live app.
   transferred). Lighthouse on the static build served with gzip, mobile emulation,
   API unreachable: performance 99, accessibility 100, best practices 96, SEO 100;
   FCP 1.7 s, LCP 1.9 s, CLS 0.01; 200 kB total transfer and no third-party host
-  (fonts self-hosted, screenshots WebP with `srcset`) (2026-09-04). API responses
+  (fonts self-hosted, screenshots WebP with `srcset`) (2026-09-04) — measured
+  before `GithubActivity` (FR-23) existed. That widget deliberately adds exactly
+  one small, deferred, client-side call to `api.github.com` (chosen over an
+  embeddable third-party stats-image service for this reason); it never blocks
+  render, adds no bundled script, and fails silently, so its effect on the score
+  above is expected to be minor but has not been re-measured. API responses
   are in-memory and answer in single-digit milliseconds once the JVM is warm. Cold
   starts on scale-to-zero hosting are hidden by prerendering: every page arrives
   complete from the static host even when the API is asleep.

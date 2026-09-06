@@ -9,6 +9,7 @@ import { ProjectImage } from '../../../shared/project-image/project-image';
 import { ArrowUpRight } from '../../../shared/icons/arrow-up-right';
 import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { LiveStatus } from '../../../shared/live-status/live-status';
+import { GithubActivity } from '../../../shared/github-activity/github-activity';
 
 /**
  * Landing layout 1a "Ledger" (handoff → Landing variants → 1a): a single 1120px
@@ -18,7 +19,7 @@ import { LiveStatus } from '../../../shared/live-status/live-status';
  */
 @Component({
   selector: 'app-ledger',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity],
   templateUrl: './ledger.html',
   styleUrl: './ledger.css',
 })

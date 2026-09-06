@@ -5,7 +5,7 @@
 }
 .hero h1 { font-size: 52px; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 0 -0.06em; font-weight: 500; }
 .role { font-size: 17px; line-height: 28px; margin: 20px 0 0; color: var(--color-neutral-400); }
-.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 28px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: 28px; }
 .summary { font-size: 15.5px; line-height: 28px; margin: 0; max-width: 52ch; }
 
 /* ── Featured card ────────────────────────────────────────────────────── */

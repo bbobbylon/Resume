@@ -11,6 +11,7 @@
             <a class="btn btn-ghost" [href]="link.url" target="_blank" rel="noopener">{{ link.url | domain:true }}</a>
           }
         }
+        <app-github-activity />
       </div>
     } @else {
       <!-- Same footprint as the loaded hero: 3 heading lines, 4 summary lines (7 on phones), buttons. -->

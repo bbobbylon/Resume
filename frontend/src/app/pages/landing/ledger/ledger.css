@@ -7,7 +7,7 @@
 .hero h1 span { display: block; }
 .hero .tagline { color: var(--color-neutral-500); }
 .summary { font-size: 17px; line-height: 28px; max-width: 58ch; margin: 36px 0 0; }
-.actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 28px; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: 28px; }
 
 /* ── Project rows ─────────────────────────────────────────────────────── */
 .projects { padding: 56px 0 28px; }

@@ -100,6 +100,26 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-06 — Live GitHub activity strip on the landing hero. New `GithubActivity`
+  component fetches `https://api.github.com/users/bbobbylon/events/public` directly
+  from the browser (public, unauthenticated, CORS-enabled — no token, no
+  third-party stats-image service) and shows the most recent recognized event
+  ("Pushed to Resume · 7m ago") as a link to its repo. Browser-only via
+  `afterNextRender` (same pattern as `LiveStatus`), so prerendered and hydrated
+  markup never mismatch; renders nothing on a rate limit, network error, or no
+  public activity in the last 90 days — a portfolio hero shouldn't show a broken
+  widget when GitHub's API hiccups. `:host { display: contents }` so an empty
+  render contributes no box to the parent flex layout; wired into all three
+  landing layouts (Ledger and Gallery's hero `.actions`, Dossier's aside
+  `.contact`) as a genuine flex item so spacing comes from the existing `gap`,
+  not a hardcoded margin. Frontend gained 6 new tests (49/49 total) covering
+  event selection, unrecognized-event skipping, fetch failure, empty events,
+  403 rate-limit, and compact mode; backend unaffected (13/13). Verified against
+  the real API (curled `events/public` directly to confirm live activity exists)
+  and visually via a real `ng build` + static serve, screenshotted across all
+  three layouts. `docs/SRS.md`'s Performance non-functional requirement
+  (FR-23) now notes this as a deliberate, best-effort, non-blocking exception to
+  the earlier "no third-party host" Lighthouse baseline.
 - 2026-09-06 — Deeper case studies on project detail pages. Added a
   `CaseStudy(problem, approach, outcome)` record to `Project`; every one of the
   6 projects now carries one, restated from that project's own already-approved

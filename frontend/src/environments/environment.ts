@@ -35,4 +35,6 @@ export const environment = {
    */
   siteUrl: 'https://bobbylon.dev',
   landingLayout: 'ledger' as LandingLayout,
+  /** GitHub username the `GithubActivity` widget polls (public, unauthenticated REST API). */
+  githubUsername: 'bbobbylon',
 };
