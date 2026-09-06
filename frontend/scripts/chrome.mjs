@@ -42,10 +42,18 @@ export function withProfile(fn) {
  * (`null` if it had to be killed for running past `timeoutMs`, rather than hanging the
  * caller forever). `--virtual-time-budget` lets the Angular app finish rendering (and
  * its API calls settle) before the page is captured.
+ *
+ * In CI (`$CI`, set by GitHub Actions), also passes `--no-sandbox` and
+ * `--disable-dev-shm-usage` — without them Chrome's renderer segfaults on the
+ * runner (no user namespaces for the SUID sandbox, and a too-small `/dev/shm`).
+ * Every URL this runs against is either localhost or a project's own public
+ * deploy, never arbitrary content, so the reduced sandboxing is an acceptable
+ * trade-off; local runs keep the full sandbox.
  */
 export function runChrome(chrome, profile, args, budgetMs = 12000, timeoutMs = 60000) {
+  const ciArgs = process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
   const result = spawnSync(chrome, [
-    '--headless=new', '--disable-gpu', '--hide-scrollbars',
+    '--headless=new', '--disable-gpu', '--hide-scrollbars', ...ciArgs,
     `--user-data-dir=${profile}`, `--virtual-time-budget=${budgetMs}`,
     ...args,
   ], { stdio: 'inherit', timeout: timeoutMs });
