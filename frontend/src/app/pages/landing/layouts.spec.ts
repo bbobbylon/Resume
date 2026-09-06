@@ -14,13 +14,14 @@ const profile = {
   resumeUrl: 'resume.pdf', socialLinks: [{ platform: 'GitHub', url: 'https://github.com/bbobbylon' }],
   stats: [{ value: '100%', label: 'Uptime' }],
 };
+const demoCaseStudy = { problem: 'p', approach: 'a', outcome: 'o' };
 const projects: Project[] = [
   { id: 'tesseraapp', name: 'TesseraApp', tagline: 'CIAM', description: 'd1', longDescription: 'l', url: 'https://tesseraapp.dev',
     repoUrl: 'https://github.com/bbobbylon', status: 'LIVE', techStack: ['Angular 21'], imageUrls: [], highlights: [],
-    hosting: null, delivery: null, featured: true },
+    hosting: null, delivery: null, featured: true, caseStudy: demoCaseStudy },
   { id: 'luv2shop', name: 'Luv2Shop', tagline: 'Shop', description: 'd2', longDescription: 'l', url: null,
     repoUrl: 'https://github.com/bbobbylon/AngularECommerceAppv2', status: 'WIP', techStack: ['Stripe'], imageUrls: [], highlights: [],
-    hosting: null, delivery: null, featured: false },
+    hosting: null, delivery: null, featured: false, caseStudy: demoCaseStudy },
 ];
 const resume = {
   summary: 's', skills: [], projects: [], achievements: [], pdfUrl: 'resume.pdf',

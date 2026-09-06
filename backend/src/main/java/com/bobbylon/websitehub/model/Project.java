@@ -31,6 +31,7 @@ import java.util.List;
  * @param hosting         where it runs, e.g. {@code "AWS ECS Fargate · CloudFront"}; {@code null} if not deployed
  * @param delivery        how it ships, e.g. {@code "Multi-stage Docker · GitHub Actions"}; {@code null} if unknown
  * @param featured        whether this project is highlighted (shown first, with a "Featured" tag)
+ * @param caseStudy       the problem/approach/outcome narrative on the detail page
  */
 public record Project(
         String id,
@@ -46,6 +47,7 @@ public record Project(
         List<Highlight> highlights,
         String hosting,
         String delivery,
-        boolean featured
+        boolean featured,
+        CaseStudy caseStudy
 ) {
 }

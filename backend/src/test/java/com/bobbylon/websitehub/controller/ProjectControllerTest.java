@@ -1,5 +1,6 @@
 package com.bobbylon.websitehub.controller;
 
+import com.bobbylon.websitehub.model.CaseStudy;
 import com.bobbylon.websitehub.model.Highlight;
 import com.bobbylon.websitehub.model.Project;
 import com.bobbylon.websitehub.model.ProjectStatus;
@@ -29,7 +30,8 @@ class ProjectControllerTest {
             "demo", "Demo Project", "Tagline.", "A test project.", "A longer description.",
             "https://example.com", "https://github.com/example/demo", ProjectStatus.LIVE,
             List.of("Java"), List.of(), List.of(new Highlight("Does a thing", "Really well.")),
-            "Somewhere", "Somehow", true
+            "Somewhere", "Somehow", true,
+            new CaseStudy("A problem.", "An approach.", "An outcome.")
     );
 
     @Autowired
@@ -58,7 +60,8 @@ class ProjectControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value("demo"))
                 .andExpect(jsonPath("$.highlights[0].title").value("Does a thing"))
-                .andExpect(jsonPath("$.hosting").value("Somewhere"));
+                .andExpect(jsonPath("$.hosting").value("Somewhere"))
+                .andExpect(jsonPath("$.caseStudy.problem").value("A problem."));
     }
 
     @Test

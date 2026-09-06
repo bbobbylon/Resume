@@ -11,6 +11,13 @@ export interface Highlight {
   body: string;
 }
 
+/** The problem/approach/outcome narrative on the project detail page. */
+export interface CaseStudy {
+  problem: string;
+  approach: string;
+  outcome: string;
+}
+
 /**
  * One project. Mirrors the backend's `Project` record — see `GET /api/projects`
  * and `GET /api/projects/{id}` in `ProjectController`.
@@ -36,4 +43,5 @@ export interface Project {
   hosting: string | null;
   delivery: string | null;
   featured: boolean;
+  caseStudy: CaseStudy;
 }

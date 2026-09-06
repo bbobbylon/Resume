@@ -11,6 +11,7 @@ const tessera: Project = {
   url: 'https://tesseraapp.dev', repoUrl: 'https://github.com/bbobbylon', status: 'LIVE',
   techStack: ['Angular 21'], imageUrls: [], highlights: [{ title: 'H1', body: 'B1' }],
   hosting: 'AWS', delivery: 'Docker', featured: true,
+  caseStudy: { problem: 'P1', approach: 'A1', outcome: 'O1' },
 };
 
 describe('ProjectDetail', () => {
@@ -41,6 +42,7 @@ describe('ProjectDetail', () => {
     expect(el.querySelector('h1')?.textContent).toBe('TesseraApp');
     expect(el.querySelector('.head a.btn-primary')?.getAttribute('href')).toBe('https://tesseraapp.dev');
     expect(el.textContent).toContain('H1');
+    expect(el.textContent).toContain('P1');
   });
 
   it('shows the not-found state for an id that is not in the list', async () => {

@@ -21,6 +21,12 @@
 /* ── Body ─────────────────────────────────────────────────────────────── */
 .body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px 72px; padding: 70px 0 0; }
 .body-main { display: flex; flex-direction: column; gap: 56px; }
+.case-study {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;
+  font-size: 14.5px; line-height: 24px; color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+.case-study p { margin: 0; }
+.case-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin: 0 0 8px; color: var(--color-neutral-500); }
 .highlights {
   display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 28px;
   font-size: 15.5px; line-height: 28px; color: color-mix(in srgb, var(--color-text) 78%, transparent);
@@ -54,6 +60,7 @@
   .head h1 { font-size: 40px; }
   .body { grid-template-columns: 1fr; padding-top: 42px; }
   .shots { grid-template-columns: 1fr; }
+  .case-study { grid-template-columns: 1fr; gap: 20px; }
 }
 @media (max-width: 480px) {
   .highlights { grid-template-columns: 32px 1fr; gap: 20px 14px; }

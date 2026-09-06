@@ -100,6 +100,15 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-06 — Deeper case studies on project detail pages. Added a
+  `CaseStudy(problem, approach, outcome)` record to `Project`; every one of the
+  6 projects now carries one, restated from that project's own already-approved
+  tagline, description and highlights — no new facts, technologies or claims
+  introduced. Renders as a three-column "Case study" section on
+  `/projects/:id`, above the existing numbered "What it does" highlights.
+  Backend (13/13) and frontend (43/43) tests updated and pass; verified
+  visually in a real `ng build` output (TesseraApp's case study and the
+  existing highlights both render correctly, no layout overlap).
 - 2026-09-06 — Grouped skills on the resume page. Added a `SkillGroup(category,
   skills)` record; `Resume.skills` is now `List<SkillGroup>` instead of a flat
   `List<String>`. The 15 existing skills (no new claims added) are grouped into

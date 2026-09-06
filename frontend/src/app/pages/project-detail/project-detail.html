@@ -35,6 +35,14 @@
 
         <section class="body">
           <div class="body-main">
+            <div aria-labelledby="case-study-kicker">
+              <p id="case-study-kicker" class="kicker">Case study</p>
+              <div class="case-study">
+                <div><p class="case-label">Problem</p><p>{{ p.caseStudy.problem }}</p></div>
+                <div><p class="case-label">Approach</p><p>{{ p.caseStudy.approach }}</p></div>
+                <div><p class="case-label">Outcome</p><p>{{ p.caseStudy.outcome }}</p></div>
+              </div>
+            </div>
             <div aria-labelledby="highlights-kicker">
               <p id="highlights-kicker" class="kicker">What it does</p>
               <div class="highlights">

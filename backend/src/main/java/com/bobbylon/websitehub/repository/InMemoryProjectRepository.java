@@ -1,5 +1,6 @@
 package com.bobbylon.websitehub.repository;
 
+import com.bobbylon.websitehub.model.CaseStudy;
 import com.bobbylon.websitehub.model.Highlight;
 import com.bobbylon.websitehub.model.Project;
 import com.bobbylon.websitehub.model.ProjectStatus;
@@ -57,7 +58,19 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     "AWS ECS Fargate · CloudFront · Aiven MySQL",
                     "Multi-stage Docker · Azure CI/CD",
-                    true
+                    true,
+                    new CaseStudy(
+                            "TesseraApp needed sessions that were both fast to verify and instantly "
+                                    + "revocable, MFA that didn't depend on a third party, and federated login "
+                                    + "that stayed safe under org-scoped access control.",
+                            "Stateless HMAC-SHA512 JWTs are backed by a stateful refresh-session store for "
+                                    + "instant revocation and family-wide reuse detection; in-house RFC-6238 "
+                                    + "TOTP MFA and OAuth2/OIDC federation across Google, GitHub and Microsoft "
+                                    + "sit behind permission-based RBAC, hardened with BCrypt-12 hashing, "
+                                    + "brute-force lockout and enumeration-safe login.",
+                            "Live in production, shipped through multi-stage Docker and Azure CI/CD with "
+                                    + "device/IP audit logging across every session."
+                    )
             ),
             new Project(
                     "luv2shop",
@@ -85,7 +98,18 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     null,
                     "Docker",
-                    false
+                    false,
+                    new CaseStudy(
+                            "Luv2Shop needed a catalog that stayed fast to search and page through at "
+                                    + "scale, a checkout that handled real payments safely, and an order "
+                                    + "history only its owner could see.",
+                            "A Spring Boot 4 REST API serves keyword search, category filters and "
+                                    + "server-side pagination over MySQL; a reactive checkout form creates "
+                                    + "Stripe payment intents and persists the resulting order; order history "
+                                    + "sits behind Okta OIDC with Spring Security acting as an OAuth2 resource "
+                                    + "server.",
+                            "Packaged for Docker; still in progress toward its first live deploy."
+                    )
             ),
             new Project(
                     "websitehub",
@@ -114,7 +138,19 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     null,
                     "GitHub Actions CI",
-                    false
+                    false,
+                    new CaseStudy(
+                            "A portfolio hub needed to showcase several independently-hosted projects "
+                                    + "without becoming a monolith that embeds their code, while staying easy "
+                                    + "to extend as a real database replaces the in-memory data.",
+                            "Angular 21 renders three interchangeable landing layouts (Ledger, Gallery, "
+                                    + "Dossier) off one dataset from a Spring Boot 4.1 REST API, structured as "
+                                    + "Controller → Service → Repository with in-memory repositories behind "
+                                    + "interfaces, so a real database is a one-class swap with no change to "
+                                    + "the layers above.",
+                            "Deployed as a static site plus a Docker web service; each project card links "
+                                    + "out to that project's own deployment rather than embedding it."
+                    )
             ),
             // ── Placeholder entries (owner to refine) ───────────────────────────────
             // Pulled from the public GitHub profile so the layouts render with a realistic
@@ -145,7 +181,15 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     null,
                     "GitHub Pages",
-                    false
+                    false,
+                    new CaseStudy(
+                            "A learn-to-code resource needed to be simple enough to publish for free, "
+                                    + "with no backend to run or pay for.",
+                            "Self-contained HTML, CSS and JavaScript lessons run without a build step, as "
+                                    + "pure static assets.",
+                            "Ready for GitHub Pages (or Cloudflare Pages) with a custom subdomain once "
+                                    + "enabled; not yet linked live from here."
+                    )
             ),
             new Project(
                     "angular-concepts",
@@ -175,7 +219,19 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     "GitHub Pages",
                     null,
-                    false
+                    false,
+                    new CaseStudy(
+                            "Learning a framework thoroughly needed more than reading docs — a path from "
+                                    + "zero through advanced patterns, plus enough practice and interview "
+                                    + "prep to make the concepts stick.",
+                            "100 concepts and 100 live lessons span five difficulty tracks from "
+                                    + "Foundations and TypeScript through Expert Angular, backed by 200+ "
+                                    + "practice exercises, 253 interview questions with flashcard mode, and "
+                                    + "timeboxed coding-task simulations — all built with Angular 21's "
+                                    + "current standalone-component and signals APIs.",
+                            "Live as a static site on GitHub Pages, built while learning the framework "
+                                    + "itself."
+                    )
             ),
             new Project(
                     "dev-learning-hub",
@@ -207,7 +263,18 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     ),
                     "GitHub Pages",
                     null,
-                    false
+                    false,
+                    new CaseStudy(
+                            "A broad set of computer-science and full-stack topics needed one place to "
+                                    + "learn them interactively, organized by difficulty, without forcing an "
+                                    + "account just to start.",
+                            "515 interactive visualizers span 34 tracks — Java and OOP, Spring Boot, "
+                                    + "Angular, TypeScript, Python, data structures and algorithms and more — "
+                                    + "from beginner to expert; progress, streaks and completion save per "
+                                    + "account or anonymously with local-only saving.",
+                            "Live on GitHub Pages, with an admin dashboard reporting total users and "
+                                    + "completion across the whole hub."
+                    )
             )
     );
 
