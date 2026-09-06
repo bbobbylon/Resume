@@ -6,6 +6,17 @@ the top of each section. Dates are when the item was added. See
 
 ## Owner's asks
 
+- [ ] **Every push must go green, no exceptions** (2026-09-06, restated): "Each
+  deployment must not have errors — I am talking about GitHub Actions. Many times I
+  am getting failed CI/CD or deployment notices, so let's clean that up and make
+  sure each time a push is made, it's not affecting [things negatively]." A standing
+  requirement, not a one-off ask (first raised 2026-09-05 — see the Dependabot
+  npm-grouping fix and the reverted headless-Chrome PDF step below). Checked
+  2026-09-06: this repo's last 15 `main`-branch runs and all 8 open Dependabot PRs
+  are currently green — no active failures here right now — but treat this as the
+  bar for every future CI change: verify a real push goes green (not just a local
+  test) before calling any CI-touching work done, and default new steps to
+  best-effort/non-blocking until proven reliable.
 - [x] **CI/CD pre-configured for the chosen hosting route** (2026-09-04). GitHub Actions
   are in place for the decided route — GitHub Pages (frontend) + Render (API):
   `ci.yml` builds and tests both halves on every push/PR, `deploy-pages.yml`
@@ -79,32 +90,31 @@ the top of each section. Dates are when the item was added. See
   fake slug (re-add once a real vanity URL exists), and TesseraApp's repo link now
   points at `github.com/bbobbylon/angularSpringBootFullStack` instead of the bare
   GitHub profile. Backend tests still pass (13/13).
-- [ ] Pick the default landing layout (`landingLayout` in `frontend/src/environments/`);
-  `?layout=` keeps all three reviewable. Ledger is the current default.
+- [x] Default landing layout decided (2026-09-06): Ledger stays the default after
+  reviewing screenshots of all three (Ledger/Gallery/Dossier) with corrected contact
+  info. No code change needed — `landingLayout` in `frontend/src/environments/` was
+  already `'ledger'`. `?layout=` still keeps all three reviewable.
 - [ ] Buy a domain (optional; DEPLOYMENT.md §8) and set `PAGES_CNAME`.
-
-## Next up (no accounts needed)
-
-- [ ] Regenerate `resume.pdf` in the Pages workflow, take two. `scripts/resume-pdf.mjs`
-  now supports pointing headless Chrome at a finished build (`BUILD_DIR=…`, see
-  below) and that works locally, but wiring it into `deploy-pages.yml` was tried
-  and reverted (2026-09-05): Chrome's `--print-to-pdf` reliably hung for the
-  entire timeout on the Actions runner specifically when combined with
-  `--virtual-time-budget` under `--headless=new` — ruled out as the cause, in
-  order: the sandbox (fixed separately, still hung), a live-API network wait
-  (blocked entirely via `--host-resolver-rules`, still hung), the virtual-time
-  budget size (shrunk to 4s, still hung — always for the *entire* timeout
-  regardless of its length, e.g. exactly 60s then exactly 90s, never partway),
-  and the build's base-href path serving (verified byte-correct with `curl`
-  against the exact `/Resume/` prefix CI uses). That pattern points at a known
-  Chromium flakiness in the `--print-to-pdf`/`--virtual-time-budget` combo under
-  the new headless mode rather than anything in this app. A real fix likely
-  needs driving Chrome over the DevTools protocol directly (e.g. `puppeteer-core`)
-  instead of the CLI flag combo. Kept out of CI rather than leave a step that
-  always burns ~90s doing nothing.
 
 ## Done
 
+- 2026-09-06 — `resume.pdf` regeneration wired into `deploy-pages.yml`, take two.
+  `scripts/resume-pdf.mjs` now drives Chrome over the DevTools protocol via
+  `puppeteer-core` instead of the CLI `--print-to-pdf` flag that reliably hung for
+  the entire timeout in CI (see the 2026-09-05 dead end below): `page.goto(...,
+  { waitUntil: 'networkidle0' })` replaces the fixed `--virtual-time-budget`, and
+  PDF capture goes through the same `Page.printToPDF` CDP method via a
+  well-exercised library path rather than Chrome's single-shot CLI mode.
+  `chrome.mjs`'s `withProfile` now awaits an async callback before deleting the
+  throwaway profile (it previously assumed a synchronous `runChrome` call, which
+  would have deleted the profile out from under a still-running async browser).
+  Verified locally end-to-end against a real `--base-href /Resume/` build (valid
+  2-page PDF, correct content streams, `#43/43` frontend tests and `13/13` backend
+  tests still pass) before wiring into the workflow. Kept best-effort in CI (a
+  60s hard timeout backstops it; failure logs a `::warning::` and keeps the
+  previous `resume.pdf` rather than failing the deploy) — confirm the next real
+  push actually regenerates it before treating this as fully proven, per the
+  "every push must go green" standing requirement above.
 - 2026-09-05 — `resume:pdf` (`scripts/resume-pdf.mjs`) can now regenerate the PDF
   from a finished `ng build` instead of requiring the dev server: point it at
   `BUILD_DIR=dist/frontend/browser BASE_HREF=/Resume/` and it spins up a

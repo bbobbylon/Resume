@@ -27,14 +27,16 @@ export function findChrome() {
  * Runs `fn(profileDir)` with a throwaway Chrome profile and deletes it afterwards.
  * A fresh profile matters: Chrome's default profile caches the dev server's
  * stylesheet, which silently produces stale PDFs and screenshots after CSS edits.
+ * `fn` may be sync or async — an async result is awaited before cleanup runs, so
+ * the profile is never deleted out from under a still-running browser.
  */
 export function withProfile(fn) {
   const profile = mkdtempSync(join(tmpdir(), 'websitehub-chrome-'));
-  try {
-    return fn(profile);
-  } finally {
-    rmSync(profile, { recursive: true, force: true });
-  }
+  const cleanup = () => rmSync(profile, { recursive: true, force: true });
+  const result = fn(profile);
+  return result && typeof result.then === 'function'
+    ? result.finally(cleanup)
+    : (() => { try { return result; } finally { cleanup(); } })();
 }
 
 /**

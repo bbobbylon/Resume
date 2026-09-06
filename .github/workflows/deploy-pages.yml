@@ -16,7 +16,11 @@ name: Deploy frontend to GitHub Pages
 # prerenders every route against it (static HTML per page, hydrated in the
 # browser) and `npm run snapshot` captures its data into public/data/*.json for
 # the pages that are not prerendered. The live API is only layered on top, so
-# the site is complete even while Render's free tier is asleep.
+# the site is complete even while Render's free tier is asleep. resume.pdf is
+# then regenerated from that same build (headless Chrome, driven over the
+# DevTools protocol via puppeteer-core, printing the already-static /resume
+# page) so it can never drift from the seed data — best-effort, so a Chrome
+# hiccup never fails the deploy.
 on:
   push:
     branches: [main]
@@ -83,6 +87,25 @@ jobs:
       - name: Stop the backend
         if: always()
         run: kill "$BACKEND_PID" 2>/dev/null || true
+      - name: Set up Chrome (for regenerating resume.pdf)
+        id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
+      - name: Regenerate resume.pdf from the build (best-effort; never lags the seed data)
+        working-directory: frontend
+        env:
+          CHROME: ${{ steps.setup-chrome.outputs.chrome-path }}
+          BASE_HREF: ${{ vars.PAGES_BASE_HREF || '/Resume/' }}
+        run: |
+          # The /resume route is already static HTML at this point (ng build
+          # prerendered it above), so this only needs a throwaway static server, not
+          # the dev server or the backend. A hard timeout backstops puppeteer's own
+          # internal timeouts in case Chrome misbehaves in a way those don't catch.
+          # Never allowed to fail the deploy: a hiccup here just leaves the previous,
+          # still-valid resume.pdf in the build output.
+          timeout 60s env BUILD_DIR=dist/frontend/browser RESUME_OUT=/tmp/resume.pdf npm run resume:pdf \
+            && cp /tmp/resume.pdf dist/frontend/browser/resume.pdf \
+            && echo "resume.pdf regenerated from this build" \
+            || echo "::warning::Could not regenerate resume.pdf from the build; keeping the committed copy"
       - name: Site URL, SPA fallback, CNAME
         working-directory: frontend/dist/frontend/browser
         env:
