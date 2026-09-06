@@ -9,6 +9,7 @@ import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
+import { CommandPaletteTrigger } from '../../../shared/command-palette-trigger/command-palette-trigger';
 
 /**
  * Landing layout 1c "Dossier" (handoff → Landing variants → 1c): a `360px | 1fr`
@@ -19,7 +20,7 @@ import { GithubActivity } from '../../../shared/github-activity/github-activity'
  */
 @Component({
   selector: 'app-dossier',
-  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity],
+  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity, CommandPaletteTrigger],
   templateUrl: './dossier.html',
   styleUrl: './dossier.css',
 })

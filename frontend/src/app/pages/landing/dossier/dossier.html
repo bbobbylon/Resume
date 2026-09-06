@@ -2,7 +2,10 @@
   <aside class="aside">
     <div class="aside-head">
       <a class="nav-brand" routerLink="/">{{ profile()?.brand ?? 'bobbylon' }}</a>
-      <app-theme-toggle />
+      <div class="aside-head-actions">
+        <app-command-palette-trigger />
+        <app-theme-toggle />
+      </div>
     </div>
     @if (profile(); as p) {
       <div>

@@ -4,10 +4,12 @@
   <a class="nav-link" routerLink="/resume" routerLinkActive ariaCurrentWhenActive="page">Resume</a>
   @if (profile(); as p) {
     <a class="nav-link" [href]="'mailto:' + p.email">Contact</a>
+    <app-command-palette-trigger />
     <app-theme-toggle />
     <a class="btn btn-primary" [href]="p.resumeUrl" download>Download PDF</a>
   } @else {
     <span class="nav-link skeleton" aria-hidden="true"></span>
+    <app-command-palette-trigger />
     <app-theme-toggle />
     <span class="btn btn-primary skeleton-btn" aria-hidden="true">Download PDF</span>
   }

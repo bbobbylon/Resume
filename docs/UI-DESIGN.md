@@ -77,7 +77,11 @@ Angular components (`frontend/src/app/shared/`):
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
 | `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
+| `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. `compact` input for a dot-only, `title`-labelled variant. |
+| `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". Mounted once at the app root. |
+| `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
 | `ArrowUpRight` | `app-arrow-up-right` | Phosphor icon, `size` input. |
+| `SearchIcon` | `app-search-icon` | Phosphor magnifying-glass icon, `size` input. |
 | `DomainPipe` | `| domain` | `https://tesseraapp.dev/` → `tesseraapp.dev`; `domain:true` keeps the path. |
 
 ## 3. Layout Patterns
@@ -162,6 +166,11 @@ margins. This is what `npm run resume:pdf` captures.
   so the dot's colour is never the only signal.
 - Images: real screenshots get descriptive `alt`; placeholders expose the project
   name via `role="img"` + `aria-label`.
+- The command palette is `role="dialog"` `aria-modal="true"` over an ARIA
+  combobox/listbox: the search field is the dialog's one real focusable
+  element (`aria-activedescendant` tracks the highlighted `role="option"`),
+  so trapping focus is just swallowing Tab. Escape or a backdrop click closes
+  it and returns focus to whatever had it before the dialog opened.
 
 ## 6. Styling Conventions
 

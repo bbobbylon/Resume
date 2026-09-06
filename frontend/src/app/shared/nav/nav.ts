@@ -5,6 +5,7 @@ import { NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
+import { CommandPaletteTrigger } from '../command-palette-trigger/command-palette-trigger';
 
 /**
  * The Nocturne `.nav` shared by the Ledger and Gallery landings, the resume page and
@@ -18,7 +19,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle';
  */
 @Component({
   selector: 'app-nav',
-  imports: [RouterLink, RouterLinkActive, ThemeToggle],
+  imports: [RouterLink, RouterLinkActive, ThemeToggle, CommandPaletteTrigger],
   templateUrl: './nav.html',
   styleUrl: './nav.css',
 })

@@ -100,6 +100,26 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-06 — Command palette (Ctrl+K / Cmd+K). A `CommandPaletteService`
+  (just an `open` signal) is shared by `CommandPalette`, the global overlay
+  mounted once at the app root, and `CommandPaletteTrigger`, a small
+  icon-button opener wired into the nav bar and Dossier's aside header (the
+  one layout without a `Nav`). Lists Home, Resume, every project (live from
+  `ProjectService`) and a "Toggle theme" action, filtered by substring as the
+  visitor types. Follows the ARIA combobox/listbox pattern — the search field
+  is the only real focusable element and `aria-activedescendant` tracks the
+  highlighted row — so trapping focus is just swallowing Tab; Escape or a
+  backdrop click closes it and restores focus to whatever was focused before
+  it opened. New `SearchIcon` (Phosphor magnifying-glass, matches
+  `ArrowUpRight`'s inline-SVG pattern). Frontend gained 8 new tests (57/57
+  total: opening/closing, listing pages+projects+the theme action, substring
+  filtering, arrow-key + Enter selection, Escape, backdrop click, the trigger
+  button); backend unaffected (13/13). Verified visually in a real `ng build`
+  + static serve: opened via the trigger button and via a raw Ctrl+K keydown
+  from both the Ledger and Dossier layouts, filtered to a single project,
+  navigated to it, ran "Toggle theme" from inside the palette and confirmed
+  `data-theme` actually flipped, confirmed Tab keeps focus on the search
+  field, and checked the highlighted-row contrast in both themes.
 - 2026-09-06 — Live GitHub activity strip on the landing hero. New `GithubActivity`
   component fetches `https://api.github.com/users/bbobbylon/events/public` directly
   from the browser (public, unauthenticated, CORS-enabled — no token, no

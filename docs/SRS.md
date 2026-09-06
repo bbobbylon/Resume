@@ -68,6 +68,7 @@ opens each project's live app.
 | FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
 | FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
 | FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. | `GithubActivity` |
+| FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight, Enter runs the highlighted item, Escape or a backdrop click closes it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
 
 ## 4. Non-Functional Requirements
 
@@ -94,7 +95,10 @@ opens each project's live app.
   cold or down, and at least its shell (nav, skeletons) when even that is missing.
 - **Accessibility.** Semantic landmarks, `aria-current`, keyboard-visible focus
   rings (2 px accent), reduced motion respected for the skeleton shimmer, the
-  live-status pulse and route transitions. Target WCAG 2.1 AA.
+  live-status pulse and route transitions. The command palette (FR-24) follows
+  the ARIA combobox/listbox pattern (`aria-activedescendant` tracks the
+  highlighted option) and traps focus on its one real focusable control, the
+  search field. Target WCAG 2.1 AA.
 - **Responsiveness.** Usable from 360 px to 1440 px wide; breakpoints at 880 / 720 / 480 px.
 - **Maintainability.** Controller → Service → Repository layering on the backend;
   standalone signal-based components on the frontend; every new endpoint gets a

@@ -1,0 +1,43 @@
+@if (palette.open()) {
+  <div class="cp-backdrop" (click)="onBackdropClick($event)">
+    <div class="cp-panel elev-lg" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="cp-search-row">
+        <app-search-icon [size]="16" />
+        <input
+          #searchInput
+          class="cp-input"
+          type="text"
+          role="combobox"
+          aria-expanded="true"
+          [attr.aria-controls]="listId"
+          [attr.aria-activedescendant]="activeId()"
+          aria-autocomplete="list"
+          placeholder="Search pages and projects…"
+          autocomplete="off"
+          spellcheck="false"
+          [value]="query()"
+          (input)="onInput($event)"
+        />
+        <kbd class="cp-esc">Esc</kbd>
+      </div>
+      <ul class="cp-results" [id]="listId" role="listbox" aria-label="Results">
+        @for (item of filtered(); track item.id; let i = $index) {
+          <li
+            [id]="'cp-opt-' + item.id"
+            class="cp-option"
+            role="option"
+            [class.active]="i === activeIndex()"
+            [attr.aria-selected]="i === activeIndex()"
+            (mouseenter)="activeIndex.set(i)"
+            (click)="select(i)"
+          >
+            <span class="cp-label">{{ item.label }}</span>
+            <span class="cp-hint">{{ item.hint }}</span>
+          </li>
+        } @empty {
+          <li class="cp-empty">No matches</li>
+        }
+      </ul>
+    </div>
+  </div>
+}
