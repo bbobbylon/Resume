@@ -99,10 +99,15 @@ jobs:
           # prerendered it above), so this only needs a throwaway static server, not
           # the dev server or the backend. Never allowed to fail the deploy: a hiccup
           # here just leaves the previous, still-valid resume.pdf in the build output.
-          BUILD_DIR=dist/frontend/browser RESUME_OUT=/tmp/resume.pdf npm run resume:pdf \
-            && cp /tmp/resume.pdf dist/frontend/browser/resume.pdf \
-            && echo "resume.pdf regenerated from this build" \
-            || echo "::warning::Could not regenerate resume.pdf from the build; keeping the committed copy"
+          echo "CHROME=$CHROME"
+          if OUTPUT=$(BUILD_DIR=dist/frontend/browser RESUME_OUT=/tmp/resume.pdf npm run resume:pdf 2>&1); then
+            cp /tmp/resume.pdf dist/frontend/browser/resume.pdf
+            echo "$OUTPUT"
+            echo "resume.pdf regenerated from this build"
+          else
+            TAIL=$(echo "$OUTPUT" | tail -c 600 | tr '\n' '|')
+            echo "::warning::Could not regenerate resume.pdf from the build; keeping the committed copy. Output: $TAIL"
+          fi
       - name: Site URL, SPA fallback, CNAME
         working-directory: frontend/dist/frontend/browser
         env:
