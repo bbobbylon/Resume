@@ -25,9 +25,17 @@ const out = resolve(process.env.RESUME_OUT ?? 'public/resume.pdf');
 const basePath = (process.env.BASE_HREF ?? '/').replace(/\/?$/, '/');
 const server = process.env.BUILD_DIR ? await serveStatic(resolve(process.env.BUILD_DIR), basePath) : null;
 const url = process.env.RESUME_URL ?? (server ? `http://127.0.0.1:${server.port}${basePath}resume` : 'http://localhost:4222/resume');
+// In BUILD_DIR mode the page's data is already correct (baked in at build time), so
+// the client's live re-fetch of the real API is pure downside here: it only adds the
+// chance of blocking on a real, possibly cold-starting network round-trip for no
+// benefit. Route every hostname except loopback nowhere so that fetch fails instantly
+// instead of actually waiting on it, and shrink the virtual-time budget to match —
+// nothing left running that needs the full budget the live-API case wants.
+const offlineArgs = server ? ['--host-resolver-rules=MAP * 127.0.0.1'] : [];
+const budgetMs = server ? 4000 : 12000;
 
 withProfile((profile) => {
-  const status = runChrome(chrome, profile, ['--no-pdf-header-footer', `--print-to-pdf=${out}`, url]);
+  const status = runChrome(chrome, profile, [...offlineArgs, '--no-pdf-header-footer', `--print-to-pdf=${out}`, url], budgetMs);
   server?.close();
   if (status !== 0 || !existsSync(out)) {
     console.error(`Chrome exited with ${status}; is the page reachable at ${url}?`);

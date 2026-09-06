@@ -50,7 +50,7 @@ export function withProfile(fn) {
  * deploy, never arbitrary content, so the reduced sandboxing is an acceptable
  * trade-off; local runs keep the full sandbox.
  */
-export function runChrome(chrome, profile, args, budgetMs = 12000, timeoutMs = 60000) {
+export function runChrome(chrome, profile, args, budgetMs = 12000, timeoutMs = 90000) {
   const ciArgs = process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : [];
   const result = spawnSync(chrome, [
     '--headless=new', '--disable-gpu', '--hide-scrollbars', ...ciArgs,
