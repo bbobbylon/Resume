@@ -112,9 +112,12 @@ the top of each section. Dates are when the item was added. See
   2-page PDF, correct content streams, `#43/43` frontend tests and `13/13` backend
   tests still pass) before wiring into the workflow. Kept best-effort in CI (a
   60s hard timeout backstops it; failure logs a `::warning::` and keeps the
-  previous `resume.pdf` rather than failing the deploy) — confirm the next real
-  push actually regenerates it before treating this as fully proven, per the
-  "every push must go green" standing requirement above.
+  previous `resume.pdf` rather than failing the deploy). **Confirmed live**: the
+  push (`3a8ea1d`) went green end-to-end (`deploy-pages.yml` run 34033593924, all
+  steps succeeded, no `::warning::` emitted), and the deployed
+  `bbobbylon.github.io/Resume/resume.pdf` (153 KB) differs byte-for-byte from the
+  committed fallback copy (198 KB) — proof the CI step actually regenerated it
+  rather than silently falling through to the fallback.
 - 2026-09-05 — `resume:pdf` (`scripts/resume-pdf.mjs`) can now regenerate the PDF
   from a finished `ng build` instead of requiring the dev server: point it at
   `BUILD_DIR=dist/frontend/browser BASE_HREF=/Resume/` and it spins up a
