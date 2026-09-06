@@ -11,7 +11,8 @@ import java.util.List;
  * record for the main column.
  *
  * @param summary      the opening paragraph
- * @param skills       technical skills, rendered as tags in the sidebar
+ * @param skills       technical skills grouped by category, rendered as labeled tag
+ *                     rows in the sidebar
  * @param experience   jobs, most recent first
  * @param projects     project write-ups, in display order
  * @param education    degrees, most recent first
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public record Resume(
         String summary,
-        List<String> skills,
+        List<SkillGroup> skills,
         List<Experience> experience,
         List<ResumeProject> projects,
         List<Education> education,

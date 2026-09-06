@@ -100,6 +100,18 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-06 — Grouped skills on the resume page. Added a `SkillGroup(category,
+  skills)` record; `Resume.skills` is now `List<SkillGroup>` instead of a flat
+  `List<String>`. The 15 existing skills (no new claims added) are grouped into
+  "Languages & Frameworks", "Identity & Security", "Data & APIs" and
+  "Infrastructure & DevOps" — deliberately no fabricated proficiency levels, since
+  that would be an unverified claim about the resume owner. `resume.html` renders
+  each group with its own sub-label above a `tag-row`, still inside the same
+  wrapper `<div>` that is the aside's 3rd child (the print stylesheet's
+  `.aside > div:nth-child(3)` selector depends on that position). Backend (13/13)
+  and frontend (43/43) tests updated and pass; `resume.pdf` regenerated locally
+  from a `--base-href /Resume/` build and confirmed to still produce a valid
+  2-page PDF with real text content streams.
 - 2026-09-06 — `resume.pdf` regeneration wired into `deploy-pages.yml`, take two.
   `scripts/resume-pdf.mjs` now drives Chrome over the DevTools protocol via
   `puppeteer-core` instead of the CLI `--print-to-pdf` flag that reliably hung for

@@ -30,10 +30,15 @@ export interface Achievement {
   period: string;
 }
 
+export interface SkillGroup {
+  category: string;
+  skills: string[];
+}
+
 /** The full in-app resume rendered at `/resume`. */
 export interface Resume {
   summary: string;
-  skills: string[];
+  skills: SkillGroup[];
   experience: Experience[];
   projects: ResumeProject[];
   education: Education[];

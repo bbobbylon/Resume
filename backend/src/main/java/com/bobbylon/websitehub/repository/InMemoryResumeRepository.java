@@ -5,6 +5,7 @@ import com.bobbylon.websitehub.model.Education;
 import com.bobbylon.websitehub.model.Experience;
 import com.bobbylon.websitehub.model.Resume;
 import com.bobbylon.websitehub.model.ResumeProject;
+import com.bobbylon.websitehub.model.SkillGroup;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,9 +23,16 @@ public class InMemoryResumeRepository implements ResumeRepository {
                     + "that secures a multibillion-dollar enterprise. Depth in secure authentication, "
                     + "OAuth2/OIDC, MFA, and REST APIs. B.C.S. Software Engineering, cum laude, and "
                     + "M.S. Computer Science (Software Engineering).",
-            List.of("Java", "TypeScript", "Angular", "Spring Boot", "Spring Security", "REST APIs",
-                    "OAuth2 / OIDC", "SAML", "MFA", "MySQL", "Docker", "AWS", "Kubernetes", "Azure CI/CD",
-                    "ForgeRock IDM"),
+            List.of(
+                    new SkillGroup("Languages & Frameworks",
+                            List.of("Java", "TypeScript", "Angular", "Spring Boot")),
+                    new SkillGroup("Identity & Security",
+                            List.of("Spring Security", "OAuth2 / OIDC", "SAML", "MFA", "ForgeRock IDM")),
+                    new SkillGroup("Data & APIs",
+                            List.of("REST APIs", "MySQL")),
+                    new SkillGroup("Infrastructure & DevOps",
+                            List.of("Docker", "AWS", "Kubernetes", "Azure CI/CD"))
+            ),
             List.of(
                     new Experience(
                             "Junior Full Stack Developer · IT Business Operations Analyst",

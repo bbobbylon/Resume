@@ -48,7 +48,7 @@ opens each project's live app.
 | FR-1 | `GET /api/profile` returns name, brand, title, employer, tagline, bio, contact fields, resume URL, social links and stat cells. | `ProfileController` |
 | FR-2 | `GET /api/projects` returns all projects in display order, each with id, name, tagline, description, long description, live URL (nullable), repo URL, status (`LIVE`/`WIP`/`ARCHIVED`), tech stack, image URLs, three highlights, hosting, delivery and featured flag. | `ProjectController` |
 | FR-3 | `GET /api/projects/{id}` returns one project or HTTP 404. | `ProjectController` |
-| FR-4 | `GET /api/resume` returns summary, skills, experience, resume projects, education, achievements and the PDF URL. | `ResumeController` |
+| FR-4 | `GET /api/resume` returns summary, skills (grouped into labeled categories), experience, resume projects, education, achievements and the PDF URL. | `ResumeController` |
 | FR-5 | The landing route `/` renders the layout named by `environment.landingLayout`; a `?layout=ledger\|gallery\|dossier` query parameter overrides it for review. Unknown values fall back to the default. | `Landing` |
 | FR-6 | Every layout shows all projects with status tags, stack chips, an "Open <domain>" button when a live URL exists, a "Source" link, and a link to the detail page. | `Ledger`, `Gallery`, `Dossier` |
 | FR-7 | `/projects/:id` renders the detail page (tags, title, lede, actions, meta grid, 21:9 hero, numbered highlights, extra screenshots, stack, "Next project" teaser) and a not-found state for unknown ids. | `ProjectDetail` |

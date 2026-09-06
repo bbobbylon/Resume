@@ -17,7 +17,7 @@ describe('ResumePage', () => {
     fixture.detectChanges();
     const http = TestBed.inject(HttpTestingController);
     http.expectOne((r) => r.url.endsWith('/api/resume')).flush({
-      summary: 'Summary text', skills: ['Java', 'Angular'],
+      summary: 'Summary text', skills: [{ category: 'Languages & Frameworks', skills: ['Java', 'Angular'] }],
       experience: [{ role: 'Engineer', employer: 'Deloitte', location: 'Dallas, TX', period: '2022 — Present', bullets: ['Did things'] }],
       projects: [{ name: 'TesseraApp', subtitle: 'CIAM', bullets: ['b'], url: 'https://tesseraapp.dev' }],
       education: [{ degree: 'M.S. CS', school: 'Lewis University', year: '2026', note: 'GPA 3.94' }],

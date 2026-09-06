@@ -19,13 +19,22 @@
     }
     <div>
       <p class="label">Technical skills</p>
-      <div class="tag-row">
-        @if (resume(); as r) {
-          @for (skill of r.skills; track skill) { <span class="tag tag-neutral">{{ skill }}</span> }
-        } @else {
+      @if (resume(); as r) {
+        <div class="skill-groups">
+          @for (group of r.skills; track group.category) {
+            <div class="skill-group">
+              <p class="sub-label">{{ group.category }}</p>
+              <div class="tag-row">
+                @for (skill of group.skills; track skill) { <span class="tag tag-neutral">{{ skill }}</span> }
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="tag-row">
           @for (n of [0, 1, 2, 3, 4, 5]; track n) { <span class="skeleton sk-tag" aria-hidden="true"></span> }
-        }
-      </div>
+        </div>
+      }
     </div>
     @if (profile(); as p) {
       <a class="btn btn-primary download" [href]="p.resumeUrl" download>Download PDF</a>
