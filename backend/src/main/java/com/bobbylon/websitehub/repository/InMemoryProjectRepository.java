@@ -36,7 +36,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                             + "backed by a revocable refresh-session store, in-house RFC-6238 TOTP MFA, and "
                             + "OAuth2/OIDC federation across Google, GitHub and Microsoft over org-scoped RBAC.",
                     "https://tesseraapp.dev",
-                    "https://github.com/bbobbylon",
+                    "https://github.com/bbobbylon/angularSpringBootFullStack",
                     ProjectStatus.LIVE,
                     List.of("Angular 21", "Spring Boot 4", "Java 21", "Spring Security", "MySQL", "JWT",
                             "Docker", "Azure CI/CD"),

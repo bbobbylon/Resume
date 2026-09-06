@@ -73,10 +73,12 @@ the top of each section. Dates are when the item was added. See
     Fargate · CloudFront · Aiven MySQL") is now stale too — production moved
     to Google Cloud Run the same day (2026-09-05, per that repo's
     `aws/README.md`) — but updating it wasn't asked for this pass.
-- [ ] Decide whether the phone number and work e-mail in `InMemoryProfileRepository`
-  should be public (they will be, once pushed).
-- [ ] Real LinkedIn URL (placeholder today) and TesseraApp's repo URL (points at the
-  GitHub profile until the repo is public).
+- [x] Content flags resolved (2026-09-06): work e-mail swapped to the personal
+  address, phone number swapped to a new public number (both were live under the
+  old values), the placeholder LinkedIn link removed entirely rather than ship a
+  fake slug (re-add once a real vanity URL exists), and TesseraApp's repo link now
+  points at `github.com/bbobbylon/angularSpringBootFullStack` instead of the bare
+  GitHub profile. Backend tests still pass (13/13).
 - [ ] Pick the default landing layout (`landingLayout` in `frontend/src/environments/`);
   `?layout=` keeps all three reviewable. Ledger is the current default.
 - [ ] Buy a domain (optional; DEPLOYMENT.md §8) and set `PAGES_CNAME`.
