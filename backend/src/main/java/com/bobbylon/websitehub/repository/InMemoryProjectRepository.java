@@ -152,43 +152,56 @@ public class InMemoryProjectRepository implements ProjectRepository {
                                     + "out to that project's own deployment rather than embedding it."
                     )
             ),
-            // ── Placeholder entries (owner to refine) ───────────────────────────────
-            // Pulled from the public GitHub profile so the layouts render with a realistic
-            // number of rows/cards. Copy is a first draft; statuses are honest (nothing
-            // below is deployed yet).
             new Project(
                     "dev-hub",
                     "Dev Hub",
-                    "Static learn-to-code site: HTML, CSS and JavaScript lessons.",
-                    "A static learn-to-code site with HTML, CSS and JavaScript lessons — a good "
-                            + "first candidate for GitHub Pages.",
-                    "A static learn-to-code site with HTML, CSS and JavaScript lessons. No backend, "
-                            + "so it can be published straight to GitHub Pages for free and linked here "
-                            + "as a live site.",
-                    null,
+                    "24 interactive learning pages with real, persisted progress.",
+                    "A learn-to-code app of 24 interactive page archetypes — lessons, quizzes, "
+                            + "flashcards, visualizers and labs — with progress and spaced repetition "
+                            + "that persist between visits.",
+                    "A learn-to-code app built from a Claude Design handoff: 24 interactive page "
+                            + "archetypes across Learn, Practice, Reference and Meta — a CLI lesson, "
+                            + "Git branching and rebase visualizers, Big-O charts, an algorithm "
+                            + "visualizer, quiz mode, flashcards, a terminal-simulator mission, a regex "
+                            + "lab and more. Every progress figure the designs faked is now real: quiz "
+                            + "scores, SM-2 flashcard scheduling, milestones, streaks and time-on-page "
+                            + "live in a dependency-free localStorage store. Ported to React 19 and "
+                            + "TypeScript on Vite, routes split into lazy chunks, and checked by "
+                            + "Playwright-driven route, responsive, interaction and accessibility audits.",
+                    "https://bbobbylon.github.io/dev-hub/",
                     "https://github.com/bbobbylon/dev-hub",
-                    ProjectStatus.WIP,
-                    List.of("HTML", "CSS", "JavaScript"),
-                    List.of(),
+                    ProjectStatus.LIVE,
+                    List.of("React 19", "TypeScript", "Vite", "React Router", "Playwright"),
+                    List.of("shots/dev-hub-1.webp", "shots/dev-hub-2.webp", "shots/dev-hub-3.webp"),
                     List.of(
-                            new Highlight("Zero-infrastructure hosting",
-                                    "Pure static assets, so GitHub Pages (or Cloudflare Pages) serves it "
-                                            + "for free with a custom subdomain."),
-                            new Highlight("Lesson pages",
-                                    "Self-contained HTML lessons that run without a build step."),
-                            new Highlight("Next step",
-                                    "Enable Pages on the repo and set this entry's url to go Live.")
+                            new Highlight("24 page archetypes",
+                                    "Lessons, deep-dives, storyboards, quizzes, flashcards, visualizers, "
+                                            + "labs and a progress dashboard, all on one design system and "
+                                            + "filterable from a single gallery."),
+                            new Highlight("Progress that is actually real",
+                                    "Quiz scores, SM-2 spaced-repetition scheduling, milestones, streaks "
+                                            + "and per-day activity persist in a small localStorage store — "
+                                            + "no server, no account."),
+                            new Highlight("Audited, not just built",
+                                    "Playwright scripts drive every route to verify interactions, "
+                                            + "responsive layouts and WCAG contrast, names and keyboard "
+                                            + "focus; routes load as lazy chunks behind an error boundary.")
                     ),
-                    null,
                     "GitHub Pages",
+                    null,
                     false,
                     new CaseStudy(
-                            "A learn-to-code resource needed to be simple enough to publish for free, "
-                                    + "with no backend to run or pay for.",
-                            "Self-contained HTML, CSS and JavaScript lessons run without a build step, as "
-                                    + "pure static assets.",
-                            "Ready for GitHub Pages (or Cloudflare Pages) with a custom subdomain once "
-                                    + "enabled; not yet linked live from here."
+                            "A set of HTML/CSS design prototypes for a learning app had to become a "
+                                    + "real, shippable product — with progress, streaks and review "
+                                    + "schedules that were hardcoded in the mockups made true.",
+                            "Recreated the 24 prototype pages in React 19 and TypeScript on Vite, "
+                                    + "backed them with a dependency-free localStorage progress store "
+                                    + "(quiz history, SM-2 flashcard scheduling, milestones, time-on-page "
+                                    + "streaks), split each page into a lazy route chunk behind an error "
+                                    + "boundary, and wrote Playwright audits for routes, responsiveness, "
+                                    + "interactions and accessibility.",
+                            "Live on GitHub Pages as a client-rendered app with no backend to run "
+                                    + "or pay for."
                     )
             ),
             new Project(

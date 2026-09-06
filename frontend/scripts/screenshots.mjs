@@ -39,6 +39,7 @@ const PAGES = {
   websitehub: { base: SELF_URL, paths: ['/', '/resume', '/projects/tesseraapp'] },
   // Live URL is a specific file (app.html), not a directory — an appended '/' 404s.
   'dev-learning-hub': { paths: [''] },
+  'dev-hub': { paths: ['/', '/cli-basics', '/algorithm-visualizer'] },
 };
 
 const args = process.argv.slice(2);

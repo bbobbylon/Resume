@@ -56,22 +56,22 @@ the top of each section. Dates are when the item was added. See
     has no free managed MySQL), and the Render service itself created from
     the Blueprint. Okta/Stripe stay inert (by design) until real accounts are
     added later — not required to go live.
-  - [ ] **Dev Hub** (`dev-hub`, local `devhub/repo`) is prepped (2026-09-05) —
-    no Render needed, it's a plain client-rendered Vite 8 + React 19 app
-    (`app/`, no backend). Note: this repo's entry in `InMemoryProjectRepository`
-    is stale — it describes a "static learn-to-code site" but the repo has
-    since grown into a real Vite/React/TypeScript app (Claude Design handoff,
-    persistence, spaced repetition, a11y/responsive/interaction audits via
-    Playwright) with its own `DEPLOYMENT.md` at the repo root now. Changes:
-    `vite.config.ts` base path + `main.tsx` router `basename` for the Pages
-    sub-path (`/dev-hub/`), `@types/node` devDependency (needed for `tsc -b`
-    to check `vite.config.ts`), `.github/workflows/deploy-pages.yml`. This
-    repo's working tree was clean (no stray WIP) and its default GitHub
-    branch is **`master`**, not `main` (a stale, never-updated local `main`
-    also exists — not what's deployed) — the workflow triggers on `master`.
-    All uncommitted, not yet pushed. Once live: update this repo's `url` →
-    `LIVE` + the Pages URL, `npm run shots -- --only dev-hub`, and refresh its
-    description here to match what the app actually is now.
+  - [x] **Dev Hub is LIVE** (2026-09-06) at `https://bbobbylon.github.io/dev-hub/`.
+    No Render needed — it's a plain client-rendered Vite 8 + React 19 app
+    (`app/`, no backend). Pushed `implement-design-handoff` and fast-forwarded
+    `master` (this repo's real default branch) to it. The first Pages run
+    failed at `configure-pages` exactly as the Resume repo's did (the workflow
+    token can't create a Pages site on a first deploy); the owner flipped
+    `Settings → Pages → Source: GitHub Actions` and the re-run went green
+    end-to-end (run 34060825135, attempt 2). Smoke-tested: `/` is 200; deep
+    links like `/cli-basics` return a 404 status but serve the built shell
+    (the `404.html` SPA fallback), so the app loads on them. The
+    `InMemoryProjectRepository` entry was rewritten from the stale "static
+    learn-to-code site" placeholder to what the app actually is (24 page
+    archetypes, localStorage progress + SM-2 spaced repetition, Playwright
+    audits, React 19/TypeScript/Vite), flipped to `LIVE` with three
+    screenshots (`npm run shots -- --only dev-hub`: gallery, CLI Basics,
+    Algorithm Visualizer).
   - [x] **`fullstack-starter` entry removed** (2026-09-05), not deployed. It
     turned out to describe the exact same codebase as the `tesseraapp` entry
     (`angularSpringBootFullStack`'s own `package.json` is named
