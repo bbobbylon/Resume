@@ -100,6 +100,19 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-06 — Layout switcher. The three landing layouts (Ledger/Gallery/Dossier)
+  were only reachable by hand-typing `?layout=`; the owner wanted all three
+  actually reachable to a visitor, not just reviewable. New `LayoutSwitcher`
+  (`app-layout-switcher`) — a centered `.seg` pill reusing the token sheet's
+  until-now-unused segmented-control style — renders once above the chosen
+  layout (in `Landing`, so it's identical across all three, not duplicated
+  into each layout's own header) with a real link to each variant via the
+  existing `?layout=` param; the current one gets `aria-current="page"` and
+  no `href` change on click. Frontend gained 2 new tests (59/59 total).
+  Verified: `ng build --base-href /Resume/`, served the static output
+  locally, clicked through all three layouts in both themes — switcher stays
+  centered and legible, correctly absent from `/resume` and project detail
+  (it's landing-only).
 - 2026-09-06 — Command palette (Ctrl+K / Cmd+K). A `CommandPaletteService`
   (just an `open` signal) is shared by `CommandPalette`, the global overlay
   mounted once at the app root, and `CommandPaletteTrigger`, a small

@@ -80,6 +80,7 @@ Angular components (`frontend/src/app/shared/`):
 | `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. `compact` input for a dot-only, `title`-labelled variant. |
 | `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". Mounted once at the app root. |
 | `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
+| `LayoutSwitcher` | `app-layout-switcher` | Centered `.seg` pill (reusing the token sheet's until-now-unused segmented-control style) linking to Ledger / Gallery / Dossier via the `?layout=` param; the current one gets `aria-current="page"`. Rendered once by `Landing`, above the chosen layout. |
 | `ArrowUpRight` | `app-arrow-up-right` | Phosphor icon, `size` input. |
 | `SearchIcon` | `app-search-icon` | Phosphor magnifying-glass icon, `size` input. |
 | `DomainPipe` | `| domain` | `https://tesseraapp.dev/` → `tesseraapp.dev`; `domain:true` keeps the path. |
@@ -91,7 +92,8 @@ prerendered at build time and hydrated. Anchor scrolling and scroll restoration 
 enabled so `/#projects` and Back behave; route changes cross-fade for 160 ms through
 the View Transitions API where the browser supports it (skipped under reduced motion).
 
-**Landing variants** (`?layout=` or `environment.landingLayout`, default `ledger`):
+**Landing variants** (`?layout=` or `environment.landingLayout`, default `ledger`).
+`LayoutSwitcher` sits above whichever one is chosen, with a link to the other two:
 
 - **1a Ledger** — single 1120 px column. 72 px two-line H1 (name / tagline in
   neutral-500), 17/28 summary ≤ 58ch, primary "View resume" + ghost GitHub link.

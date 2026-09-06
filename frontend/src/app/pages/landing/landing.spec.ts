@@ -26,6 +26,8 @@ describe('Landing', () => {
     const fixture = setup(null);
     expect(fixture.componentInstance.layout()).toBe('ledger');
     expect(fixture.nativeElement.querySelector('app-ledger')).not.toBeNull();
+    const current = fixture.nativeElement.querySelector('app-layout-switcher a[aria-current="page"]');
+    expect(current?.textContent?.trim()).toBe('Ledger');
   });
 
   it('honours a ?layout= query param', () => {

@@ -7,23 +7,28 @@ import { isLandingLayout, LandingLayout } from '../../models/landing-layout';
 import { Ledger } from './ledger/ledger';
 import { Gallery } from './gallery/gallery';
 import { Dossier } from './dossier/dossier';
+import { LayoutSwitcher } from '../../shared/layout-switcher/layout-switcher';
 import { PageMeta, SITE_DESCRIPTION, SITE_TITLE } from '../../services/page-meta';
 
 /**
  * The `/` route. Picks one of the three Nocturne landing layouts and renders it
  * with `@switch` (handoff → "Landing variants"):
  *
- * 1. `?layout=ledger|gallery|dossier` in the URL wins — so every layout stays
- *    reviewable on the deployed site without a rebuild;
+ * 1. `?layout=ledger|gallery|dossier` in the URL wins;
  * 2. otherwise `environment.landingLayout` (the committed default).
+ *
+ * `LayoutSwitcher` renders above the chosen layout with a real link to each of
+ * the other two, so all three stay reachable to a visitor, not just reviewable
+ * via a hand-typed query param.
  *
  * All three layouts read the same `ProfileService` / `ProjectService` signals;
  * only the template and styles differ.
  */
 @Component({
   selector: 'app-landing',
-  imports: [Ledger, Gallery, Dossier],
+  imports: [Ledger, Gallery, Dossier, LayoutSwitcher],
   template: `
+    <app-layout-switcher [current]="layout()" />
     @switch (layout()) {
       @case ('gallery') { <app-gallery /> }
       @case ('dossier') { <app-dossier /> }
