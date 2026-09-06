@@ -31,6 +31,48 @@ the top of each section. Dates are when the item was added. See
   its "Source on GitHub" link may 404 for visitors until it's made public.
 - [ ] Bring the other repos onto Render the same way (Dockerfile + `render.yaml`,
   free web service) and flip each project's entry to `LIVE` with its URL.
+  - [ ] **Luv2Shop** (`AngularECommerceAppv2`, local `AngularlnewEcommerce`) is
+    prepped (2026-09-05): CORS made configurable (`ALLOWED_ORIGIN` env var,
+    `SecurityConfig`/`MyDataRestConfig`/5 controllers), `server.port=${PORT:8543}`,
+    `render.yaml` (Docker web service, health check `/api/products`, MySQL
+    datasource as Render secrets), `.github/workflows/deploy-pages.yml` (plain
+    CSR Angular, no prerendering needed), `environment.prod.ts` pointed at
+    `https://luv2shop-api.onrender.com/api`, and `docs/DEPLOYMENT.md` (full
+    runbook) — all added on branch `BranchDivergeFix`, uncommitted, alongside
+    an unrelated in-flight port-bump WIP already on that branch (needs owner
+    review before committing/merging). Still needs: merge to `main` (or point
+    Render at `BranchDivergeFix`), an Aiven MySQL free-tier database (Render
+    has no free managed MySQL), and the Render service itself created from
+    the Blueprint. Okta/Stripe stay inert (by design) until real accounts are
+    added later — not required to go live.
+  - [ ] **Dev Hub** (`dev-hub`, local `devhub/repo`) is prepped (2026-09-05) —
+    no Render needed, it's a plain client-rendered Vite 8 + React 19 app
+    (`app/`, no backend). Note: this repo's entry in `InMemoryProjectRepository`
+    is stale — it describes a "static learn-to-code site" but the repo has
+    since grown into a real Vite/React/TypeScript app (Claude Design handoff,
+    persistence, spaced repetition, a11y/responsive/interaction audits via
+    Playwright) with its own `DEPLOYMENT.md` at the repo root now. Changes:
+    `vite.config.ts` base path + `main.tsx` router `basename` for the Pages
+    sub-path (`/dev-hub/`), `@types/node` devDependency (needed for `tsc -b`
+    to check `vite.config.ts`), `.github/workflows/deploy-pages.yml`. This
+    repo's working tree was clean (no stray WIP) and its default GitHub
+    branch is **`master`**, not `main` (a stale, never-updated local `main`
+    also exists — not what's deployed) — the workflow triggers on `master`.
+    All uncommitted, not yet pushed. Once live: update this repo's `url` →
+    `LIVE` + the Pages URL, `npm run shots -- --only dev-hub`, and refresh its
+    description here to match what the app actually is now.
+  - [x] **`fullstack-starter` entry removed** (2026-09-05), not deployed. It
+    turned out to describe the exact same codebase as the `tesseraapp` entry
+    (`angularSpringBootFullStack`'s own `package.json` is named
+    `tessera-e2e` — it's TesseraApp's actual source, backend at the repo
+    root + Angular frontend in `tesseraapp/`, not a separate template).
+    Deploying it to Render would have stood up a third, redundant copy of an
+    already-live production CIAM platform. `InMemoryProjectRepository`,
+    README.md updated; all backend (13) and frontend (43) tests still pass.
+    Left as-is per the owner: `tesseraapp`'s listed infra string ("AWS ECS
+    Fargate · CloudFront · Aiven MySQL") is now stale too — production moved
+    to Google Cloud Run the same day (2026-09-05, per that repo's
+    `aws/README.md`) — but updating it wasn't asked for this pass.
 - [ ] Decide whether the phone number and work e-mail in `InMemoryProfileRepository`
   should be public (they will be, once pushed).
 - [ ] Real LinkedIn URL (placeholder today) and TesseraApp's repo URL (points at the

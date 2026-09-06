@@ -121,40 +121,6 @@ public class InMemoryProjectRepository implements ProjectRepository {
             // number of rows/cards. Copy is a first draft; statuses are honest (nothing
             // below is deployed yet).
             new Project(
-                    "fullstack-starter",
-                    "Angular + Spring Boot Full Stack",
-                    "Reference full-stack starter: JWT auth, roles and permissions, Spring Data JDBC.",
-                    "Reference full-stack application: Angular frontend over a Spring Boot API with "
-                            + "stateless JWT authentication, role/permission-based authorization and "
-                            + "hand-written Spring JDBC repositories on MySQL.",
-                    "A reference full-stack application used as the template for later projects. "
-                            + "Angular frontend over a Spring Boot REST API with stateless JWT "
-                            + "authentication, role- and permission-based authorization, custom 401/403 "
-                            + "handling, and Spring JDBC (not JPA) repositories backed by an idempotent "
-                            + "MySQL schema.",
-                    null,
-                    "https://github.com/bbobbylon/angularSpringBootFullStack",
-                    ProjectStatus.WIP,
-                    List.of("Angular", "Spring Boot", "Java 21", "Spring Security", "JWT", "Spring JDBC", "MySQL"),
-                    List.of(),
-                    List.of(
-                            new Highlight("Permission-based security",
-                                    "Authorities such as READ:USER and UPDATE:CUSTOMER are split off the "
-                                            + "user's role and enforced per request through a stateless "
-                                            + "JWT filter chain."),
-                            new Highlight("Plain JDBC, deliberately",
-                                    "Each aggregate is a query-constants class, a row mapper and a "
-                                            + "NamedParameterJdbcTemplate repository — no ORM magic, no "
-                                            + "migrations framework."),
-                            new Highlight("Template for the rest",
-                                    "The package layout and security shape here are reused by TesseraApp "
-                                            + "and Luv2Shop.")
-                    ),
-                    null,
-                    "Maven · Docker",
-                    false
-            ),
-            new Project(
                     "dev-hub",
                     "Dev Hub",
                     "Static learn-to-code site: HTML, CSS and JavaScript lessons.",

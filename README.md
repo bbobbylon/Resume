@@ -136,10 +136,11 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
   as the Pages `404.html`. Lighthouse (mobile, gzip static host): performance 99,
   accessibility 100, best practices 96, SEO 100; 200 kB total transfer.
 - Content: resume and TesseraApp are real. Luv2Shop and WebsiteHub are `WIP` with no
-  live URL. `fullstack-starter` and `dev-hub` are placeholder entries pulled from
-  public GitHub repos so the layouts render with realistic density — refine or
-  remove them. The LinkedIn URL is a placeholder, and TesseraApp's repo link points
-  at the GitHub profile until the repo is public.
+  live URL. `dev-hub` is a placeholder entry pulled from a public GitHub repo so the
+  layouts render with realistic density — refine or remove it. (A former
+  `fullstack-starter` entry was removed 2026-09-05: it described the same codebase as
+  TesseraApp, not a separate project.) The LinkedIn URL is a placeholder, and
+  TesseraApp's repo link points at the GitHub profile until the repo is public.
 - Screenshots exist for TesseraApp and WebsiteHub (WebP at 1600 and 800 px plus a
   1200×630 social JPEG, captured with `npm run shots`); projects without a live URL
   render the initial placeholder. Inter is self-hosted, so a visit makes no
