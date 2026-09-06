@@ -41,21 +41,33 @@ the top of each section. Dates are when the item was added. See
 
 ## Next up (no accounts needed)
 
-_(nothing queued right now)_
+- [ ] Regenerate `resume.pdf` in the Pages workflow, take two. `scripts/resume-pdf.mjs`
+  now supports pointing headless Chrome at a finished build (`BUILD_DIR=…`, see
+  below) and that works locally, but wiring it into `deploy-pages.yml` was tried
+  and reverted (2026-09-05): Chrome's `--print-to-pdf` reliably hung for the
+  entire timeout on the Actions runner specifically when combined with
+  `--virtual-time-budget` under `--headless=new` — ruled out as the cause, in
+  order: the sandbox (fixed separately, still hung), a live-API network wait
+  (blocked entirely via `--host-resolver-rules`, still hung), the virtual-time
+  budget size (shrunk to 4s, still hung — always for the *entire* timeout
+  regardless of its length, e.g. exactly 60s then exactly 90s, never partway),
+  and the build's base-href path serving (verified byte-correct with `curl`
+  against the exact `/Resume/` prefix CI uses). That pattern points at a known
+  Chromium flakiness in the `--print-to-pdf`/`--virtual-time-budget` combo under
+  the new headless mode rather than anything in this app. A real fix likely
+  needs driving Chrome over the DevTools protocol directly (e.g. `puppeteer-core`)
+  instead of the CLI flag combo. Kept out of CI rather than leave a step that
+  always burns ~90s doing nothing.
 
 ## Done
 
-- 2026-09-05 — Regenerate `resume.pdf` in the Pages workflow: the `/resume` route
-  is already static HTML by the time `ng build` prerenders it, so `resume:pdf`
-  (`scripts/resume-pdf.mjs`) can now run against a throwaway static server over the
-  build output (`BUILD_DIR=…`) instead of needing the dev server — no new source
-  route, just a new way to point headless Chrome at one. Wired into
-  `deploy-pages.yml` right after the build, using `browser-actions/setup-chrome`
-  for a reliable Chrome binary. Best-effort: a Chrome hiccup logs a warning and
-  keeps the previous `resume.pdf` rather than failing the deploy — kept
-  deliberately non-blocking after seeing headless Chrome take anywhere from ~15s
-  to 60s+ for the same capture in local testing (stray Google-service network
-  calls in a fresh profile, unrelated to the page itself).
+- 2026-09-05 — `resume:pdf` (`scripts/resume-pdf.mjs`) can now regenerate the PDF
+  from a finished `ng build` instead of requiring the dev server: point it at
+  `BUILD_DIR=dist/frontend/browser BASE_HREF=/Resume/` and it spins up a
+  throwaway static server (`scripts/static-server.mjs`) over the build output —
+  the `/resume` route is already static HTML by build time, so no live server is
+  needed. Verified locally end-to-end (correct two-page PDF, real seed data).
+  Not yet wired into CI — see "Next up".
 - 2026-09-05 — Tablet-width hero skeleton: measured the real breakpoint where the
   Ledger hero's heading drops from 3 wrapped lines to 2 (viewport ≳614px, up to the
   existing 880px cutoff) and hid the skeleton's third bar (`.sk-h1.short`) in that
