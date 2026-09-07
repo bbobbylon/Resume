@@ -122,6 +122,20 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-07 — Terms of Use (`/terms`) and Privacy Policy (`/privacy`), and the footer
+  reshaped to the owner's preferred pattern (© line + one-line privacy note, both legal
+  links, "Contact" set apart underneath; Ledger's compact variant keeps the © and the
+  links, Dossier's inline `.foot` gained the same two). Both pages are prerendered, so
+  the sitemap went from 2 to 4 URLs, and both are in the command palette — below the
+  projects, since an empty query should surface the work, not the policies. The privacy
+  text is deliberately a description of the code, not boilerplate: it names the one
+  `localStorage` key (`theme`) and the four hosts a visitor's browser contacts (Pages,
+  the API on Render, `api.github.com` for the activity line, and each project's own site
+  when its status dot scrolls into view). **Adding any new outbound request means editing
+  `privacy.html` in the same commit** — that rule is now in CODE-MAP's "where to change
+  what" table and in SRS FR-27. Not legal advice; the owner should read both pages and
+  say if anything overstates or understates what they want to promise.
+
 - 2026-09-07 — Doc pass over the whole codebase, and `docs/CODE-MAP.md` written.
   Every declaration in `backend/src/main/java` and `frontend/src` now carries a comment
   saying what it is for and which other file depends on it (209 gaps closed), and the

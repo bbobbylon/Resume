@@ -49,7 +49,12 @@
 .role-name { font-weight: 500; color: var(--color-text); }
 .org { color: var(--color-neutral-500); }
 .lead { margin: 6px 0 0; max-width: 56ch; }
-.foot { margin-top: auto; font-size: 13px; line-height: 28px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+.foot {
+  margin-top: auto; display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; line-height: 28px;
+  color: color-mix(in srgb, var(--color-text) 55%, transparent);
+}
+.foot a { color: color-mix(in srgb, var(--color-text) 78%, transparent); }
+.foot a:hover { color: var(--color-accent); }
 
 /* ── Skeletons ────────────────────────────────────────────────────────── */
 .sk-h1 { width: 240px; height: 36px; margin-bottom: 12px; }

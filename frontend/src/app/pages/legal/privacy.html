@@ -1,0 +1,76 @@
+<app-nav />
+<main class="container">
+  <article class="legal">
+    <p class="kicker">Privacy</p>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated {{ updated }}</p>
+
+    <p class="lede">
+      This site has no accounts, sets no cookies and runs no analytics. It asks you for nothing,
+      and it stores nothing about you on a server anywhere.
+    </p>
+
+    <h2>What is stored on your device</h2>
+    <p>
+      One thing, and only if you use the theme toggle: a browser <code>localStorage</code> entry named
+      <code>theme</code>, holding the word <code>dark</code> or <code>light</code>. It never leaves your
+      browser and nothing reads it but this page. Clearing site data for this domain removes it. Until
+      you toggle, the site simply follows your operating system's light/dark preference.
+    </p>
+
+    <h2>What your browser requests when you visit</h2>
+    <p>
+      Like any web page, the requests below reveal your IP address and user agent to whoever answers
+      them. Nothing here is a tracker, but you should know they happen:
+    </p>
+    <ul>
+      <li><strong>GitHub Pages</strong> serves the page itself, the fonts and the images.</li>
+      <li>
+        <strong>This site's own API</strong> (a small read-only service on Render) returns the project,
+        profile and resume text. It has no database, stores no request data and reads nothing about you.
+      </li>
+      <li>
+        <strong>api.github.com</strong> is asked for the owner's public GitHub activity, to show the
+        "last push" line. It is a public, unauthenticated endpoint; no identifier of yours is sent.
+      </li>
+      <li>
+        <strong>Each project's own site</strong> is pinged once — and only once its status dot scrolls
+        into view — to show whether that deployment is currently answering. Nothing is sent beyond the
+        request itself, and the reply cannot be read by this page.
+      </li>
+    </ul>
+    <p>
+      Fonts are served from this site, not from a font CDN, so no third party learns of your visit that
+      way. There are no embedded videos, no tag managers, no advertising and no social widgets.
+    </p>
+
+    <h2>Logs kept by the hosts</h2>
+    <p>
+      GitHub (Pages) and Render (the API) keep their own request logs, which include IP addresses, under
+      their own retention policies. Render's dashboard shows the API's recent request logs to the owner
+      of this site. No other logging is added, and nothing is exported, aggregated or profiled.
+    </p>
+
+    <h2>If you email me</h2>
+    <p>
+      The address in the footer is a normal mailbox. If you write to it, your message and address sit in
+      that mailbox and are used to reply to you — nothing else, and never passed to anyone else.
+    </p>
+
+    <h2>Your choices</h2>
+    <p>
+      There is no account to delete and no profile to request. Clearing site data removes the theme
+      preference; blocking scripts for this domain leaves the prerendered text of every page readable,
+      because the site is served as finished HTML.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      If this policy changes, the date at the top changes with it. Questions are welcome at
+      <a [href]="'mailto:' + email()">{{ email() }}</a>.
+    </p>
+
+    <p><a class="btn btn-ghost" routerLink="/terms">Read the Terms of Use →</a></p>
+  </article>
+</main>
+<app-footer />

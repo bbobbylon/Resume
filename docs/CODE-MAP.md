@@ -119,8 +119,8 @@ pair is listed once, with the `.ts`.
 | `src/app/app.ts` | Root component: a `RouterOutlet` plus the one piece of shared shell, `CommandPalette`. Nav and footer are *not* here — each page composes its own, because Dossier has no top nav at all. |
 | `src/app/app.config.ts` | Browser providers: router (in-memory scrolling + view transitions), `HttpClient` with `fetch`, and `provideClientHydration(withEventReplay())`. |
 | `src/app/app.config.server.ts` | The same config merged with `provideServerRendering(withRoutes(serverRoutes))` for the prerender pass. |
-| `src/app/app.routes.ts` | `/` → `Landing`, `/resume` → `ResumePage`, `/projects/:id` → `ProjectDetail`, `**` → `NotFound`. |
-| `src/app/app.routes.server.ts` | Which routes get prerendered, including one page per project id — fetched from the backend running on localhost during the build. Without a backend the build still succeeds; detail pages just render in the browser instead. |
+| `src/app/app.routes.ts` | `/` → `Landing`, `/resume` → `ResumePage`, `/projects/:id` → `ProjectDetail`, `/terms` → `TermsPage`, `/privacy` → `PrivacyPage`, `**` → `NotFound`. |
+| `src/app/app.routes.server.ts` | Which routes get prerendered — `/`, `/resume`, `/terms`, `/privacy`, and one page per project id — fetched from the backend running on localhost during the build. Without a backend the build still succeeds; detail pages just render in the browser instead. |
 | `src/index.html` | The shell: fonts, meta/OG defaults, and the pre-paint inline script that applies the saved theme before first paint so a prerendered page never flashes the wrong one (`ThemeService` adopts whatever it set). |
 | `src/styles.css` | The Nocturne token sheet — colours, type scale, spacing, the `.tag`/`.btn`/`.nav` primitives every component builds on, and the `@media print` rules that turn `/resume` into the PDF. `:root[data-theme="light"]` redefines the tokens, which is the whole of light mode. |
 | `src/environments/environment.ts` | Production config: the Render API URL, the live-request timeout, the localhost URL the prerender step reads, the site origin, the default landing layout, and the GitHub username `GithubActivity` polls. |
@@ -136,6 +136,9 @@ pair is listed once, with the `.ts`.
 | `landing/dossier/dossier.ts` (+ `.html`, `.css`) | Layout 1c — sticky 360px aside (its own brand, links, theme toggle and palette trigger, hence no `Nav`) beside a projects table and an experience column read from `ResumeService`. |
 | `project-detail/project-detail.ts` (+ `.html`, `.css`) | `/projects/:id`. Looks the id up in the list `ProjectService` already holds (`switchMap` on the param), renders hero, case study, highlights, meta lines and a "Next project" teaser, sets per-project meta tags, and shows the not-found block for an unknown id. |
 | `resume/resume.ts` (+ `.html`, `.css`) | `/resume`. A `280px │ 1fr` grid: sticky aside (contact, skills, PDF button) beside summary, experience, projects, education and achievements. Its print stylesheet *is* the PDF layout. |
+| `legal/terms.ts` (+ `terms.html`) | The `/terms` route: what the site is, content and code ownership, links elsewhere, and fair use of the free public API. |
+| `legal/privacy.ts` (+ `privacy.html`) | The `/privacy` route: no accounts, no cookies, no analytics; the one `localStorage` key; and every host the visitor's browser contacts. Its claims are about the code, so a new outbound request means editing this page too. |
+| `legal/legal.ts`, `legal/legal.css` | The one `LEGAL_UPDATED` date both pages print, and the prose column both use. |
 | `not-found/not-found.ts` | The `**` route. GitHub Pages serves the app for unknown paths, so this is what a typo or a stale link lands on — a real not-found page rather than a silent redirect home. |
 
 ### 4.3 Services — `src/app/services/`
@@ -156,10 +159,10 @@ pair is listed once, with the `.ts`.
 | File | Role |
 |---|---|
 | `nav/nav.ts` (+ `.html`, `.css`) | The top nav used by Ledger, Gallery, the resume page and the detail page: brand, Projects, Resume, Contact, theme toggle, palette trigger and the PDF button. Sets `aria-current` by hand, because a fragment link's active state doesn't cover the detail routes. |
-| `footer/footer.ts` (+ `.html`, `.css`) | Site footer, in two variants: the default `space-between` row, and `compact` for Ledger (which lists contact links in its own section). |
+| `footer/footer.ts` (+ `.html`, `.css`) | Site footer in the owner's preferred shape: © line and a one-line privacy note, Terms/Privacy links (`aria-current` on the one you are reading), and Contact set apart under a hairline. `compact` (Ledger) keeps the © and the legal links only. Dossier has no `app-footer` — its inline `.foot` carries the same two links. |
 | `tech-filter/tech-filter.ts` | The chip row that drives `ProjectFilter`. Every chip is a real link setting `?tech=` (shareable, Back-friendly, merges with `?layout=`) with `fragment="projects"` so picking one doesn't scroll the visitor back to the hero. Carries the `role="status"` summary line — "Showing 5 of 6 projects built with Angular." |
 | `layout-switcher/layout-switcher.ts` | Three links above the landing layout, one per variant, so `?layout=` is discoverable rather than a hidden parameter. |
-| `command-palette/command-palette.ts` (+ `.html`, `.css`) | The Ctrl+K / Cmd+K overlay. Flattens pages, projects and actions into one row shape, filters on label+hint, and drives selection with `aria-activedescendant`. Mounted once, in `App`. |
+| `command-palette/command-palette.ts` (+ `.html`, `.css`) | The Ctrl+K / Cmd+K overlay. Flattens pages, projects, the legal pages and actions into one row shape, filters on label+hint, and drives selection with `aria-activedescendant`. Mounted once, in `App`. |
 | `command-palette-trigger/command-palette-trigger.ts` | The icon button that opens it, sized to match `ThemeToggle`; mounted in the nav and in Dossier's aside. |
 | `theme-toggle/theme-toggle.ts` | The sun/moon button over `ThemeService`. Both icons are always in the DOM and CSS picks one, so the server and browser markup match. |
 | `status-tag/status-tag.ts` | The Live / WIP / Archived chip beside every project title, plus the accent "Featured" variant. |
@@ -194,6 +197,7 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 | `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, and an id that is not in the list gets the not-found state. |
 | `pages/resume/resume.spec.ts` | Experience, projects, education and achievements all render from `GET /api/resume`. |
 | `pages/not-found/not-found.spec.ts` | The miss is explained and links back to the hub. |
+| `pages/legal/legal.spec.ts` | Both pages render dated, with the contact address coming from the API rather than a literal; the privacy page names every host it claims to talk to; the footer marks the page you are on; each links to the other. |
 | `services/api.spec.ts` | The whole fallback dance: both requests in flight, snapshot first then replaced by the live response, a late snapshot ignored, the snapshot kept when the API errors, `TransferState` used instead of a fetch on a prerendered page, and a clean completion when everything fails — plus the build-time side, with and without a backend running. |
 | `services/project-filter.spec.ts` | Version stripping and what is *not* a version, facet counting and ordering, case-insensitive family matching, the rare-technology chip when deep-linked, an unknown `?tech=` showing everything, and no filtering before hydration. |
 | `services/page-meta.spec.ts` | Title, description and social tags are written to the document, and updated rather than duplicated on the next page. |
@@ -267,6 +271,7 @@ things that do.
 | Change name, tagline, contact details or social links | `InMemoryProfileRepository.java`. |
 | Add a field to any of those | The Java record **and** its TypeScript mirror in `models/`, then the template that shows it. |
 | Add a page | `app.routes.ts` + a component under `pages/`, and add it to `app.routes.server.ts` if it should be prerendered and to `command-palette.ts`'s page list. |
+| Add anything that calls out to another host | The code, **and** `pages/legal/privacy.html` — that page lists the hosts a visitor's browser contacts, and a stale privacy policy is worse than none. |
 | Change colours, type or spacing | `src/styles.css` tokens — components read tokens, not literals. |
 | Change what the landing page shows by default | `environment.ts` → `landingLayout`. |
 | Point the site at a different API | The repo variable `API_BASE_URL` (the Pages workflow substitutes it), not `environment.ts`. |

@@ -38,7 +38,7 @@ which looks its `:id` up in that list on every param change (`switchMap`).
 
 **Rendering.** `ng build` runs the app once in Node (`main.server.ts`,
 `app.config.server.ts`, `outputMode: static`) and writes finished HTML for `/`,
-`/resume` and every `/projects/<id>` the backend lists (`app.routes.server.ts` —
+`/resume`, `/terms`, `/privacy` and every `/projects/<id>` the backend lists (`app.routes.server.ts` —
 `getPrerenderParams` asks `/api/projects`; an id that appears later falls back to
 client rendering). In the browser `provideClientHydration(withEventReplay())` adopts
 that HTML instead of re-creating it. `index.csr.html` — the empty client shell —

@@ -35,7 +35,7 @@ cd frontend && npm install && npm start
 
 Pages to try: `/` (add `?layout=ledger`, `?layout=gallery` or `?layout=dossier`,
 and `?tech=Angular` to filter the project list — the two params combine),
-`/resume`, `/projects/tesseraapp`, `/projects/nope` (not-found state).
+`/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`, `/projects/nope` (not-found state).
 
 `docker compose up --build` runs the backend as a container the way the hosts will.
 
@@ -109,7 +109,7 @@ Resume/
 │           ├── app.config.ts · app.config.server.ts · app.routes.ts · app.routes.server.ts
 │           ├── models/  services/ TS mirrors of the records; Api (build-time data ∥ live) → signals; PageMeta
 │           ├── shared/            nav, footer, status-tag, project-image, live-status, icons, pipes
-│           └── pages/             landing (+ ledger / gallery / dossier), resume, project-detail, not-found
+│           └── pages/             landing (+ ledger / gallery / dossier), resume, project-detail, legal (terms + privacy), not-found
 ├── docs/                          SRS, ARCHITECTURE, CODE-MAP, UI-DESIGN, DEPLOYMENT, BACKLOG, design handoff + mocks
 ├── .github/                       workflows (ci.yml, deploy-pages.yml), actions/start-backend, dependabot.yml
 ├── render.yaml                    Render Blueprint (no-card hosting option)

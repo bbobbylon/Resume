@@ -1,0 +1,58 @@
+<app-nav />
+<main class="container">
+  <article class="legal">
+    <p class="kicker">Terms</p>
+    <h1>Terms of Use</h1>
+    <p class="updated">Last updated {{ updated }}</p>
+
+    <p class="lede">
+      This is a personal portfolio: a description of work built by one person, published so that anyone
+      curious can look. Using the site means accepting the few points below.
+    </p>
+
+    <h2>What this site is</h2>
+    <p>
+      A showcase of software projects, with a resume and links to the running deployments of those
+      projects. It sells nothing, hosts no accounts and takes no submissions. Nothing here is
+      professional advice, and nothing here is an offer or a contract.
+    </p>
+
+    <h2>Accuracy</h2>
+    <p>
+      The content is kept current as a matter of pride, not obligation. Project descriptions, status
+      badges and live links reflect what was true when they were written; a linked deployment can change
+      or go offline without this page catching up immediately. Everything is provided as-is, without
+      warranty of any kind.
+    </p>
+
+    <h2>Content and code</h2>
+    <p>
+      The text, design and screenshots on this site belong to the site's owner. The code behind the
+      projects lives in public repositories on GitHub, each under whatever licence that repository
+      states — the licence in a repository governs its code, not this page. Quoting a sentence or two
+      with attribution is fine; republishing the site's content as your own is not.
+    </p>
+
+    <h2>Links to other sites</h2>
+    <p>
+      Project links lead to deployments and repositories hosted elsewhere. Those sites have their own
+      terms and their own privacy practices, and this site is not responsible for what they do.
+    </p>
+
+    <h2>Fair use of the API</h2>
+    <p>
+      The site's small read-only API is public and unauthenticated. You are welcome to call it; please
+      do not hammer it — it runs on a free tier that a rude script can exhaust for everyone else.
+      Attempting to disrupt, probe or overload the site or its API is not permitted.
+    </p>
+
+    <h2>Changes</h2>
+    <p>
+      These terms may change; the date at the top says when they last did. Questions are welcome at
+      <a [href]="'mailto:' + email()">{{ email() }}</a>.
+    </p>
+
+    <p><a class="btn btn-ghost" routerLink="/privacy">Read the Privacy Policy →</a></p>
+  </article>
+</main>
+<app-footer />

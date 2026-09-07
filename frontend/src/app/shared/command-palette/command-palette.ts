@@ -66,8 +66,14 @@ export class CommandPalette {
   private lastFocused: HTMLElement | null = null;
 
   /**
-   * Everything searchable, in display order: static pages, then one row per project
-   * from the live catalogue, then actions. Rebuilt whenever the catalogue arrives.
+   * Everything searchable, in display order: the two main pages, then one row per
+   * project from the live catalogue, then the legal pages, then actions. Rebuilt
+   * whenever the catalogue arrives.
+   *
+   * Terms and Privacy sit *below* the projects deliberately: someone who opens the
+   * palette and types nothing wants the work, not the policies — but typing "priv"
+   * still finds them, which is the only reason a rarely-wanted page belongs in a
+   * command palette at all.
    */
   private readonly items = computed<PaletteItem[]>(() => {
     const pages: PaletteItem[] = [
@@ -80,10 +86,14 @@ export class CommandPalette {
       hint: p.tagline,
       run: () => void this.router.navigate(['/projects', p.id]),
     }));
+    const legal: PaletteItem[] = [
+      { id: 'page-terms', label: 'Terms of Use', hint: 'What this site is, and is not', run: () => void this.router.navigate(['/terms']) },
+      { id: 'page-privacy', label: 'Privacy Policy', hint: 'No cookies, no analytics, no accounts', run: () => void this.router.navigate(['/privacy']) },
+    ];
     const actions: PaletteItem[] = [
       { id: 'action-theme', label: 'Toggle theme', hint: 'Switch between dark and light', run: () => this.theme.toggle() },
     ];
-    return [...pages, ...projects, ...actions];
+    return [...pages, ...projects, ...legal, ...actions];
   });
 
   /**

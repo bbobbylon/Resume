@@ -73,7 +73,7 @@ Angular components (`frontend/src/app/shared/`):
 | Component | Selector | Purpose |
 |-----------|----------|---------|
 | `Nav` | `app-nav` | brand → `/`, Projects → `/#projects` (current on `/` and `/projects/*`), Resume (`routerLinkActive`), Contact (mailto), primary "Download PDF". Links hide < 480 px. |
-| `Footer` | `app-footer` | © left, Email / LinkedIn / GitHub right; `compact` input for the one-line Ledger footer. |
+| `Footer` | `app-footer` | Row 1: © + one-line privacy note left, Terms of Use / Privacy Policy right (the current one gets `aria-current`). Row 2, under a hairline: "Contact" label + Email / LinkedIn / GitHub. `compact` (Ledger) keeps row 1 without the note and drops row 2. Dossier renders no `app-footer` — its inline `.foot` carries the © and the same two links. |
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
 | `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
@@ -123,6 +123,11 @@ neutral tag, 60 px H1, 17/28 lede ≤ 52ch; actions + `auto | 1fr` meta grid for
 at — domain link plus the live-status dot — / Hosting / Delivery), 21:9 hero, body `1fr | 320px` (numbered highlights with a
 48 px accent index column, two 16:10 screenshots; stack chips and a "Next project"
 card), space-between footer.
+
+**Legal pages (`/terms`, `/privacy`).** Nav, one `.legal` prose column (max 66ch,
+kicker + 36 px H1 + 13 px "Last updated" line, 19 px section headings, 15/1.65 body),
+the opening summary set apart by a hairline, and a ghost link at the foot to the other
+page. Text only, no data, no images — they read as documents, not as marketing.
 
 **Not found.** Nav, a `.missing` block (kicker "404", H1 "Page not found", the
 requested path in `<code>`, primary button home + ghost button to the resume),

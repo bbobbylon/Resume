@@ -114,6 +114,10 @@
       </div>
     </section>
 
-    <footer class="foot">© {{ year }} {{ profile()?.name ?? 'Robert Oliver, Jr.' }}</footer>
+    <footer class="foot">
+      <span>© {{ year }} {{ profile()?.name ?? 'Robert Oliver, Jr.' }}</span>
+      <a routerLink="/terms">Terms of Use</a>
+      <a routerLink="/privacy">Privacy Policy</a>
+    </footer>
   </main>
 </div>

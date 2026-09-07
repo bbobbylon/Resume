@@ -70,6 +70,8 @@ opens each project's live app.
 | FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. | `GithubActivity` |
 | FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight, Enter runs the highlighted item, Escape or a backdrop click closes it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
 | FR-25 | The landing page can be narrowed to one technology: a chip row in the Projects section (every family used by two or more projects, plus the selected one) sets a `?tech=` query parameter that merges with `?layout=` rather than replacing it. Matching is by family, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page. The parameter is applied only after hydration, so the prerendered HTML always lists every project. | `TechFilter`, `ProjectFilter` |
+| FR-26 | Every page links to a Terms of Use page (`/terms`) and a Privacy Policy page (`/privacy`) from its footer, and both are prerendered like the rest of the site. | `TermsPage`, `PrivacyPage`, `Footer` |
+| FR-27 | The privacy page states what the site actually does: no accounts, no cookies, no analytics, one `localStorage` key for the theme, and the four hosts the visitor's browser contacts (Pages, the API on Render, `api.github.com`, and each project's own site when its status dot scrolls into view). It is factual about the code, so any new outbound request must be added to it in the same commit. | `PrivacyPage` |
 
 ## 4. Non-Functional Requirements
 
@@ -111,6 +113,9 @@ opens each project's live app.
   judge the work, not just the write-up.
 - As a **recruiter**, I want to narrow the project list to one technology so that I
   can see the work in the stack I am hiring for.
+- As a **visitor**, I want to know what a site does with my data before I browse it,
+  so that I can decide whether to stay — answered in one line in the footer and in
+  full at `/privacy`, without a cookie banner to dismiss (there are no cookies).
 - As a **recruiter**, I want to read the resume in the browser and download a PDF
   so that I can share it internally.
 - As the **owner**, I want to switch between three landing layouts without

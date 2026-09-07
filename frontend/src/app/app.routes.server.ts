@@ -3,7 +3,8 @@ import { environment } from '../environments/environment';
 import { Project } from './models/project.model';
 
 /**
- * Which routes `ng build` prerenders: `/`, `/resume` and one page per project id.
+ * Which routes `ng build` prerenders: `/`, `/resume`, the two legal pages, and one
+ * page per project id.
  * The ids come from the backend running on localhost during the build (run.sh and
  * the Pages workflow start it; see `environment.prerenderApiBaseUrl`). Without it the
  * build still succeeds — no detail pages are written and they render in the browser
@@ -14,6 +15,8 @@ import { Project } from './models/project.model';
 export const serverRoutes: ServerRoute[] = [
   { path: '', renderMode: RenderMode.Prerender },
   { path: 'resume', renderMode: RenderMode.Prerender },
+  { path: 'terms', renderMode: RenderMode.Prerender },
+  { path: 'privacy', renderMode: RenderMode.Prerender },
   {
     path: 'projects/:id',
     renderMode: RenderMode.Prerender,

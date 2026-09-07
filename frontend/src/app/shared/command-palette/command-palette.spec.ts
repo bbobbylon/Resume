@@ -35,7 +35,7 @@ describe('CommandPalette', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init }));
   }
 
-  it('opens on Ctrl+K and lists pages, the theme action and every project', async () => {
+  it('opens on Ctrl+K and lists pages, every project, the legal pages and the theme action', async () => {
     const { fixture } = setup();
     keydown({ key: 'k', ctrlKey: true });
     fixture.detectChanges();
@@ -44,7 +44,7 @@ describe('CommandPalette', () => {
     const dialog = fixture.nativeElement.querySelector('[role="dialog"]');
     expect(dialog).not.toBeNull();
     const labels = [...fixture.nativeElement.querySelectorAll('.cp-label')].map((el: HTMLElement) => el.textContent);
-    expect(labels).toEqual(['Home', 'Resume', 'TesseraApp', 'Toggle theme']);
+    expect(labels).toEqual(['Home', 'Resume', 'TesseraApp', 'Terms of Use', 'Privacy Policy', 'Toggle theme']);
   });
 
   it('is closed by default and Ctrl+K toggles it shut again', async () => {
