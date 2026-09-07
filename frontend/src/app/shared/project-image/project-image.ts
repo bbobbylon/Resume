@@ -48,9 +48,11 @@ import { Component, computed, input } from '@angular/core';
 export class ProjectImage {
   /** Screenshot URL, or `null`/`''` to render the placeholder. */
   readonly src = input<string | null | undefined>(null);
+  /** Alt text. Empty is correct where the image is decorative and the link beside it already names the project. */
   readonly alt = input('');
   /** Project name — only its first letter is shown when there's no screenshot. */
   readonly name = input('');
+  /** Frame aspect: 16:10 for cards and rows, 21:9 for the detail page hero. */
   readonly ratio = input<'16:10' | '21:9'>('16:10');
   /** The slot's width per breakpoint (the `sizes` attribute); default is a 320 px row or card. */
   readonly sizes = input('(max-width: 880px) 100vw, 320px');
@@ -71,6 +73,11 @@ export class ProjectImage {
     return `${src.replace(/\.webp$/, '-800.webp')} 800w, ${src} 1600w`;
   });
 
+  /**
+   * The single letter shown in place of a missing screenshot.
+   *
+   * @returns the project's first character, upper-cased, or `·` when there is no name
+   */
   protected initial(): string {
     return (this.name().trim().charAt(0) || '·').toUpperCase();
   }

@@ -15,6 +15,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class WebsitehubApplication {
 
+    /**
+     * Boots the Spring context and starts the embedded server.
+     *
+     * <p>There is deliberately no custom startup code here: everything this app
+     * needs is either auto-configured or declared in {@code application.yml} and the
+     * {@code config/} package. Deployment differences (the listen port on Render, the
+     * allowed CORS origin) arrive as environment variables, not as arguments.
+     *
+     * @param args command-line arguments, merged into Spring's {@code Environment};
+     *             the Docker image passes none
+     */
     public static void main(String[] args) {
         SpringApplication.run(WebsitehubApplication.class, args);
     }

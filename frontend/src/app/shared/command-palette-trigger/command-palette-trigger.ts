@@ -33,5 +33,6 @@ import { SearchIcon } from '../icons/search';
   `,
 })
 export class CommandPaletteTrigger {
+  /** The shared open signal, so this button and the overlay never import each other. */
   protected readonly palette = inject(CommandPaletteService);
 }

@@ -9,16 +9,24 @@ import { Injectable, signal } from '@angular/core';
  */
 @Injectable({ providedIn: 'root' })
 export class CommandPaletteService {
+  /**
+   * Whether the overlay is showing. The whole service is this one signal: the
+   * overlay (`CommandPalette`) renders off it and the trigger button
+   * (`CommandPaletteTrigger`) sets it, without either importing the other.
+   */
   readonly open = signal(false);
 
+  /** Open the palette. */
   show(): void {
     this.open.set(true);
   }
 
+  /** Close the palette. */
   hide(): void {
     this.open.set(false);
   }
 
+  /** Flip it — what the Ctrl+K / Cmd+K handler calls. */
   toggle(): void {
     this.open.update((v) => !v);
   }

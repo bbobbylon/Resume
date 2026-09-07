@@ -25,10 +25,25 @@ export type ApiResource = 'profile' | 'projects' | 'resume';
  */
 @Injectable({ providedIn: 'root' })
 export class Api {
+  /** Configured with `withFetch()` in app.config.ts, which is what the Node prerender needs. */
   private readonly http = inject(HttpClient);
+  /**
+   * The bridge between the two halves of a prerender: the server writes each
+   * response here, Angular serialises it into the page, and the browser reads it back
+   * instead of refetching.
+   */
   private readonly transfer = inject(TransferState);
+  /** True during `ng build`'s prerender pass, which takes an entirely different path below. */
   private readonly onServer = isPlatformServer(inject(PLATFORM_ID));
 
+  /**
+   * Fetches one API resource by the strategy the current environment calls for —
+   * a single request at build time, a race between cached and live data in the browser.
+   *
+   * @param resource which of the three read-only endpoints to read
+   * @returns the resource; in the browser this may emit twice (build-time data first,
+   *          then the live response if it wins the race and differs)
+   */
   get<T>(resource: ApiResource): Observable<T> {
     const key = makeStateKey<T | null>(`api:${resource}`);
 

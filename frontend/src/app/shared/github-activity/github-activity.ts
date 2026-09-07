@@ -1,18 +1,35 @@
 import { afterNextRender, Component, input, signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
 
+/** The one event this widget shows, already reduced to what the template needs. */
 interface Activity {
+  /** The rendered sentence, e.g. "Pushed to Resume". */
   text: string;
+  /** Where the label links — the repo the event happened in. */
   repoUrl: string;
+  /** Relative age ("7m ago"), computed once at fetch time; it is not kept ticking. */
   when: string;
 }
 
+/**
+ * The slice of GitHub's public events payload this component reads. Deliberately
+ * partial: it names only the three fields used, so an unrelated change to GitHub's
+ * response shape cannot break the type.
+ */
 interface GithubEvent {
+  /** Event kind, e.g. `PushEvent`; looked up in {@link EVENT_VERBS}. */
   type: string;
+  /** ISO timestamp, turned into a relative age by {@link relativeTime}. */
   created_at: string;
+  /** `owner/repo`; the owner half is dropped for display, kept for the link. */
   repo: { name: string };
 }
 
+/**
+ * Event kinds worth showing, and how each reads in a sentence. This map doubles as
+ * the allow-list — an event type absent from here is skipped, so a `GollumEvent` or
+ * a `MemberEvent` never renders as unexplained noise on the hero.
+ */
 const EVENT_VERBS: Record<string, string> = {
   PushEvent: 'Pushed to',
   CreateEvent: 'Created',
@@ -65,12 +82,24 @@ export class GithubActivity {
   /** Dot only, no label text — for tight spaces like a sidebar. */
   readonly compact = input(false);
 
+  /**
+   * The event to show, or `undefined` for "render nothing" — the state on a rate
+   * limit, a network error, or an account with no recognised recent activity.
+   */
   protected readonly activity = signal<Activity | undefined>(undefined);
 
   constructor() {
     afterNextRender(() => void this.load());
   }
 
+  /**
+   * Fetches the account's public events and keeps the newest recognised one.
+   *
+   * Unauthenticated and direct from the browser: the endpoint is public and
+   * CORS-enabled, so this needs no token and no third-party stats service. Every
+   * failure path is silent by design — a portfolio hero should show nothing rather
+   * than a broken widget when GitHub's API hiccups or the rate limit is hit.
+   */
   private async load(): Promise<void> {
     try {
       const res = await fetch(`https://api.github.com/users/${environment.githubUsername}/events/public`, {
@@ -92,6 +121,14 @@ export class GithubActivity {
   }
 }
 
+/**
+ * An ISO timestamp as a compact age: "just now", "7m ago", "3h ago", "5d ago",
+ * "2mo ago". Rounded rather than truncated, and months are approximated at 30 days —
+ * precision past "a while back" is not worth an internationalisation dependency here.
+ *
+ * @param iso the event's `created_at`
+ * @returns the age, ready to render
+ */
 function relativeTime(iso: string): string {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60_000);
   if (minutes < 1) return 'just now';

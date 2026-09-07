@@ -17,15 +17,22 @@ import { ProjectStatus } from '../../models/project.model';
   `,
 })
 export class StatusTag {
+  /** The project's lifecycle state; ignored when {@link featured} is set. */
   readonly status = input<ProjectStatus>('LIVE');
+  /** Render the accent "Featured" tag instead of a status. One tag, two jobs, so the markup stays flat. */
   readonly featured = input(false);
 
+  /** The tag's text — "Featured" wins over status, otherwise the status in sentence case. */
   protected readonly label = computed(() => {
     if (this.featured()) return 'Featured';
     const s = this.status();
     return s === 'LIVE' ? 'Live' : s === 'WIP' ? 'WIP' : 'Archived';
   });
 
+  /**
+   * Which Nocturne tag style applies: accent for featured, the outline for a live
+   * project (the one that should draw the eye), neutral for everything else.
+   */
   protected readonly classes = computed(() => {
     if (this.featured()) return 'tag tag-accent';
     return this.status() === 'LIVE' ? 'tag tag-outline' : 'tag tag-neutral';

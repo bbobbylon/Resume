@@ -8,6 +8,13 @@ import { Pipe, PipeTransform } from '@angular/core';
  */
 @Pipe({ name: 'domain' })
 export class DomainPipe implements PipeTransform {
+  /**
+   * @param value the URL to shorten; `null`/`undefined`/empty yields `''` so a
+   *              template can bind an optional URL without guarding
+   * @param withPath keep the path after the host (used for repo links, where the
+   *                 path is the interesting part); a trailing slash is dropped
+   * @returns the display label, or the input unchanged if it will not parse as a URL
+   */
   transform(value: string | null | undefined, withPath = false): string {
     if (!value) return '';
     try {

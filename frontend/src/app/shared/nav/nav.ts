@@ -24,9 +24,17 @@ import { CommandPaletteTrigger } from '../command-palette-trigger/command-palett
   styleUrl: './nav.css',
 })
 export class Nav {
+  /** Watched for navigation end events, which is how the "Projects" link knows it is current. */
   private readonly router = inject(Router);
+  /** Supplies the brand mark, the mailto address and the resume PDF link. */
   protected readonly profile = inject(ProfileService).profile;
 
+  /**
+   * The current URL as a signal. `routerLinkActive` cannot express "current on `/`
+   * *and* on `/projects/*`", so this drives {@link projectsCurrent} instead. Seeded
+   * with `router.url` so the first render (and the prerender) is already correct
+   * rather than waiting for a navigation event that may never come.
+   */
   private readonly url = toSignal(
     this.router.events.pipe(
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),

@@ -24,8 +24,13 @@ import java.util.List;
 @Tag(name = "Projects", description = "The project catalogue shown on the landing page")
 public class ProjectController {
 
+    /** The service this controller is a thin HTTP wrapper over. */
     private final ProjectService projectService;
 
+    /**
+     * @param projectService injected by Spring; see {@link ProfileController} — the
+     *                       controller layer stays free of logic on purpose
+     */
     public ProjectController(ProjectService projectService) {
         this.projectService = projectService;
     }

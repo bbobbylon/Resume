@@ -16,6 +16,7 @@ import { Profile } from '../models/profile.model';
  */
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
+  /** The one door to the backend — gives this service the profile request its build-time fallback. */
   private readonly api = inject(Api);
 
   /** The current profile, or `undefined` until the request resolves. */

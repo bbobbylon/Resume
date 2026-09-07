@@ -16,8 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Resume", description = "The in-app resume, section by section")
 public class ResumeController {
 
+    /** The service this controller is a thin HTTP wrapper over. */
     private final ResumeService resumeService;
 
+    /**
+     * @param resumeService injected by Spring; see {@link ProfileController} — the
+     *                      controller layer stays free of logic on purpose
+     */
     public ResumeController(ResumeService resumeService) {
         this.resumeService = resumeService;
     }

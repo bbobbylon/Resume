@@ -71,5 +71,6 @@ import { ProjectFilter } from '../../services/project-filter';
   `,
 })
 export class TechFilter {
+  /** All of this component's state; the template reads its signals directly. */
   protected readonly filter = inject(ProjectFilter);
 }

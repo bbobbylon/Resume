@@ -25,11 +25,22 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
   styleUrl: './ledger.css',
 })
 export class Ledger {
+  /** Identity, contact and bio for the hero and the two-column contact block. */
   protected readonly profile = inject(ProfileService).profile;
+  /**
+   * The rows to render — from {@link ProjectFilter}, not {@link ProjectService}, so
+   * the `?tech=` chips above the list actually narrow it. `undefined` while loading.
+   */
   protected readonly projects = inject(ProjectFilter).projects;
   /** Skeleton rows while the project list loads. */
   protected readonly placeholders = [0, 1, 2];
 
+  /**
+   * Zero-pads a row's index for the left column: 0 → "01". Purely presentational —
+   * the numbering is the list's order, which comes from the backend's seed order.
+   *
+   * @param i zero-based row index from the template's `$index`
+   */
   protected index(i: number): string {
     return String(i + 1).padStart(2, '0');
   }

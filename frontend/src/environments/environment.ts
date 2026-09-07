@@ -19,8 +19,11 @@ import { LandingLayout } from '../app/models/landing-layout';
  * it at runtime so all three stay reviewable on the deployed site.
  */
 export const environment = {
+  /** Enables Angular's production mode; also how code can tell which config it is running under. */
   production: true,
+  /** Public API origin read from the browser. Override via the `API_BASE_URL` repo variable, not by editing this. */
   apiBaseUrl: 'https://bobs-resume.onrender.com',
+  /** Upper bound for the live API request; the build-time data renders regardless (see services/api.ts). */
   apiTimeoutMs: 4000,
   /**
    * Where the prerender step (`ng build`, server bundle) reads its data: the backend
@@ -34,6 +37,7 @@ export const environment = {
    * workflow stamps the real origin into the built HTML and JS at deploy time.
    */
   siteUrl: 'https://bobbylon.dev',
+  /** Which landing layout `/` renders by default; `?layout=` overrides it per visit. */
   landingLayout: 'ledger' as LandingLayout,
   /** GitHub username the `GithubActivity` widget polls (public, unauthenticated REST API). */
   githubUsername: 'bbobbylon',

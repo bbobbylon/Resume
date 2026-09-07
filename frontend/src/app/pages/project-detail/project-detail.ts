@@ -32,10 +32,22 @@ type DetailState = { kind: 'loading' } | { kind: 'found'; project: Project } | {
   styleUrl: './project-detail.css',
 })
 export class ProjectDetail {
+  /** Source of the `:id` path param that selects which project this page shows. */
   private readonly route = inject(ActivatedRoute);
+  /** Looks the id up in the one already-fetched catalogue rather than making a second request. */
   private readonly projectService = inject(ProjectService);
+  /** Sets this page's title/description/Open Graph tags once the project (or its absence) is known. */
   private readonly pageMeta = inject(PageMeta);
 
+  /**
+   * The page in one signal: loading, found, or missing. Modelled as a tagged union
+   * rather than a nullable project so the template can tell "still loading" from
+   * "no such project" — they need different markup, not just a different message.
+   *
+   * `switchMap` re-runs the lookup when the `:id` param changes (the "Next project"
+   * teaser navigates between detail pages without leaving this component), and the
+   * `tap`s are where the page's meta tags get applied for each outcome.
+   */
   protected readonly state = toSignal(
     this.route.paramMap.pipe(
       map((params) => params.get('id') ?? ''),
@@ -51,6 +63,7 @@ export class ProjectDetail {
     { initialValue: { kind: 'loading' } as DetailState },
   );
 
+  /** The project itself when found, else `undefined` — a convenience over {@link state}. */
   protected readonly project = computed(() => {
     const s = this.state();
     return s.kind === 'found' ? s.project : undefined;
@@ -77,6 +90,12 @@ export class ProjectDetail {
     });
   }
 
+  /**
+   * Zero-pads a highlight's index: 0 → "01". The same numbering the Ledger and
+   * Dossier layouts use, so a project reads consistently from card to detail page.
+   *
+   * @param i zero-based index from the template's `$index`
+   */
   protected index(i: number): string {
     return String(i + 1).padStart(2, '0');
   }

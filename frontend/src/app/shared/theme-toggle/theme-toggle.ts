@@ -35,5 +35,6 @@ import { ThemeService } from '../../services/theme';
   `,
 })
 export class ThemeToggle {
+  /** The shared theme signal — this button is only a view over it. */
   protected readonly theme = inject(ThemeService);
 }

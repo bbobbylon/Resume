@@ -19,6 +19,11 @@ import java.util.List;
 @Repository
 public class InMemoryProfileRepository implements ProfileRepository {
 
+    /**
+     * The one profile this site serves, built once at class-init and immutable
+     * thereafter — a {@code record} of {@code List.of(...)} values, so it is safe to
+     * hand the same instance to every request without copying.
+     */
     private final Profile profile = new Profile(
             "Robert Oliver, Jr.",
             "bobbylon",
@@ -44,6 +49,13 @@ public class InMemoryProfileRepository implements ProfileRepository {
     );
 
     @Override
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Returns the shared instance rather than a copy: {@link Profile} and
+     * everything inside it are immutable, so no caller can modify what the next
+     * request sees.
+     */
     public Profile getProfile() {
         return profile;
     }

@@ -20,7 +20,9 @@ import { PageMeta } from '../../services/page-meta';
   styleUrl: './resume.css',
 })
 export class ResumePage {
+  /** Contact details for the resume header — the resume payload itself carries none. */
   protected readonly profile = inject(ProfileService).profile;
+  /** Every section of the resume; `undefined` until the request resolves (skeletons show meanwhile). */
   protected readonly resume = inject(ResumeService).resume;
 
   constructor() {

@@ -24,6 +24,24 @@ the top of each section. Dates are when the item was added. See
   the repo is pushed (§3 of DEPLOYMENT.md). If the route ever changes (e.g. Cloud
   Run, DEPLOYMENT.md §7), the workflows are where to change it.
 
+- [x] **Every file, method and variable carries a doc comment, and one concise
+  map of the whole app** (2026-09-07, owner's ask): "make sure all the
+  methods/variables, everything, is documented in comments in the code as well as an
+  overall concise doc(s) for the app. Need to make sure each file is explained
+  thoroughly, and how it relates to other files in the project, and how it relates to
+  the project overall." Baseline measured the day it was asked: every class already
+  carries a thorough header comment, but **209 declarations had no doc comment of
+  their own** (29 backend — injected fields, constructors, `@Override` bodies; 180
+  frontend — model interface fields, signals, computeds, inputs, private helpers).
+  The standard for this repo is not "what it is" but "how it relates": each comment
+  should say what the thing is for and which other file depends on it. `docs/CODE-MAP.md`
+  is the concise whole-app doc that ask calls for — one entry per file, what it does,
+  and what it talks to. **Done 2026-09-07**: backend 29 → 0, frontend 180 → 0 real gaps
+  (the 10 the audit still prints are entries inside already-documented object literals),
+  and `docs/CODE-MAP.md` is written and cross-linked from the README and the other four
+  docs. Keep it current: a new file means a new row, and the two rules in its §8 are
+  what a reviewer should check a change against.
+
 ## Open — needs the owner
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
@@ -103,6 +121,14 @@ the top of each section. Dates are when the item was added. See
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-09-07 — Doc pass over the whole codebase, and `docs/CODE-MAP.md` written.
+  Every declaration in `backend/src/main/java` and `frontend/src` now carries a comment
+  saying what it is for and which other file depends on it (209 gaps closed), and the
+  code map indexes all ~150 tracked source files by area, with a "where to change what"
+  table and the two invariants that are easy to break (the Java↔TypeScript model
+  contract, and the prerender/hydration rule). 76 frontend tests and 13 backend tests
+  still green afterwards.
 
 - 2026-09-07 — TesseraApp's "Azure CI/CD" claim corrected to "GitHub Actions"
   (4 places in `InMemoryProjectRepository`: tech stack, the "Hardened by default"

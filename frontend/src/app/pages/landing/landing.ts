@@ -37,12 +37,18 @@ import { PageMeta, SITE_DESCRIPTION, SITE_TITLE } from '../../services/page-meta
   `,
 })
 export class Landing {
+  /** Read only for its query params — this route has no path params of its own. */
   private readonly route = inject(ActivatedRoute);
 
   constructor() {
     inject(PageMeta).apply({ title: SITE_TITLE, description: SITE_DESCRIPTION, path: '/' });
   }
 
+  /**
+   * The raw `?layout=` value, as a signal so a click on `LayoutSwitcher` re-renders
+   * without a page load. Seeded from the route snapshot so the very first render
+   * (including the prerender) already has the right value.
+   */
   private readonly queryLayout = toSignal(
     this.route.queryParamMap.pipe(map((q) => q.get('layout'))),
     { initialValue: this.route.snapshot.queryParamMap.get('layout') },

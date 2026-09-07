@@ -54,12 +54,23 @@ export function techFamily(tech: string): string {
  */
 @Injectable({ providedIn: 'root' })
 export class ProjectFilter {
+  /**
+   * The router's root route, which is where query params live. Injected here rather
+   * than passed in from `Landing`, so the chips and each layout's list both read the
+   * same `?tech=` without threading it through three templates.
+   */
   private readonly route = inject(ActivatedRoute);
+  /** The unfiltered catalogue; everything below is derived from it. */
   private readonly all = inject(ProjectService).projects;
 
   /** False until the browser has adopted the prerendered HTML; always false on the server. */
   private readonly live = signal(false);
 
+  /**
+   * The raw `?tech=` value as a signal, seeded from the route snapshot so the first
+   * render already has it. Raw on purpose — {@link selected} decides whether it names
+   * anything real.
+   */
   private readonly param = toSignal(
     this.route.queryParamMap.pipe(map((q) => q.get('tech'))),
     { initialValue: this.route.snapshot.queryParamMap.get('tech') },

@@ -26,8 +26,14 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
   styleUrl: './gallery.css',
 })
 export class Gallery {
+  /** Identity and the `stats` this layout renders as its full-bleed stat band. */
   protected readonly profile = inject(ProfileService).profile;
+  /**
+   * Held as the service (not just its list) because {@link emptySlots} also needs to
+   * know whether a filter is active.
+   */
   private readonly filter = inject(ProjectFilter);
+  /** The filtered catalogue; `featured` and `rest` are both derived from it. */
   private readonly projects = this.filter.projects;
 
   /** The featured project (first flagged one, else the first in the list). */

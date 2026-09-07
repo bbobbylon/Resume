@@ -1,5 +1,10 @@
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, input, signal } from '@angular/core';
 
+/**
+ * What the probe knows. `down` means "did not answer" — the fetch is `no-cors`, so
+ * an opaque response cannot distinguish a 200 from a 500; only answered-at-all from
+ * did-not.
+ */
 export type Reachability = 'checking' | 'up' | 'down';
 
 /**
@@ -45,7 +50,9 @@ export class LiveStatus {
   /** Dot only, no "Checking…"/"Up now" text — for tight spaces like a landing card. */
   readonly compact = input(false);
 
+  /** The dot's current state; starts as `checking`, which is also what the server renders. */
   protected readonly state = signal<Reachability>('checking');
+  /** Human wording for {@link state}, used as visible text or as the `title` in compact mode. */
   protected readonly label = () =>
     ({ checking: 'Checking…', up: 'Up now', down: 'Not reachable right now' })[this.state()];
 
@@ -73,6 +80,12 @@ export class LiveStatus {
     });
   }
 
+  /**
+   * Fires the one reachability check and settles {@link state}.
+   *
+   * @param signal aborts the fetch when the component is destroyed, so a slow probe
+   *               cannot resolve against a dead view
+   */
   private async probe(signal: AbortSignal): Promise<void> {
     const url = this.url();
     if (!url) return;

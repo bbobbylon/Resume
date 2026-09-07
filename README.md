@@ -12,6 +12,7 @@ Styled on the **Nocturne** design system with three interchangeable landing layo
 |-----|----------------|
 | [docs/SRS.md](docs/SRS.md) | requirements, user stories, success criteria |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | components, data models, API, patterns |
+| [docs/CODE-MAP.md](docs/CODE-MAP.md) | every file, what it does, and what it talks to |
 | [docs/UI-DESIGN.md](docs/UI-DESIGN.md) | tokens, components, layouts, breakpoints, a11y |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | hosting plan (free tier), CI/CD, domains, rollback |
 | [docs/BACKLOG.md](docs/BACKLOG.md) | what is next, what needs the owner, what was decided |
@@ -109,7 +110,7 @@ Resume/
 │           ├── models/  services/ TS mirrors of the records; Api (build-time data ∥ live) → signals; PageMeta
 │           ├── shared/            nav, footer, status-tag, project-image, live-status, icons, pipes
 │           └── pages/             landing (+ ledger / gallery / dossier), resume, project-detail, not-found
-├── docs/                          SRS, ARCHITECTURE, UI-DESIGN, DEPLOYMENT, BACKLOG, design handoff + mocks
+├── docs/                          SRS, ARCHITECTURE, CODE-MAP, UI-DESIGN, DEPLOYMENT, BACKLOG, design handoff + mocks
 ├── .github/                       workflows (ci.yml, deploy-pages.yml), actions/start-backend, dependabot.yml
 ├── render.yaml                    Render Blueprint (no-card hosting option)
 ├── docker-compose.yml · run.sh    local convenience

@@ -25,8 +25,10 @@ import { LandingLayout } from '../../models/landing-layout';
   `,
 })
 export class LayoutSwitcher {
+  /** Which layout is showing, so its own link renders as `aria-current="page"` rather than a live link. */
   readonly current = input.required<LandingLayout>();
 
+  /** The three variants, in the order the design lists them. */
   protected readonly layouts: { id: LandingLayout; label: string }[] = [
     { id: 'ledger', label: 'Ledger' },
     { id: 'gallery', label: 'Gallery' },

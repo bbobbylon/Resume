@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 0.3.0 |
 | **Date** | 2026-09-04 (provider limits verified against vendor docs on this date — re-check before relying on them) |
-| **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) |
+| **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) |
 
 ## 0. The decision
 

@@ -6,10 +6,18 @@ import { ProjectService } from '../../services/project.service';
 import { ThemeService } from '../../services/theme';
 import { SearchIcon } from '../icons/search';
 
+/**
+ * One row of the palette. Pages, projects and actions are all flattened to this
+ * shape so the list, the filter and the keyboard handler never branch on kind.
+ */
 interface PaletteItem {
+  /** Stable key for `@for` tracking, and the basis of each row's DOM id for `aria-activedescendant`. */
   id: string;
+  /** The bold left-hand text, and the primary thing the substring filter matches. */
   label: string;
+  /** The dimmer right-hand text; also matched by the filter, so "resume" finds a project by its tagline. */
   hint: string;
+  /** What Enter or a click does — navigate, or run an action. Closing the palette is the caller's job. */
   run: () => void;
 }
 
@@ -32,20 +40,35 @@ interface PaletteItem {
   styleUrl: './command-palette.css',
 })
 export class CommandPalette {
+  /** The shared open/closed signal; this component renders off it, the trigger button sets it. */
   protected readonly palette = inject(CommandPaletteService);
+  /** Used by the navigation items' `run` callbacks. */
   private readonly router = inject(Router);
+  /** The live catalogue, so a newly added project appears in search with no change here. */
   private readonly projects = inject(ProjectService).projects;
+  /** Backs the "Toggle theme" action. */
   private readonly theme = inject(ThemeService);
+  /** For locking body scroll while open and for tracking/restoring focus. */
   private readonly doc = inject(DOCUMENT);
+  /** Guards the DOM effects below; during prerendering the palette is closed and inert. */
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 
+  /** What the visitor has typed; reset to empty every time the palette opens. */
   protected readonly query = signal('');
+  /** Index into {@link filtered} of the highlighted row — the keyboard's cursor. */
   protected readonly activeIndex = signal(0);
+  /** DOM id of the `listbox`, referenced by the input's `aria-controls`. */
   protected readonly listId = 'command-palette-list';
 
+  /** The search field — the only focusable element inside the dialog, which is what makes the focus trap trivial. */
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+  /** Whatever had focus before opening, so closing puts it back where the visitor left it. */
   private lastFocused: HTMLElement | null = null;
 
+  /**
+   * Everything searchable, in display order: static pages, then one row per project
+   * from the live catalogue, then actions. Rebuilt whenever the catalogue arrives.
+   */
   private readonly items = computed<PaletteItem[]>(() => {
     const pages: PaletteItem[] = [
       { id: 'page-home', label: 'Home', hint: 'Landing page', run: () => void this.router.navigate(['/']) },
@@ -63,6 +86,11 @@ export class CommandPalette {
     return [...pages, ...projects, ...actions];
   });
 
+  /**
+   * {@link items} narrowed by a case-insensitive substring of the query against both
+   * label and hint. Substring rather than fuzzy matching on purpose: with a list this
+   * short, fuzzy matching mostly produces surprising hits.
+   */
   protected readonly filtered = computed(() => {
     const q = this.query().trim().toLowerCase();
     const all = this.items();
@@ -70,6 +98,10 @@ export class CommandPalette {
     return all.filter((i) => i.label.toLowerCase().includes(q) || i.hint.toLowerCase().includes(q));
   });
 
+  /**
+   * The DOM id of the highlighted row, for `aria-activedescendant`. That is how a
+   * screen reader follows the arrow keys while real focus never leaves the input.
+   */
   protected readonly activeId = computed(() => {
     const item = this.filtered()[this.activeIndex()];
     return item ? `cp-opt-${item.id}` : null;
@@ -99,6 +131,13 @@ export class CommandPalette {
   }
 
   @HostListener('document:keydown', ['$event'])
+  /**
+   * The global shortcut and the palette's own key handling, in one document-level
+   * listener. Ctrl+K / Cmd+K toggles from anywhere; the rest only applies while open.
+   *
+   * @param e the keydown; `preventDefault` is called for every key handled here so
+   *          the browser's own Ctrl+K (search bar) and Tab do not also fire
+   */
   protected onKeydown(e: KeyboardEvent): void {
     const meta = e.metaKey || e.ctrlKey;
     if (meta && e.key.toLowerCase() === 'k') {
@@ -132,14 +171,30 @@ export class CommandPalette {
     }
   }
 
+  /**
+   * Closes on a click that landed on the backdrop itself, not inside the panel.
+   *
+   * @param e the click; the target/currentTarget comparison is what distinguishes the two
+   */
   protected onBackdropClick(e: MouseEvent): void {
     if (e.target === e.currentTarget) this.palette.hide();
   }
 
+  /**
+   * Mirrors the search field into {@link query}.
+   *
+   * @param e the input event from the search field
+   */
   protected onInput(e: Event): void {
     this.query.set((e.target as HTMLInputElement).value);
   }
 
+  /**
+   * Runs the item at this index and closes. Ignores an index the current filter no
+   * longer has, which is what makes an Enter arriving mid-retype harmless.
+   *
+   * @param index position in {@link filtered}
+   */
   protected select(index: number): void {
     const item = this.filtered()[index];
     if (!item) return;
@@ -147,6 +202,12 @@ export class CommandPalette {
     this.palette.hide();
   }
 
+  /**
+   * Moves the highlight, wrapping at both ends so ArrowUp from the first row lands on
+   * the last.
+   *
+   * @param delta +1 for down, -1 for up
+   */
   private move(delta: number): void {
     const len = this.filtered().length;
     if (!len) return;

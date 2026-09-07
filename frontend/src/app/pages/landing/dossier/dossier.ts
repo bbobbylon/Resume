@@ -26,9 +26,16 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
   styleUrl: './dossier.css',
 })
 export class Dossier {
+  /** Identity and contact for the sticky aside (this layout has no top `Nav`). */
   protected readonly profile = inject(ProfileService).profile;
+  /** The filtered catalogue, rendered as the main column's `.table` rows. */
   protected readonly projects = inject(ProjectFilter).projects;
+  /**
+   * Experience and education for the lower half of the main column — the same
+   * `GET /api/resume` payload the `/resume` page uses, so the two never disagree.
+   */
   protected readonly resume = inject(ResumeService).resume;
+  /** Current year for this layout's own inline copyright line (it renders no `app-footer`). */
   protected readonly year = new Date().getFullYear();
 
   /** "Software Engineer · Identity & Access Management" → two lines for the aside. */
@@ -45,6 +52,11 @@ export class Dossier {
     };
   });
 
+  /**
+   * Zero-pads a table row's index: 0 → "01". Same numbering the Ledger layout uses.
+   *
+   * @param i zero-based row index from the template's `$index`
+   */
   protected index(i: number): string {
     return String(i + 1).padStart(2, '0');
   }

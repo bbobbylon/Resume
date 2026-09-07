@@ -18,6 +18,12 @@ import java.util.List;
 @Repository
 public class InMemoryResumeRepository implements ResumeRepository {
 
+    /**
+     * The whole resume as one immutable object: summary, grouped skills, experience,
+     * projects, education, achievements and the PDF link. Kept whole rather than split
+     * per section because both consumers — the {@code /resume} page and the generated
+     * {@code resume.pdf} — render every section anyway.
+     */
     private final Resume resume = new Resume(
             "Full-stack engineer building a global zero-trust CIAM platform (Angular + Spring Boot) "
                     + "that secures a multibillion-dollar enterprise. Depth in secure authentication, "
@@ -109,6 +115,11 @@ public class InMemoryResumeRepository implements ResumeRepository {
     );
 
     @Override
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Returns the shared immutable instance; see {@link InMemoryProfileRepository}.
+     */
     public Resume getResume() {
         return resume;
     }

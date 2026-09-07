@@ -18,6 +18,13 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
+    /**
+     * The {@code info} block springdoc cannot infer from code. Paths, parameters and
+     * schemas are generated from the controllers and the records in {@code model/};
+     * only the title, version, blurb, contact and license below are hand-written.
+     *
+     * @return the OpenAPI root document springdoc merges its generated paths into
+     */
     public OpenAPI websiteHubOpenApi() {
         return new OpenAPI().info(new Info()
                 .title("WebsiteHub API")

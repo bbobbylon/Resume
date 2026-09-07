@@ -13,6 +13,7 @@ import { Project } from '../models/project.model';
  */
 @Injectable({ providedIn: 'root' })
 export class ProjectService {
+  /** The one door to the backend — gives this service the project catalogue request its build-time fallback. */
   private readonly api = inject(Api);
 
   /** Fetched once, replayed to every subscriber for the life of the app. */

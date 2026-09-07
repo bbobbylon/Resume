@@ -14,7 +14,10 @@ import { ProfileService } from '../../services/profile.service';
   styleUrl: './footer.css',
 })
 export class Footer {
+  /** Supplies the email and social links in the footer's right-hand row. */
   protected readonly profile = inject(ProfileService).profile;
+  /** One-line variant for Ledger, whose own Contact section already lists these links. */
   readonly compact = input(false);
+  /** Copyright year, read once at construction — a page is never open across a New Year that matters. */
   protected readonly year = new Date().getFullYear();
 }

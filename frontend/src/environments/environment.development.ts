@@ -7,7 +7,9 @@ import { LandingLayout } from '../app/models/landing-layout';
  * extra setup — just run the backend on its default local port 8420 alongside it.
  */
 export const environment = {
+  /** Keeps Angular's development-mode checks on. */
   production: false,
+  /** The locally-running backend — the same port run.sh starts it on. */
   apiBaseUrl: 'http://localhost:8420',
   /** Upper bound for the live API request; the snapshot renders regardless (see services/api.ts). */
   apiTimeoutMs: 4000,
@@ -23,6 +25,7 @@ export const environment = {
    * workflow stamps the real origin into the built HTML and JS at deploy time.
    */
   siteUrl: 'https://bobbylon.dev',
+  /** Which landing layout `/` renders by default; `?layout=` overrides it per visit. */
   landingLayout: 'ledger' as LandingLayout,
   /** GitHub username the `GithubActivity` widget polls (public, unauthenticated REST API). */
   githubUsername: 'bbobbylon',

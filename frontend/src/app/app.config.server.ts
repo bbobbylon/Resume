@@ -10,7 +10,13 @@ import { serverRoutes } from './app.routes.server';
  * GitHub Pages hosts the files (docs/ARCHITECTURE.md → "Rendering").
  */
 const serverConfig: ApplicationConfig = {
+  /** Server rendering, told which routes to prerender and which to leave to the browser. */
   providers: [provideServerRendering(withRoutes(serverRoutes))],
 };
 
+/**
+ * What `main.server.ts` bootstraps with: the browser providers plus the server ones.
+ * Merging (rather than redeclaring) is what guarantees the prerendered HTML is
+ * produced by the same routes, HTTP client and hydration setup the browser will use.
+ */
 export const config = mergeApplicationConfig(appConfig, serverConfig);

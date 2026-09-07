@@ -17,8 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Profile", description = "Who the hub belongs to")
 public class ProfileController {
 
+    /** The service this controller is a thin HTTP wrapper over. */
     private final ProfileService profileService;
 
+    /**
+     * @param profileService injected by Spring; controllers here hold no state and no
+     *                       logic beyond mapping a route to a service call
+     */
     public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
     }

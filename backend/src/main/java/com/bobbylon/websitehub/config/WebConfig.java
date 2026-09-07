@@ -40,8 +40,21 @@ import java.util.Arrays;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    /**
+     * Origins allowed to call {@code /api/**} from a browser, already split and
+     * trimmed from the comma-separated {@code ALLOWED_ORIGIN} value. Kept as an array
+     * because that is exactly what {@link CorsRegistry} wants.
+     */
     private final String[] allowedOrigins;
 
+    /**
+     * @param allowedOrigins raw {@code app.allowed-origin} property — one origin or a
+     *                       comma-separated list, mapped from the {@code ALLOWED_ORIGIN}
+     *                       environment variable in application.yml. The default is the
+     *                       local Angular dev server, so {@code ng serve} works against
+     *                       this API with no configuration at all. Blank entries are
+     *                       dropped so a trailing comma in the env var is harmless
+     */
     public WebConfig(@Value("${app.allowed-origin:http://localhost:4222}") String allowedOrigins) {
         this.allowedOrigins = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
@@ -64,6 +77,14 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
+    /**
+     * Stamps {@code Cache-Control: public, max-age=300} on every {@code /api/**}
+     * response. Five minutes is chosen against how the data actually changes: only on
+     * deploy. It pairs with {@link #etagFilter()} — within the window the browser does
+     * not ask at all, and after it the conditional request costs a 304, not the JSON.
+     *
+     * @param registry Spring MVC's interceptor registry
+     */
     public void addInterceptors(InterceptorRegistry registry) {
         var cache = new WebContentInterceptor();
         cache.addCacheMapping(CacheControl.maxAge(Duration.ofMinutes(5)).cachePublic(), "/api/**");
@@ -71,6 +92,13 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
+    /**
+     * Opens {@code /api/**} to the origins in {@link #allowedOrigins}, for
+     * {@code GET} and the {@code OPTIONS} preflight only — this API is read-only, so
+     * advertising mutating methods to browsers would be noise at best.
+     *
+     * @param registry Spring MVC's CORS registry
+     */
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins(allowedOrigins)

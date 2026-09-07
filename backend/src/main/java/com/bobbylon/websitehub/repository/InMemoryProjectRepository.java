@@ -26,6 +26,14 @@ import java.util.Optional;
 @Repository
 public class InMemoryProjectRepository implements ProjectRepository {
 
+    /**
+     * The catalogue, in display order — this list <em>is</em> the ordering contract
+     * the frontend renders against (Ledger numbers it 01, 02, 03…). Immutable
+     * ({@code List.of}) and built once, so it can be shared across requests as-is.
+     *
+     * <p>Editing this list is how the portfolio changes: a project's {@code status}
+     * and {@code url} flip from {@code WIP} to {@code LIVE} here when it is deployed.
+     */
     private final List<Project> projects = List.of(
             new Project(
                     "tesseraapp",
@@ -292,11 +300,24 @@ public class InMemoryProjectRepository implements ProjectRepository {
     );
 
     @Override
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Hands back the immutable list itself — no defensive copy is needed, and the
+     * order it is declared in is the order the site shows.
+     */
     public List<Project> findAll() {
         return projects;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     *
+     * <p>A linear scan, which is the right shape at this size: the catalogue is a
+     * handful of entries and the frontend does not even use this endpoint (it filters
+     * the list it already fetched). An index would cost more to maintain than it saves.
+     */
     public Optional<Project> findById(String id) {
         return projects.stream()
                 .filter(project -> project.id().equals(id))

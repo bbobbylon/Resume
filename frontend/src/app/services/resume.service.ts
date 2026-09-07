@@ -9,6 +9,7 @@ import { Resume } from '../models/resume.model';
  */
 @Injectable({ providedIn: 'root' })
 export class ResumeService {
+  /** The one door to the backend — gives this service the resume request its build-time fallback. */
   private readonly api = inject(Api);
 
   /** The resume, or `undefined` until the request resolves. */

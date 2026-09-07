@@ -1,6 +1,7 @@
 import { DOCUMENT, Injectable, PLATFORM_ID, effect, inject, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+/** The two themes; also the exact values written to `data-theme` and `localStorage`. */
 export type Theme = 'dark' | 'light';
 
 /** `localStorage` key holding an explicit choice; absent means "follow the OS". */
@@ -24,7 +25,9 @@ const THEME_COLOR: Record<Theme, string> = { dark: '#161826', light: '#f4f5fa' }
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
+  /** The document whose `<html>` carries `data-theme`; injected so this stays server-safe. */
   private readonly doc = inject(DOCUMENT);
+  /** False during prerendering, where there is no OS preference or storage to read. */
   private readonly browser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** The active theme. */
@@ -50,6 +53,14 @@ export class ThemeService {
     }
   }
 
+  /**
+   * The theme to start from, in order of truth: what the pre-paint script in
+   * index.html already applied → an explicitly saved choice → the OS preference →
+   * dark. Reading the applied attribute first is what makes the service agree with
+   * the paint that already happened instead of overriding it.
+   *
+   * @returns the theme to adopt; always `dark` on the server, whose HTML is theme-neutral
+   */
   private initial(): Theme {
     if (!this.browser) return 'dark';
     const applied = this.doc.documentElement.getAttribute('data-theme');

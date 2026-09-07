@@ -5,7 +5,7 @@
 | **Version** | 0.3.0 (prerendered) |
 | **Date** | 2026-09-04 |
 | **Status** | Baseline complete; hosting decided (see [DEPLOYMENT.md](DEPLOYMENT.md)), go-live pending the owner; open items in [BACKLOG.md](BACKLOG.md) |
-| **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
+| **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
 
 ## 1. Executive Summary
 

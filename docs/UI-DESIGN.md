@@ -5,7 +5,7 @@
 | **Version** | 0.3.0 |
 | **Date** | 2026-09-04 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
-| **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) |
+| **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) |
 
 ## 1. Design System — Nocturne
 
