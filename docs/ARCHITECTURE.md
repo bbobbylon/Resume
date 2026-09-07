@@ -91,8 +91,9 @@ Resume/
 │       └── app/
 │           ├── app.ts · app.config.ts · app.routes.ts · app.config.server.ts · app.routes.server.ts
 │           ├── models/                     project, profile, resume, landing-layout
-│           ├── services/                   Api (build-time data ∥ live, live replaces), ProfileService, ProjectService, ResumeService, PageMeta
-│           ├── shared/                     nav, footer, status-tag, project-image (srcset), live-status, icons, pipes
+│           ├── services/                   Api (build-time data ∥ live, live replaces), ProfileService, ProjectService, ProjectFilter (?tech=), ResumeService, PageMeta, Theme, CommandPaletteService
+│           ├── shared/                     nav, footer, status-tag, project-image (srcset), live-status, github-activity,
+│           │                             theme-toggle, command-palette (+trigger), layout-switcher, tech-filter, icons, pipes
 │           └── pages/
 │               ├── landing/                Landing (@switch) + ledger/ gallery/ dossier/
 │               ├── resume/                 ResumePage

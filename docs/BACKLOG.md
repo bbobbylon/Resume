@@ -80,10 +80,14 @@ the top of each section. Dates are when the item was added. See
     Deploying it to Render would have stood up a third, redundant copy of an
     already-live production CIAM platform. `InMemoryProjectRepository`,
     README.md updated; all backend (13) and frontend (43) tests still pass.
-    Left as-is per the owner: `tesseraapp`'s listed infra string ("AWS ECS
-    Fargate · CloudFront · Aiven MySQL") is now stale too — production moved
-    to Google Cloud Run the same day (2026-09-05, per that repo's
-    `aws/README.md`) — but updating it wasn't asked for this pass.
+    **Correction (2026-09-07):** the note here that `tesseraapp`'s infra
+    string ("AWS ECS Fargate · CloudFront · Aiven MySQL") had gone stale was
+    itself wrong. That repo's workflow comments say production moved to Cloud
+    Run on 2026-09-05, but its `aws/README.md` banner (2026-09-06) says the
+    move is "decided, not executed", and `curl -I https://tesseraapp.dev`
+    answers 200 through CloudFront (`Via: … cloudfront.net`, `X-Amz-Cf-Pop`).
+    AWS is still what serves the site, so the string stays. What *was* stale
+    is fixed below.
 - [x] Content flags resolved (2026-09-06): work e-mail swapped to the personal
   address, phone number swapped to a new public number (both were live under the
   old values), the placeholder LinkedIn link removed entirely rather than ship a
@@ -100,6 +104,39 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-07 — TesseraApp's "Azure CI/CD" claim corrected to "GitHub Actions"
+  (4 places in `InMemoryProjectRepository`: tech stack, the "Hardened by default"
+  highlight, the `delivery` meta line and the case study's outcome; 2 more in
+  `InMemoryResumeRepository`'s TesseraApp resume project). Checked against the
+  repo itself: delivery runs from `.github/workflows/` (`ci.yml`, `deploy.yml`
+  → ECR/ECS, `deploy-gcp.yml`), and the `azure-pipelines.yml` still in the tree
+  was last touched 2026-08-07 — legacy, not the pipeline that ships it. The
+  Deloitte experience entry's own "Azure CI/CD" skill is untouched: that is the
+  owner's actual job history, not a claim about this project. Backend 13/13.
+- 2026-09-07 — Filter the landing by technology. A chip row (`TechFilter`) in
+  each layout's Projects section lists "All" plus every technology family used by
+  two or more projects, with counts; each chip is a link that sets `?tech=`, so a
+  filtered view is shareable, survives Back, and merges with `?layout=` instead of
+  dropping it. `ProjectFilter` (root service) holds the state and the matching, and
+  all three layouts now read their project list from it instead of `ProjectService`.
+  Three decisions worth remembering: (1) matching is by **family** — a trailing
+  version is stripped, so `?tech=Angular` also matches `Angular 21` and
+  `Spring Boot 4.1`, while `React Router` stays its own family rather than folding
+  into `React 19`; (2) a `?tech=` no project uses shows **everything**, the same
+  forgiving rule `Landing` applies to an unknown `?layout=`, so no layout ever needs
+  a "nothing matched" state; (3) the param is honoured only **after hydration** —
+  `/` is prerendered with no query string, so filtering during the first render would
+  hand the browser markup that disagrees with the HTML it is adopting (the
+  `afterNextRender` pattern `LiveStatus` and `GithubActivity` already use). Chips link
+  with `fragment="projects"` so a click doesn't bounce the visitor to the top of the
+  page, and Gallery's dashed "next project" placeholder slots are suppressed while a
+  filter is active (a short list is then the filter's doing, not an empty portfolio).
+  Frontend gained 17 tests (76/76 total); backend unaffected (13/13). Verified in a
+  real `--base-href /Resume/` build served statically and driven with headless Chrome:
+  clicked the Angular chip in all three layouts, deep-linked `?tech=MySQL` (2 of 6) and
+  `?tech=NotAThing` (falls back to all 6), checked both themes, confirmed Gallery drops
+  its placeholder slots under a narrow filter, and confirmed the console carries **no
+  hydration mismatch** — only the expected offline-API warnings.
 - 2026-09-06 — Layout switcher. The three landing layouts (Ledger/Gallery/Dossier)
   were only reachable by hand-typing `?layout=`; the owner wanted all three
   actually reachable to a visitor, not just reviewable. New `LayoutSwitcher`

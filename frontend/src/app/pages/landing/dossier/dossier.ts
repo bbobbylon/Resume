@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
-import { ProjectService } from '../../../services/project.service';
+import { ProjectFilter } from '../../../services/project-filter';
 import { ResumeService } from '../../../services/resume.service';
 import { StatusTag } from '../../../shared/status-tag/status-tag';
 import { ArrowUpRight } from '../../../shared/icons/arrow-up-right';
@@ -10,6 +10,7 @@ import { ThemeToggle } from '../../../shared/theme-toggle/theme-toggle';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
 import { CommandPaletteTrigger } from '../../../shared/command-palette-trigger/command-palette-trigger';
+import { TechFilter } from '../../../shared/tech-filter/tech-filter';
 
 /**
  * Landing layout 1c "Dossier" (handoff → Landing variants → 1c): a `360px | 1fr`
@@ -20,13 +21,13 @@ import { CommandPaletteTrigger } from '../../../shared/command-palette-trigger/c
  */
 @Component({
   selector: 'app-dossier',
-  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity, CommandPaletteTrigger],
+  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity, CommandPaletteTrigger, TechFilter],
   templateUrl: './dossier.html',
   styleUrl: './dossier.css',
 })
 export class Dossier {
   protected readonly profile = inject(ProfileService).profile;
-  protected readonly projects = inject(ProjectService).projects;
+  protected readonly projects = inject(ProjectFilter).projects;
   protected readonly resume = inject(ResumeService).resume;
   protected readonly year = new Date().getFullYear();
 

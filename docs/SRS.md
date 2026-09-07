@@ -69,6 +69,7 @@ opens each project's live app.
 | FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
 | FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. | `GithubActivity` |
 | FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight, Enter runs the highlighted item, Escape or a backdrop click closes it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
+| FR-25 | The landing page can be narrowed to one technology: a chip row in the Projects section (every family used by two or more projects, plus the selected one) sets a `?tech=` query parameter that merges with `?layout=` rather than replacing it. Matching is by family, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page. The parameter is applied only after hydration, so the prerendered HTML always lists every project. | `TechFilter`, `ProjectFilter` |
 
 ## 4. Non-Functional Requirements
 
@@ -108,6 +109,8 @@ opens each project's live app.
 
 - As a **recruiter**, I want to open a project and use the live app so that I can
   judge the work, not just the write-up.
+- As a **recruiter**, I want to narrow the project list to one technology so that I
+  can see the work in the stack I am hiring for.
 - As a **recruiter**, I want to read the resume in the browser and download a PDF
   so that I can share it internally.
 - As the **owner**, I want to switch between three landing layouts without

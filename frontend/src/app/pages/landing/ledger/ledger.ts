@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
-import { ProjectService } from '../../../services/project.service';
+import { ProjectFilter } from '../../../services/project-filter';
 import { Nav } from '../../../shared/nav/nav';
 import { Footer } from '../../../shared/footer/footer';
 import { StatusTag } from '../../../shared/status-tag/status-tag';
@@ -10,6 +10,7 @@ import { ArrowUpRight } from '../../../shared/icons/arrow-up-right';
 import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
+import { TechFilter } from '../../../shared/tech-filter/tech-filter';
 
 /**
  * Landing layout 1a "Ledger" (handoff → Landing variants → 1a): a single 1120px
@@ -19,13 +20,13 @@ import { GithubActivity } from '../../../shared/github-activity/github-activity'
  */
 @Component({
   selector: 'app-ledger',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter],
   templateUrl: './ledger.html',
   styleUrl: './ledger.css',
 })
 export class Ledger {
   protected readonly profile = inject(ProfileService).profile;
-  protected readonly projects = inject(ProjectService).projects;
+  protected readonly projects = inject(ProjectFilter).projects;
   /** Skeleton rows while the project list loads. */
   protected readonly placeholders = [0, 1, 2];
 

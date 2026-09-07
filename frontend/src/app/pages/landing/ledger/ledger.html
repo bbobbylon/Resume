@@ -23,6 +23,7 @@
 
   <section id="projects" class="projects" aria-labelledby="projects-kicker">
     <p id="projects-kicker" class="kicker">Projects</p>
+    <app-tech-filter />
     @if (projects(); as list) {
       @for (project of list; track project.id; let i = $index; let last = $last) {
         <article class="row">

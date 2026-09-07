@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProfileService } from '../../../services/profile.service';
-import { ProjectService } from '../../../services/project.service';
+import { ProjectFilter } from '../../../services/project-filter';
 import { Nav } from '../../../shared/nav/nav';
 import { Footer } from '../../../shared/footer/footer';
 import { StatusTag } from '../../../shared/status-tag/status-tag';
@@ -10,6 +10,7 @@ import { ArrowUpRight } from '../../../shared/icons/arrow-up-right';
 import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
+import { TechFilter } from '../../../shared/tech-filter/tech-filter';
 
 /**
  * Landing layout 1b "Gallery" (handoff → Landing variants → 1b): a `5fr | 7fr`
@@ -20,13 +21,14 @@ import { GithubActivity } from '../../../shared/github-activity/github-activity'
  */
 @Component({
   selector: 'app-gallery',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter],
   templateUrl: './gallery.html',
   styleUrl: './gallery.css',
 })
 export class Gallery {
   protected readonly profile = inject(ProfileService).profile;
-  private readonly projects = inject(ProjectService).projects;
+  private readonly filter = inject(ProjectFilter);
+  private readonly projects = this.filter.projects;
 
   /** The featured project (first flagged one, else the first in the list). */
   protected readonly featured = computed(() => {
@@ -46,6 +48,8 @@ export class Gallery {
    * until there are at least three non-featured projects (handoff: remove once ≥3).
    */
   protected readonly emptySlots = computed(() => {
+    // Under an active tech filter a short list is the filter's doing, not an empty portfolio.
+    if (this.filter.selected()) return [];
     const n = this.rest()?.length ?? 0;
     return n >= 3 ? [] : Array.from({ length: 3 - n }, (_, i) => i);
   });

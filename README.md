@@ -32,7 +32,8 @@ cd frontend && npm install && npm start
 ./run.sh
 ```
 
-Pages to try: `/` (add `?layout=ledger`, `?layout=gallery` or `?layout=dossier`),
+Pages to try: `/` (add `?layout=ledger`, `?layout=gallery` or `?layout=dossier`,
+and `?tech=Angular` to filter the project list — the two params combine),
 `/resume`, `/projects/tesseraapp`, `/projects/nope` (not-found state).
 
 `docker compose up --build` runs the backend as a container the way the hosts will.
