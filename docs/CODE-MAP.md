@@ -134,7 +134,7 @@ pair is listed once, with the `.ts`.
 | `landing/ledger/ledger.ts` (+ `.html`, `.css`) | Layout 1a — one numbered row per project, contact section at the foot. |
 | `landing/gallery/gallery.ts` (+ `.html`, `.css`) | Layout 1b — featured card, three-column grid, stat band. Owns `emptySlots`, which pads a short grid *except* under an active tech filter, where a short list is the filter's doing. |
 | `landing/dossier/dossier.ts` (+ `.html`, `.css`) | Layout 1c — sticky 360px aside (its own brand, links, theme toggle and palette trigger, hence no `Nav`) beside a projects table and an experience column read from `ResumeService`. |
-| `project-detail/project-detail.ts` (+ `.html`, `.css`) | `/projects/:id`. Looks the id up in the list `ProjectService` already holds (`switchMap` on the param), renders hero, case study, highlights, meta lines and a "Next project" teaser, sets per-project meta tags, and shows the not-found block for an unknown id. |
+| `project-detail/project-detail.ts` (+ `.html`, `.css`) | `/projects/:id`. Looks the id up in the list `ProjectService` already holds (`switchMap` on the param), renders hero, case study, highlights, meta lines, a Stack list whose tags link back to the landing page filtered to that technology, and a "Next project" teaser, sets per-project meta tags, and shows the not-found block for an unknown id. |
 | `resume/resume.ts` (+ `.html`, `.css`) | `/resume`. A `280px │ 1fr` grid: sticky aside (contact, skills, PDF button) beside summary, experience, projects, education and achievements. Its print stylesheet *is* the PDF layout. |
 | `legal/terms.ts` (+ `terms.html`) | The `/terms` route: what the site is, content and code ownership, links elsewhere, and fair use of the free public API. |
 | `legal/privacy.ts` (+ `privacy.html`) | The `/privacy` route: no accounts, no cookies, no analytics; the one `localStorage` key; and every host the visitor's browser contacts. Its claims are about the code, so a new outbound request means editing this page too. |
@@ -194,7 +194,7 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 | `app.spec.ts` | The root component creates and renders its router outlet. |
 | `pages/landing/landing.spec.ts` | Layout selection: the Ledger default, the `?layout=` override, and an unknown value ignored rather than erroring. |
 | `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column. |
-| `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, and an id that is not in the list gets the not-found state. |
+| `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, each stack tag links to `/?tech=…#projects` with a describing `aria-label`, and an id that is not in the list gets the not-found state. |
 | `pages/resume/resume.spec.ts` | Experience, projects, education and achievements all render from `GET /api/resume`. |
 | `pages/not-found/not-found.spec.ts` | The miss is explained and links back to the hub. |
 | `pages/legal/legal.spec.ts` | Both pages render dated, with the contact address coming from the API rather than a literal; the privacy page names every host it claims to talk to; the footer marks the page you are on; each links to the other. |

@@ -45,6 +45,17 @@ describe('ProjectDetail', () => {
     expect(el.textContent).toContain('P1');
   });
 
+  it('turns each stack tag into a link to the landing page filtered to that technology', async () => {
+    const { fixture, http } = setup('tesseraapp');
+    http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);
+    http.match(() => true).forEach((r) => { if (!r.cancelled) r.flush({}); }); // a live flush cancels its snapshot twin
+    await fixture.whenStable();
+    const tag = fixture.nativeElement.querySelector('.aside .tag-link') as HTMLAnchorElement;
+    expect(tag.textContent?.trim()).toBe('Angular 21');
+    expect(tag.getAttribute('href')).toBe('/?tech=Angular%2021#projects');
+    expect(tag.getAttribute('aria-label')).toBe('See every project built with Angular 21');
+  });
+
   it('shows the not-found state for an id that is not in the list', async () => {
     const { fixture, http } = setup('nope');
     http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);

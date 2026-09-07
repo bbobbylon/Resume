@@ -122,7 +122,9 @@ summary, Experience grid `130px | 1fr`, Projects list with ghost domain link and
 neutral tag, 60 px H1, 17/28 lede ≤ 52ch; actions + `auto | 1fr` meta grid for Live
 at — domain link plus the live-status dot — / Hosting / Delivery), 21:9 hero, body `1fr | 320px` (numbered highlights with a
 48 px accent index column, two 16:10 screenshots; stack chips and a "Next project"
-card), space-between footer.
+card), space-between footer. The aside's Stack tags are links (`.tag-link`, accent
+on hover and focus) to `/?tech=<technology>#projects` — the same filter the landing
+page's chip row drives.
 
 **Legal pages (`/terms`, `/privacy`).** Nav, one `.legal` prose column (max 66ch,
 kicker + 36 px H1 + 13 px "Last updated" line, 19 px section headings, 15/1.65 body),

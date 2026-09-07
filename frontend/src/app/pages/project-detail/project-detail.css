@@ -8,6 +8,10 @@
   gap: 28px 72px; align-items: end; padding: 42px 0 56px;
 }
 .head .tag-row { margin-bottom: 20px; }
+/* The aside's stack tags are links back to the landing page filtered to that
+   technology (ProjectFilter's `?tech=`), so they get a hover state a tag lacks. */
+.tag-link { text-decoration: none; transition: color 120ms ease, border-color 120ms ease; }
+.tag-link:hover { color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); }
 .head h1 { font-size: 60px; line-height: 1.1; letter-spacing: -0.015em; margin: 0 0 0 -0.06em; font-weight: 500; }
 .lede { font-size: 17px; line-height: 28px; margin: 20px 0 0; max-width: 52ch; }
 .side { display: flex; flex-direction: column; gap: 14px; font-size: 14px; line-height: 24px; }

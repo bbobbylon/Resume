@@ -122,6 +122,14 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-07 — A project detail page's Stack tags are now links to the landing page
+  filtered to that technology (`/?tech=Angular%2021#projects`), which closes the loop
+  the `?tech=` filter opened: from one project you can reach its siblings without
+  going back to the hub and hunting for the chip. Family matching means the versioned
+  spelling on the tag ("Angular 21") still selects the whole family. Verified in
+  headless Chrome against a full 10-route prerender: the click lands on the filtered
+  landing page showing 5 of 6 projects, with the Angular chip marked current.
+
 - 2026-09-07 — Terms of Use (`/terms`) and Privacy Policy (`/privacy`), and the footer
   reshaped to the owner's preferred pattern (© line + one-line privacy note, both legal
   links, "Contact" set apart underneath; Ledger's compact variant keeps the © and the

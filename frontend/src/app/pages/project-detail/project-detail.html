@@ -64,7 +64,10 @@
             <div>
               <p class="label">Stack</p>
               <div class="tag-row">
-                @for (tech of p.techStack; track tech) { <span class="tag tag-neutral">{{ tech }}</span> }
+                @for (tech of p.techStack; track tech) {
+                  <a class="tag tag-neutral tag-link" routerLink="/" [queryParams]="{ tech }" fragment="projects"
+                     [attr.aria-label]="'See every project built with ' + tech">{{ tech }}</a>
+                }
               </div>
             </div>
             @if (next(); as n) {
