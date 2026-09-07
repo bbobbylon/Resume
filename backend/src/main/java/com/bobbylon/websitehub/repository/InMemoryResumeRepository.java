@@ -67,7 +67,7 @@ public class InMemoryResumeRepository implements ResumeRepository {
             List.of(
                     new ResumeProject(
                             "TesseraApp — Full-Stack Identity & Access Management (CIAM) Platform",
-                            "Angular 21 · Spring Boot 4 · Java 21 · Spring Security · MySQL · JWT · Docker · Azure CI/CD",
+                            "Angular 21 · Spring Boot 4 · Java 21 · Spring Security · MySQL · JWT · Docker · GitHub Actions",
                             List.of(
                                     "Architected a full-stack CIAM platform on a hybrid zero-trust model: stateless "
                                             + "HMAC-SHA512 JWTs backed by a stateful refresh-session store enabling "
@@ -77,7 +77,7 @@ public class InMemoryResumeRepository implements ResumeRepository {
                                             + "codes) and OAuth2/OIDC federation across Google, GitHub, and Microsoft "
                                             + "over org-scoped, permission-based RBAC; hardened with BCrypt-12, "
                                             + "brute-force lockout, enumeration-safe login, and device/IP audit "
-                                            + "logging, and shipped via multi-stage Docker + Azure CI/CD."
+                                            + "logging, and shipped via multi-stage Docker + GitHub Actions."
                             ),
                             "https://tesseraapp.dev"
                     ),

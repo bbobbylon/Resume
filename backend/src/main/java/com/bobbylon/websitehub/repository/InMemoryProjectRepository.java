@@ -40,7 +40,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     "https://github.com/bbobbylon/angularSpringBootFullStack",
                     ProjectStatus.LIVE,
                     List.of("Angular 21", "Spring Boot 4", "Java 21", "Spring Security", "MySQL", "JWT",
-                            "Docker", "Azure CI/CD"),
+                            "Docker", "GitHub Actions"),
                     List.of("shots/tesseraapp-1.webp", "shots/tesseraapp-2.webp", "shots/tesseraapp-3.webp"),
                     List.of(
                             new Highlight("Hybrid zero-trust sessions",
@@ -54,10 +54,10 @@ public class InMemoryProjectRepository implements ProjectRepository {
                             new Highlight("Hardened by default",
                                     "BCrypt-12 hashing, brute-force lockout, enumeration-safe login and "
                                             + "device/IP audit logging, shipped through multi-stage Docker and "
-                                            + "Azure CI/CD.")
+                                            + "GitHub Actions.")
                     ),
                     "AWS ECS Fargate · CloudFront · Aiven MySQL",
-                    "Multi-stage Docker · Azure CI/CD",
+                    "Multi-stage Docker · GitHub Actions",
                     true,
                     new CaseStudy(
                             "TesseraApp needed sessions that were both fast to verify and instantly "
@@ -68,7 +68,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                                     + "TOTP MFA and OAuth2/OIDC federation across Google, GitHub and Microsoft "
                                     + "sit behind permission-based RBAC, hardened with BCrypt-12 hashing, "
                                     + "brute-force lockout and enumeration-safe login.",
-                            "Live in production, shipped through multi-stage Docker and Azure CI/CD with "
+                            "Live in production, shipped through multi-stage Docker and GitHub Actions with "
                                     + "device/IP audit logging across every session."
                     )
             ),
