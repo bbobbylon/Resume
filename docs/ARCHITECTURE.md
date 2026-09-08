@@ -41,7 +41,11 @@ which looks its `:id` up in that list on every param change (`switchMap`).
 `/resume`, `/terms`, `/privacy` and every `/projects/<id>` the backend lists (`app.routes.server.ts` —
 `getPrerenderParams` asks `/api/projects`; an id that appears later falls back to
 client rendering). In the browser `provideClientHydration(withEventReplay())` adopts
-that HTML instead of re-creating it. `index.csr.html` — the empty client shell —
+that HTML instead of re-creating it. Per-page `<title>`, social tags and (on
+project pages) a schema.org JSON-LD block are written during that same pass, so the
+static HTML a crawler reads already describes the route — `PageMeta` is what writes
+them, and the deploy's origin substitution covers the URLs inside them.
+`index.csr.html` — the empty client shell —
 becomes the Pages `404.html`, so unknown deep links still boot the app and land on
 the not-found page. `ng serve` renders the same way on the fly, so dev matches
 production. Per-page `<title>`, description and Open Graph tags are set by

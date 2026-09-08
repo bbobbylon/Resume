@@ -87,7 +87,59 @@ export class ProjectDetail {
       image: project.imageUrls.length
         ? { url: `shots/${project.id}-social.jpg`, width: 1200, height: 630, alt: `${project.name} screenshot` }
         : undefined,
+      jsonLd: this.structuredData(project),
     });
+  }
+
+  /**
+   * What this page is, in schema.org terms, for the crawlers that read the
+   * prerendered HTML: the project as `SoftwareSourceCode` (the type that actually
+   * has `codeRepository` and `programmingLanguage` — every project here is a public
+   * repository first and a deployment second), plus the breadcrumb trail that says
+   * where the page sits, which is the part search engines render under the result.
+   *
+   * Everything comes from the same `Project` the page renders, so the description a
+   * crawler gets and the description a visitor reads cannot drift apart.
+   *
+   * @param project the resolved project
+   */
+  private structuredData(project: Project): Record<string, unknown> {
+    const url = this.pageMeta.absolute(`/projects/${project.id}/`);
+    return {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'SoftwareSourceCode',
+          name: project.name,
+          headline: project.tagline,
+          description: project.description,
+          url,
+          codeRepository: project.repoUrl,
+          programmingLanguage: project.techStack,
+          author: { '@type': 'Person', name: 'Robert Oliver, Jr.' },
+          // A live deployment is a product built from this source, not another URL for it.
+          ...(project.url
+            ? {
+                targetProduct: {
+                  '@type': 'SoftwareApplication',
+                  name: project.name,
+                  url: project.url,
+                  applicationCategory: 'WebApplication',
+                  operatingSystem: 'Any (web browser)',
+                },
+              }
+            : {}),
+          ...(project.imageUrls.length ? { image: this.pageMeta.absolute(project.imageUrls[0]) } : {}),
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Projects', item: this.pageMeta.absolute('/') },
+            { '@type': 'ListItem', position: 2, name: project.name, item: url },
+          ],
+        },
+      ],
+    };
   }
 
   /**

@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { DOCUMENT, inject, Injectable } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { environment } from '../../environments/environment';
 
@@ -7,6 +7,9 @@ export const SITE_TITLE = 'Robert Oliver, Jr. — Software Engineer';
 /** The fallback meta description, used by the landing page and anything that sets none. */
 export const SITE_DESCRIPTION =
   'Projects, live demos and resume of Robert Oliver, Jr., a software engineer working in identity & access management.';
+
+/** Id of the one JSON-LD script tag this service owns, so a page replaces rather than stacks. */
+const JSONLD_ID = 'page-jsonld';
 
 /** What one page needs to describe itself to crawlers and link unfurlers. */
 export interface PageMetaInput {
@@ -18,6 +21,12 @@ export interface PageMetaInput {
   path: string;
   /** Social-preview image relative to the site root; defaults to og.png (1200×630). */
   image?: { url: string; width: number; height: number; alt: string };
+  /**
+   * Schema.org data for this page, written into the head as a single
+   * `application/ld+json` script. Pass nothing and any previous page's block is
+   * removed rather than left behind — one page, one description of itself.
+   */
+  jsonLd?: Record<string, unknown>;
 }
 
 /**
@@ -36,6 +45,8 @@ export class PageMeta {
   private readonly title = inject(Title);
   /** Angular's `<meta>` writer; tags are upserted by name/property, never duplicated. */
   private readonly meta = inject(Meta);
+  /** The document whose `<head>` carries the JSON-LD block; injected so this runs during prerendering too. */
+  private readonly doc = inject(DOCUMENT);
 
   /**
    * Writes this page's title and social tags, replacing whatever the previous route
@@ -45,16 +56,15 @@ export class PageMeta {
    *
    * @param input the page's title, description, route path and optional preview image
    */
-  apply({ title, description, path, image }: PageMetaInput): void {
-    const origin = environment.siteUrl.replace(/\/$/, '');
+  apply({ title, description, path, image, jsonLd }: PageMetaInput): void {
     const img = image ?? { url: 'og.png', width: 1200, height: 630, alt: 'WebsiteHub landing page' };
-    const imageUrl = `${origin}/${img.url.replace(/^\//, '')}`;
+    const imageUrl = this.absolute(img.url);
     this.title.setTitle(title);
     const tags: Array<[attr: 'name' | 'property', key: string, content: string]> = [
       ['name', 'description', description],
       ['property', 'og:title', title],
       ['property', 'og:description', description],
-      ['property', 'og:url', origin + path],
+      ['property', 'og:url', this.absolute(path)],
       ['property', 'og:image', imageUrl],
       ['property', 'og:image:width', String(img.width)],
       ['property', 'og:image:height', String(img.height)],
@@ -66,5 +76,40 @@ export class PageMeta {
     for (const [attr, key, content] of tags) {
       this.meta.updateTag({ [attr]: key, content }, `${attr}="${key}"`);
     }
+    this.setJsonLd(jsonLd);
+  }
+
+  /**
+   * Writes (or clears) the page's single JSON-LD block.
+   *
+   * There is no Angular service for script tags the way {@link Meta} covers meta
+   * tags, so the element is managed by hand and kept unique by id. It is written
+   * during prerendering as well as in the browser, which is the point: the finished
+   * HTML GitHub Pages serves is what a crawler reads, and it must describe the page
+   * a visitor would see, not the previous route's.
+   *
+   * @param data the schema.org object, or `undefined` to leave no block behind
+   */
+  private setJsonLd(data: Record<string, unknown> | undefined): void {
+    const existing = this.doc.getElementById(JSONLD_ID);
+    if (!data) {
+      existing?.remove();
+      return;
+    }
+    const script = existing ?? this.doc.createElement('script');
+    script.setAttribute('type', 'application/ld+json');
+    script.id = JSONLD_ID;
+    script.textContent = JSON.stringify(data);
+    if (!existing) this.doc.head.appendChild(script);
+  }
+
+  /**
+   * Absolute URL for a path or root-relative asset, on the same origin the social
+   * tags use — schema.org values have to be absolute, exactly like Open Graph's.
+   *
+   * @param pathOrAsset `/projects/x/` or `shots/x-1.webp`; a leading slash is optional
+   */
+  absolute(pathOrAsset: string): string {
+    return `${environment.siteUrl.replace(/\/$/, '')}/${pathOrAsset.replace(/^\//, '')}`;
   }
 }

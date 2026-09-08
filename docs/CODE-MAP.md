@@ -116,7 +116,7 @@ pair is listed once, with the `.ts`.
 |---|---|
 | `src/main.ts` | Browser entry point: `bootstrapApplication(App, appConfig)`. |
 | `src/main.server.ts` | Server entry point. Nothing serves it at runtime — `ng build` runs it once per route to write finished HTML (`outputMode: "static"`). |
-| `src/app/app.ts` | Root component: a `RouterOutlet` plus the one piece of shared shell, `CommandPalette`. Nav and footer are *not* here — each page composes its own, because Dossier has no top nav at all. |
+| `src/app/app.ts` | Root component: a `RouterOutlet` plus the two pieces of shared shell — the "Skip to content" link and `CommandPalette`. The skip link lives here rather than in `Nav` because Dossier renders no `Nav`, and a bypass link some layouts lack is worse than none; it moves focus into that page's `<main id="main" tabindex="-1">`. Nav and footer are *not* here — each page composes its own. |
 | `src/app/app.config.ts` | Browser providers: router (in-memory scrolling + view transitions), `HttpClient` with `fetch`, and `provideClientHydration(withEventReplay())`. |
 | `src/app/app.config.server.ts` | The same config merged with `provideServerRendering(withRoutes(serverRoutes))` for the prerender pass. |
 | `src/app/app.routes.ts` | `/` → `Landing`, `/resume` → `ResumePage`, `/projects/:id` → `ProjectDetail`, `/terms` → `TermsPage`, `/privacy` → `PrivacyPage`, `**` → `NotFound`. |
@@ -150,7 +150,7 @@ pair is listed once, with the `.ts`.
 | `project.service.ts` | The catalogue as a signal, fetched once and shared; `getById` looks up that same list, so a sleeping API costs one fallback, not two. |
 | `resume.service.ts` | `Api.get('resume')` as a signal. Read by `/resume` and by Dossier's experience column. |
 | `project-filter.ts` | The `?tech=` filter: derives facet chips from every project's `techStack`, matches by *family* (so `Angular` catches `Angular 21` while `React Router` stays separate from `React 19`), and exposes the filtered list all three layouts render. Only applies the filter after `afterNextRender` — `/` is prerendered with no query string, so filtering during first render would be a hydration mismatch. An unknown `?tech=` shows everything, mirroring the forgiving `?layout=` rule. |
-| `page-meta.ts` | Sets `<title>`, description and OG/Twitter tags per page, with the site-wide defaults `index.html` already ships. Used by the landing, resume and detail pages. |
+| `page-meta.ts` | Sets `<title>`, description and OG/Twitter tags per page, with the site-wide defaults `index.html` already ships, and owns the one `application/ld+json` block a page may carry (replaced on each navigation, removed when the next page sets none). `absolute()` builds the absolute URLs both Open Graph and schema.org require, on the placeholder origin the Pages deploy rewrites. Used by the landing, resume, legal and detail pages. |
 | `theme.ts` | Dark/light as a `data-theme` attribute on `<html>`, plus the `theme-color` meta. Adopts what the pre-paint script in `index.html` chose, saves only an explicit toggle (an OS preference is re-read every visit), and touches nothing on the server. |
 | `command-palette.ts` | One signal: is the palette open. A service rather than component state so the nav's trigger, Dossier's trigger and the Ctrl+K shortcut all drive the same overlay. |
 
@@ -191,16 +191,16 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 
 | File | What it pins down |
 |---|---|
-| `app.spec.ts` | The root component creates and renders its router outlet. |
+| `app.spec.ts` | The root component creates and renders its router outlet, and the skip link is the page's first element, points at `#main`, and moves focus there (falling back to the plain fragment link when a route has no landmark). |
 | `pages/landing/landing.spec.ts` | Layout selection: the Ledger default, the `?layout=` override, and an unknown value ignored rather than erroring. |
 | `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column. |
-| `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, each stack tag links to `/?tech=…#projects` with a describing `aria-label`, and an id that is not in the list gets the not-found state. |
+| `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, its schema.org graph describes the source and the breadcrumb trail, each stack tag links to `/?tech=…#projects` with a describing `aria-label`, and an id that is not in the list gets the not-found state. |
 | `pages/resume/resume.spec.ts` | Experience, projects, education and achievements all render from `GET /api/resume`. |
 | `pages/not-found/not-found.spec.ts` | The miss is explained and links back to the hub. |
 | `pages/legal/legal.spec.ts` | Both pages render dated, with the contact address coming from the API rather than a literal; the privacy page names every host it claims to talk to; the footer marks the page you are on; each links to the other. |
 | `services/api.spec.ts` | The whole fallback dance: both requests in flight, snapshot first then replaced by the live response, a late snapshot ignored, the snapshot kept when the API errors, `TransferState` used instead of a fetch on a prerendered page, and a clean completion when everything fails — plus the build-time side, with and without a backend running. |
 | `services/project-filter.spec.ts` | Version stripping and what is *not* a version, facet counting and ordering, case-insensitive family matching, the rare-technology chip when deep-linked, an unknown `?tech=` showing everything, and no filtering before hydration. |
-| `services/page-meta.spec.ts` | Title, description and social tags are written to the document, and updated rather than duplicated on the next page. |
+| `services/page-meta.spec.ts` | Title, description and social tags are written to the document and updated rather than duplicated; the JSON-LD block is replaced rather than stacked and removed when a page sets none; `absolute()` handles paths with or without a leading slash. |
 | `services/theme.spec.ts` | Adopting the pre-paint script's choice, the saved-choice → OS → dark fallback chain, and a toggle updating the attribute, the `theme-color` meta and storage together. |
 | `shared/tech-filter/tech-filter.spec.ts` | The All chip plus one per shared technology with counts, real hrefs like `/?tech=Angular#projects`, the `?layout=` merge (and dropping `?tech=` on All), `aria-current`, the summary line, and rendering nothing when no technology is shared. |
 | `shared/nav/nav.spec.ts` | The profile links render and Projects is marked current on the landing page. |

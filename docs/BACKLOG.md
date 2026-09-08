@@ -122,6 +122,23 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-07 — Keyboard bypass block and one real `<main>` per route. The first Tab on
+  any page now reveals a "Skip to content" link that moves *focus* (not just scroll)
+  into `<main id="main" tabindex="-1">`; the project detail page had no `<main>` at all
+  before this and now does. The link lives in `App` rather than `Nav`, since Dossier
+  renders no `Nav`. Verified with real keypresses in headless Chrome across all six
+  page types: first Tab lands on the link, it is on-screen, Enter puts focus on
+  `main#main`, one `<main>` per page, and no `#main` left in the URL.
+
+- 2026-09-07 — Project pages now carry schema.org JSON-LD in their prerendered HTML:
+  the project as `SoftwareSourceCode` (repository, stack as `programmingLanguage`, the
+  live deployment as `targetProduct`, hero screenshot) plus a `BreadcrumbList`, built
+  from the same `Project` the page renders so the two cannot drift. `PageMeta` owns the
+  block — one per page, replaced on navigation and removed when a page sets none — and
+  the deploy's existing origin substitution already covers the URLs inside it (it seds
+  every `*.html`/`*.js`), so no workflow change was needed. Confirmed in the built
+  `projects/tesseraapp/index.html`.
+
 - 2026-09-07 — A project detail page's Stack tags are now links to the landing page
   filtered to that technology (`/?tech=Angular%2021#projects`), which closes the loop
   the `?tech=` filter opened: from one project you can reach its siblings without

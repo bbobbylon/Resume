@@ -45,6 +45,24 @@ describe('ProjectDetail', () => {
     expect(el.textContent).toContain('P1');
   });
 
+  it('describes the project to crawlers as source code with a breadcrumb trail', async () => {
+    const { fixture, http } = setup('tesseraapp');
+    http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);
+    http.match(() => true).forEach((r) => { if (!r.cancelled) r.flush({}); }); // a live flush cancels its snapshot twin
+    await fixture.whenStable();
+
+    const block = document.querySelector('script[type="application/ld+json"]');
+    const graph = JSON.parse(block?.textContent ?? '{}')['@graph'];
+    const [code, crumbs] = graph;
+    expect(code['@type']).toBe('SoftwareSourceCode');
+    expect(code.name).toBe('TesseraApp');
+    expect(code.codeRepository).toBe('https://github.com/bbobbylon');
+    expect(code.programmingLanguage).toEqual(['Angular 21']);
+    expect(code.targetProduct.url).toBe('https://tesseraapp.dev');
+    expect(crumbs['@type']).toBe('BreadcrumbList');
+    expect(crumbs.itemListElement.map((i: { name: string }) => i.name)).toEqual(['Projects', 'TesseraApp']);
+  });
+
   it('turns each stack tag into a link to the landing page filtered to that technology', async () => {
     const { fixture, http } = setup('tesseraapp');
     http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);

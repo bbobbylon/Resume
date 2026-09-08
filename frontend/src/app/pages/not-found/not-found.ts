@@ -15,7 +15,7 @@ import { Footer } from '../../shared/footer/footer';
   imports: [RouterLink, Nav, Footer],
   template: `
     <app-nav />
-    <main class="container">
+    <main id="main" tabindex="-1" class="container">
       <section class="missing">
         <p class="kicker">404</p>
         <h1>Page not found</h1>

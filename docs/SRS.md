@@ -73,6 +73,8 @@ opens each project's live app.
 | FR-26 | Every page links to a Terms of Use page (`/terms`) and a Privacy Policy page (`/privacy`) from its footer, and both are prerendered like the rest of the site. | `TermsPage`, `PrivacyPage`, `Footer` |
 | FR-27 | The privacy page states what the site actually does: no accounts, no cookies, no analytics, one `localStorage` key for the theme, and the four hosts the visitor's browser contacts (Pages, the API on Render, `api.github.com`, and each project's own site when its status dot scrolls into view). It is factual about the code, so any new outbound request must be added to it in the same commit. | `PrivacyPage` |
 | FR-28 | Each technology in a project detail page's Stack list is a link to the landing page filtered to that technology, so a visitor can go from one project to its siblings without returning to the hub first. | `ProjectDetail`, `ProjectFilter` |
+| FR-29 | Every page starts with a "Skip to content" link that is off-screen until focused and moves keyboard focus into that page's single `<main>` landmark. | `App` |
+| FR-30 | Project detail pages carry schema.org JSON-LD in the prerendered HTML — the project as `SoftwareSourceCode` (with its repository, stack and live deployment as `targetProduct`) plus a `BreadcrumbList` — built from the same data the page renders. | `ProjectDetail`, `PageMeta` |
 
 ## 4. Non-Functional Requirements
 

@@ -166,7 +166,12 @@ margins. This is what `npm run resume:pdf` captures.
   neutral-500 on ground ≈ 5.5:1; accent `#9184d9` on ground ≈ 5.6:1. Footer text at
   55 % is decorative-level (≈ 5:1 still passes for 13 px).
 - Landmarks: `nav[aria-label]`, `main`, `aside`, `footer`; sections labelled by
-  their kicker via `aria-labelledby`.
+  their kicker via `aria-labelledby`. Exactly one `<main id="main" tabindex="-1">`
+  per route — it is the skip link's target, which is why it is focusable.
+- Bypass block: the first Tab on any page reveals a "Skip to content" link (rendered
+  by `App`, so it exists on Dossier too, which has no `Nav`). It moves *focus* into
+  `<main>` rather than only scrolling there, so the next Tab continues inside the
+  content instead of falling back into the nav.
 - Keyboard: every action is a real `<a>`/`<button>`; `:focus-visible` shows a 2 px
   accent ring (from the sheet). Duplicate image links are `tabindex="-1"` +
   `aria-hidden` so tab order isn't doubled.
