@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.1.0 |
-| **Date** | 2026-09-07 |
+| **Version** | 0.2.0 |
+| **Date** | 2026-09-11 |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [BACKLOG.md](BACKLOG.md) |
 
 Every tracked source file, what it does, and what it talks to. ARCHITECTURE.md explains
@@ -149,7 +149,7 @@ pair is listed once, with the `.ts`.
 | `profile.service.ts` | `Api.get('profile')` as a signal. Read by the nav, all three layouts, the resume page and the footer. |
 | `project.service.ts` | The catalogue as a signal, fetched once and shared; `getById` looks up that same list, so a sleeping API costs one fallback, not two. |
 | `resume.service.ts` | `Api.get('resume')` as a signal. Read by `/resume` and by Dossier's experience column. |
-| `project-filter.ts` | The `?tech=` filter: derives facet chips from every project's `techStack`, matches by *family* (so `Angular` catches `Angular 21` while `React Router` stays separate from `React 19`), and exposes the filtered list all three layouts render. Only applies the filter after `afterNextRender` — `/` is prerendered with no query string, so filtering during first render would be a hydration mismatch. An unknown `?tech=` shows everything, mirroring the forgiving `?layout=` rule. |
+| `project-filter.ts` | Both landing filters, on one signal graph. `?tech=` derives facet chips from every project's `techStack` and matches by *family* (so `Angular` catches `Angular 21` while `React Router` stays separate from `React 19`); `?q=` matches free text against name, tagline and stack. They compose — a project must satisfy whichever are set — and `search()` owns the 200 ms debounce and the `replaceUrl` navigation that a chip gets for free from `routerLink`. Exposes the filtered list all three layouts render, plus `active()` for the "is anything narrowing this?" question layouts ask before showing placeholder slots or a no-match message. The two axes fail **differently on purpose**: an unknown `?tech=` shows everything (a chip the visitor never chose shouldn't empty the page), while a `?q=` that matches nothing shows nothing (they typed it, so an empty result is the honest answer) — hence the no-match copy exists for search but not for tech. Only applies the filter after `afterNextRender` — `/` is prerendered with no query string, so filtering during first render would be a hydration mismatch. An unknown `?tech=` shows everything, mirroring the forgiving `?layout=` rule. |
 | `page-meta.ts` | Sets `<title>`, description and OG/Twitter tags per page, with the site-wide defaults `index.html` already ships, and owns the one `application/ld+json` block a page may carry (replaced on each navigation, removed when the next page sets none). `absolute()` builds the absolute URLs both Open Graph and schema.org require, on the placeholder origin the Pages deploy rewrites. Used by the landing, resume, legal and detail pages. |
 | `theme.ts` | Dark/light as a `data-theme` attribute on `<html>`, plus the `theme-color` meta. Adopts what the pre-paint script in `index.html` chose, saves only an explicit toggle (an OS preference is re-read every visit), and touches nothing on the server. |
 | `command-palette.ts` | One signal: is the palette open. A service rather than component state so the nav's trigger, Dossier's trigger and the Ctrl+K shortcut all drive the same overlay. |
@@ -160,7 +160,8 @@ pair is listed once, with the `.ts`.
 |---|---|
 | `nav/nav.ts` (+ `.html`, `.css`) | The top nav used by Ledger, Gallery, the resume page and the detail page: brand, Projects, Resume, Contact, theme toggle, palette trigger and the PDF button. Sets `aria-current` by hand, because a fragment link's active state doesn't cover the detail routes. |
 | `footer/footer.ts` (+ `.html`, `.css`) | Site footer in the owner's preferred shape: © line and a one-line privacy note, Terms/Privacy links (`aria-current` on the one you are reading), and Contact set apart under a hairline. `compact` (Ledger) keeps the © and the legal links only. Dossier has no `app-footer` — its inline `.foot` carries the same two links. |
-| `tech-filter/tech-filter.ts` | The chip row that drives `ProjectFilter`. Every chip is a real link setting `?tech=` (shareable, Back-friendly, merges with `?layout=`) with `fragment="projects"` so picking one doesn't scroll the visitor back to the hero. Carries the `role="status"` summary line — "Showing 5 of 6 projects built with Angular." |
+| `tech-filter/tech-filter.ts` | The chip row that drives `ProjectFilter`. Every chip is a real link setting `?tech=` (shareable, Back-friendly, merges with `?layout=`) with `fragment="projects"` so picking one doesn't scroll the visitor back to the hero. Also carries the `role="status"` summary line for **both** filters — "Showing 5 of 6 projects built with Angular matching \"api\"" — which is why the line is outside the chips' own `@if`: a search with no chips still needs it. |
+| `project-search/project-search.ts` | The search box beside the chips. A live-typed field cannot be a `routerLink`, so it writes through `ProjectFilter.search()` instead and reads `filter.queryText()` back for its value — which is what makes Back/Forward and `/?q=…` deep links move the box, not just the list. |
 | `layout-switcher/layout-switcher.ts` | Three links above the landing layout, one per variant, so `?layout=` is discoverable rather than a hidden parameter. |
 | `command-palette/command-palette.ts` (+ `.html`, `.css`) | The Ctrl+K / Cmd+K overlay. Flattens pages, projects, the legal pages and actions into one row shape, filters on label+hint, and drives selection with `aria-activedescendant`. Mounted once, in `App`. |
 | `command-palette-trigger/command-palette-trigger.ts` | The icon button that opens it, sized to match `ThemeToggle`; mounted in the nav and in Dossier's aside. |
@@ -168,7 +169,7 @@ pair is listed once, with the `.ts`.
 | `status-tag/status-tag.ts` | The Live / WIP / Archived chip beside every project title, plus the accent "Featured" variant. |
 | `project-image/project-image.ts` | A screenshot in the Nocturne `.lighten` treatment, with `srcset` over the `-800`/full pair `npm run shots` writes, and an initial-letter placeholder when a project has no capture yet — so layouts hold their shape before screenshots exist. |
 | `live-status/live-status.ts` | The "is it actually up?" dot beside a live project link. A `no-cors` probe, so it can only distinguish answered from didn't-answer; runs after render, never during prerendering. |
-| `github-activity/github-activity.ts` | The hero's "last push" line, from the public GitHub events API. Reduces an event to one sentence via the `EVENT_VERBS` table; silent when the API is unreachable or rate-limited. |
+| `github-activity/github-activity.ts` | The hero's "last push" line, from the public GitHub events API. Reduces each event to one sentence via the `EVENT_VERBS` table, shows the newest inline and keeps up to four more behind a "+N more" disclosure; silent when the API is unreachable or rate-limited. The disclosure wraps onto its own flex line instead of floating, because Dossier's sticky aside would clip a popover. |
 | `icons/arrow-up-right.ts`, `icons/search.ts` | Inline Phosphor SVGs on `currentColor` — no icon font, no runtime fetch. |
 | `pipes/domain.pipe.ts` | `https://tesseraapp.dev/` → `tesseraapp.dev` for the "Open …" buttons; keeps the path for repo links. |
 
@@ -184,7 +185,7 @@ contract the templates are written against.
 | `resume.model.ts` | `Resume`, `Experience`, `ResumeProject`, `Education`, `Achievement`, `SkillGroup`. |
 | `landing-layout.ts` | The `LandingLayout` union, the list of all three, and the `isLandingLayout` guard `Landing` uses to validate `?layout=`. Frontend-only — the backend knows nothing about layouts. |
 
-### 4.6 Tests — `*.spec.ts` (Vitest, 76 tests across 22 files)
+### 4.6 Tests — `*.spec.ts` (Vitest, 110 tests across 24 files)
 
 Run with `npm test` from `frontend/`. Always the full suite: `npx vitest run <file>`
 bypasses the Angular builder's setup and fails with "describe is not defined".
@@ -193,23 +194,24 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 |---|---|
 | `app.spec.ts` | The root component creates and renders its router outlet, and the skip link is the page's first element, points at `#main`, and moves focus there (falling back to the plain fragment link when a route has no landmark). |
 | `pages/landing/landing.spec.ts` | Layout selection: the Ledger default, the `?layout=` override, and an unknown value ignored rather than erroring. |
-| `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column. |
+| `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column — plus, through a real navigation to `/?q=…`, that each one says "no projects match your search" rather than showing an empty catalogue or a stuck skeleton. |
 | `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, its schema.org graph describes the source and the breadcrumb trail, each stack tag links to `/?tech=…#projects` with a describing `aria-label`, and an id that is not in the list gets the not-found state. |
 | `pages/resume/resume.spec.ts` | Experience, projects, education and achievements all render from `GET /api/resume`. |
 | `pages/not-found/not-found.spec.ts` | The miss is explained and links back to the hub. |
 | `pages/legal/legal.spec.ts` | Both pages render dated, with the contact address coming from the API rather than a literal; the privacy page names every host it claims to talk to; the footer marks the page you are on; each links to the other. |
 | `services/api.spec.ts` | The whole fallback dance: both requests in flight, snapshot first then replaced by the live response, a late snapshot ignored, the snapshot kept when the API errors, `TransferState` used instead of a fetch on a prerendered page, and a clean completion when everything fails — plus the build-time side, with and without a backend running. |
-| `services/project-filter.spec.ts` | Version stripping and what is *not* a version, facet counting and ordering, case-insensitive family matching, the rare-technology chip when deep-linked, an unknown `?tech=` showing everything, and no filtering before hydration. |
+| `services/project-filter.spec.ts` | Version stripping and what is *not* a version, facet counting and ordering, case-insensitive family matching, the rare-technology chip when deep-linked, an unknown `?tech=` showing everything, and no filtering before hydration — then the same for `?q=`: matching name/tagline/stack, case- and whitespace-insensitivity, composing with `?tech=`, and the debounced navigation `search()` performs. |
 | `services/page-meta.spec.ts` | Title, description and social tags are written to the document and updated rather than duplicated; the JSON-LD block is replaced rather than stacked and removed when a page sets none; `absolute()` handles paths with or without a leading slash. |
 | `services/theme.spec.ts` | Adopting the pre-paint script's choice, the saved-choice → OS → dark fallback chain, and a toggle updating the attribute, the `theme-color` meta and storage together. |
-| `shared/tech-filter/tech-filter.spec.ts` | The All chip plus one per shared technology with counts, real hrefs like `/?tech=Angular#projects`, the `?layout=` merge (and dropping `?tech=` on All), `aria-current`, the summary line, and rendering nothing when no technology is shared. |
+| `shared/tech-filter/tech-filter.spec.ts` | The All chip plus one per shared technology with counts, real hrefs like `/?tech=Angular#projects`, the `?layout=` merge (and dropping `?tech=` on All), `aria-current`, the summary line in all three of its shapes (tech, search, both), and rendering nothing when no technology is shared. |
+| `shared/project-search/project-search.spec.ts` | The box is empty with no `?q=`, preloads its value from `?q=` on a deep link, and passes what is typed to `ProjectFilter.search()` (the debounce and the navigation itself are `project-filter.spec.ts`'s job). |
 | `shared/nav/nav.spec.ts` | The profile links render and Projects is marked current on the landing page. |
 | `shared/command-palette/command-palette.spec.ts`, `command-palette-trigger/command-palette-trigger.spec.ts` | Ctrl+K opens and toggles shut, the list covers pages/actions/projects, filtering, ArrowDown+Enter, Escape, click-to-navigate, backdrop dismiss — and that the trigger button drives the same signal. |
 | `shared/footer/footer.spec.ts` | The copyright line and social links, and the link row omitted in compact mode. |
 | `shared/status-tag/status-tag.spec.ts` | Live outline, WIP neutral, Archived dimmed, and the accent Featured chip. |
 | `shared/project-image/project-image.spec.ts` | The initial-letter placeholder when there is no screenshot, and the lighten blend when there is. |
 | `shared/live-status/live-status.spec.ts` | "Up now" on any answer (even opaque), "Not reachable" on failure, nothing without a URL, compact mode, and that it only probes once the dot scrolls into view. |
-| `shared/github-activity/github-activity.spec.ts` | Event → linked sentence, skipping unrecognized event types, compact mode, and silence on a failed, empty or rate-limited response. |
+| `shared/github-activity/github-activity.spec.ts` | Event → linked sentence, skipping unrecognized event types, compact mode, and silence on a failed, empty or rate-limited response — plus the disclosure: the count it advertises, expanding to the rest of the history newest-first, collapsing on Escape, and never appearing in compact mode. |
 | `shared/layout-switcher/layout-switcher.spec.ts` | One link per layout, each setting `?layout=`, with the current one marked. |
 | `shared/theme-toggle/theme-toggle.spec.ts` | A labelled button that flips the theme. |
 | `shared/pipes/domain.pipe.spec.ts` | Bare hostname by default, path kept when asked, non-URLs and blanks passed through. |
@@ -224,6 +226,7 @@ things that do.
 | `chrome.mjs` | Shared helpers for the headless-Chrome scripts: finds a Chrome binary (`$CHROME` first, then the usual install paths) and lends each run a throwaway profile directory. |
 | `resume-pdf.mjs` (`npm run resume:pdf`) | Regenerates `public/resume.pdf` from a rendered `/resume` using the app's own print stylesheet, so the PDF can never drift from the page. Drives Chrome through `puppeteer-core` rather than the `--print-to-pdf` flag, which hung on the CI runner. |
 | `screenshots.mjs` | `npm run shots` — captures every live project into `public/shots/` as WebP at two widths plus a JPEG social crop, and the landing page as `public/og.png`. Feeds `ProjectImage`'s `srcset` and the OG tags `PageMeta` sets. |
+| `icons.mjs` (`npm run icons`) | Renders the PWA icons (192/512/maskable) and `apple-touch-icon.png` from an inline SVG monogram via `sharp`. There is no logo asset to resize — the brand mark is a wordmark — so the glyph is drawn here, with the Nocturne background/accent as literals because this runs outside the Angular build. Re-run only if those tokens change. |
 | `snapshot.mjs` | Writes `public/data/{profile,projects,resume}.json` from a running backend. This is the fallback `Api` serves while a sleeping Render service wakes; the Pages workflow regenerates it every deploy, which is why `public/data/` is git-ignored. |
 | `sitemap.mjs` | `postbuild` — turns the routes `ng build` actually prerendered into `sitemap.xml`, so a new project reaches the sitemap by existing in the backend. Strips the `--base-href` prefix that the origin substitution downstream re-adds. |
 | `static-server.mjs` | A minimal static server for pointing headless Chrome at a finished `ng build` without the dev server or the backend. |
@@ -232,12 +235,12 @@ things that do.
 
 | File | Role |
 |---|---|
-| `package.json` (+ `package-lock.json`) | Scripts (`start`, `build`, `test`, `shots`, `snapshot`, `resume:pdf`) and dependencies. **`npm test` runs the whole suite; there is no `--run` flag** (the Angular builder owns the Vitest setup). |
+| `package.json` (+ `package-lock.json`) | Scripts (`start`, `build`, `test`, `shots`, `icons`, `snapshot`, `resume:pdf`) and dependencies. **`npm test` runs the whole suite; there is no `--run` flag** (the Angular builder owns the Vitest setup). |
 | `angular.json` | The build: `outputMode: "static"` (prerender everything), the Vitest test builder, budgets, and the `environment.ts` file replacement per configuration. |
 | `tsconfig.json` / `tsconfig.app.json` / `tsconfig.spec.json` | Strict TypeScript, app sources vs spec sources. |
 | `.prettierrc`, `.editorconfig` | Formatting, matched by the CI format check. |
 | `.vscode/*.json` | Editor conveniences: recommended extensions, launch/debug config, tasks, MCP config. Not used by any build. |
-| `public/` | Served verbatim: `favicon.ico`, `og.png`, `resume.pdf`, `robots.txt` (which points at the sitemap), plus generated `shots/` and `data/`. |
+| `public/` | Served verbatim: `favicon.ico`, `og.png`, `resume.pdf`, `robots.txt` (which points at the sitemap), `manifest.webmanifest` + `icons/` + `apple-touch-icon.png` (what makes the site installable — `index.html` links them), plus generated `shots/` and `data/`. |
 | `src/fonts/` | Self-hosted Inter subsets (`OFL.txt` is its licence) — no third-party font request, so nothing to consent to and nothing to slow first paint. |
 
 ## 5. CI/CD — `.github/`
@@ -272,7 +275,7 @@ things that do.
 | Add a field to any of those | The Java record **and** its TypeScript mirror in `models/`, then the template that shows it. |
 | Add a page | `app.routes.ts` + a component under `pages/`, and add it to `app.routes.server.ts` if it should be prerendered and to `command-palette.ts`'s page list. |
 | Add anything that calls out to another host | The code, **and** `pages/legal/privacy.html` — that page lists the hosts a visitor's browser contacts, and a stale privacy policy is worse than none. |
-| Change colours, type or spacing | `src/styles.css` tokens — components read tokens, not literals. |
+| Change colours, type or spacing | `src/styles.css` tokens — components read tokens, not literals. If the background or accent moves, also `npm run icons`, whose monogram copies those two values. |
 | Change what the landing page shows by default | `environment.ts` → `landingLayout`. |
 | Point the site at a different API | The repo variable `API_BASE_URL` (the Pages workflow substitutes it), not `environment.ts`. |
 | Add a caching or CORS rule | `WebConfig.java`. |

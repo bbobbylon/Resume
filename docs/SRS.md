@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 0.3.0 (prerendered) |
-| **Date** | 2026-09-04 |
-| **Status** | Baseline complete; hosting decided (see [DEPLOYMENT.md](DEPLOYMENT.md)), go-live pending the owner; open items in [BACKLOG.md](BACKLOG.md) |
+| **Version** | 0.4.0 (prerendered) |
+| **Date** | 2026-09-11 |
+| **Status** | Live — frontend on GitHub Pages, API on Render (see [DEPLOYMENT.md](DEPLOYMENT.md)). Remaining work is incremental; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
 
 ## 1. Executive Summary
@@ -36,6 +36,8 @@ opens each project's live app.
 
 **Main features.**
 - Landing page in one of three interchangeable layouts (Ledger, Gallery, Dossier).
+- Finding the right project three ways: technology chips (`?tech=`), free-text search
+  (`?q=`) and a Ctrl+K command palette — all of them linkable URLs.
 - Project detail pages with highlights, stack, hosting/delivery metadata and screenshots.
 - In-app resume page mirroring the PDF, plus PDF download.
 - JSON API (`/api/profile`, `/api/projects`, `/api/projects/{id}`, `/api/resume`)
@@ -67,7 +69,7 @@ opens each project's live app.
 | FR-20 | `sitemap.xml` is generated from the prerendered routes on every build. | `scripts/sitemap.mjs` |
 | FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
 | FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
-| FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. | `GithubActivity` |
+| FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. Up to four further recent events sit behind a "+N more" disclosure that closes on Escape or an outside click; the compact (dot-only) placement never offers it. | `GithubActivity` |
 | FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight, Enter runs the highlighted item, Escape or a backdrop click closes it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
 | FR-25 | The landing page can be narrowed to one technology: a chip row in the Projects section (every family used by two or more projects, plus the selected one) sets a `?tech=` query parameter that merges with `?layout=` rather than replacing it. Matching is by family, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page. The parameter is applied only after hydration, so the prerendered HTML always lists every project. | `TechFilter`, `ProjectFilter` |
 | FR-26 | Every page links to a Terms of Use page (`/terms`) and a Privacy Policy page (`/privacy`) from its footer, and both are prerendered like the rest of the site. | `TermsPage`, `PrivacyPage`, `Footer` |
@@ -75,6 +77,8 @@ opens each project's live app.
 | FR-28 | Each technology in a project detail page's Stack list is a link to the landing page filtered to that technology, so a visitor can go from one project to its siblings without returning to the hub first. | `ProjectDetail`, `ProjectFilter` |
 | FR-29 | Every page starts with a "Skip to content" link that is off-screen until focused and moves keyboard focus into that page's single `<main>` landmark. | `App` |
 | FR-30 | Project detail pages carry schema.org JSON-LD in the prerendered HTML — the project as `SoftwareSourceCode` (with its repository, stack and live deployment as `targetProduct`) plus a `BreadcrumbList` — built from the same data the page renders. | `ProjectDetail`, `PageMeta` |
+| FR-31 | The landing page can be narrowed by free text: a search box beside the technology chips matches a project's name, tagline or any tech-stack entry, case-insensitively, and publishes the term as a `?q=` query parameter (debounced, merged with `?layout=` and `?tech=`, written with `replaceUrl` so one search does not bury the previous page in history). The two filter axes compose — a project must satisfy both when both are set — and each layout shows a "no match" message distinct from its empty-catalogue state. Like `?tech=`, it applies only after hydration. | `ProjectSearch`, `ProjectFilter`, `TechFilter` |
+| FR-32 | A visitor who saves the site to a home screen gets the site's own mark and a standalone window, not a screenshot thumbnail in a browser tab: a web app manifest declares the name, theme and `display: standalone`, backed by 192/512 and maskable icons plus an Apple touch icon. Scope is deliberately limited to that — there is **no service worker**, so there is no offline mode, no cache to invalidate, and no automatic Chrome install prompt (which requires one). | `manifest.webmanifest`, `index.html`, `scripts/icons.mjs` |
 
 ## 4. Non-Functional Requirements
 
@@ -116,6 +120,9 @@ opens each project's live app.
   judge the work, not just the write-up.
 - As a **recruiter**, I want to narrow the project list to one technology so that I
   can see the work in the stack I am hiring for.
+- As a **recruiter**, I want to type a word — a tool, a domain term, part of a name —
+  and see only the matching projects, so that I do not have to read every card to
+  find out whether the work I care about is here.
 - As a **visitor**, I want to know what a site does with my data before I browse it,
   so that I can decide whether to stay — answered in one line in the footer and in
   full at `/privacy`, without a cookie banner to dismiss (there are no cookies).
@@ -133,23 +140,29 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (37 tests) + `npm run build`, which must prerender every
-  project page.
+  frontend `ng test` (110 tests) + `npm run build`, which must prerender every
+  project page. The owner's standing rule is that a red push is a defect in its own
+  right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social
   tags before any JavaScript runs, and Lighthouse stays ≥ 95 on performance with
   100 on accessibility and SEO.
-- The site is reachable on a custom domain over HTTPS at $0/month hosting.
+- The site is reachable over HTTPS at $0/month hosting — met on the free URLs
+  (`bbobbylon.github.io/Resume` + `bobs-resume.onrender.com`). A custom domain is
+  deliberately deferred, not a blocker (DEPLOYMENT.md §8).
 - At least one project (TesseraApp) is `LIVE` with a working "Open" button; each
-  further project flips to `LIVE` as it is deployed.
+  further project flips to `LIVE` as it is deployed — five of six as of 2026-09-11.
 
 ## 7. Constraints
 
 - **Technical.** Angular 21 + Spring Boot 4.1 / Java 21 / Maven; plain CSS only
   (Nocturne token sheet, no framework); no database yet (in-memory seed data).
-- **Content.** Resume copy is used verbatim from the design handoff. The LinkedIn
-  URL in the seed is a placeholder, the TesseraApp repo URL is the profile URL until
-  the real repo is public, and the last two projects are placeholder entries drawn
-  from public GitHub repos (see `InMemoryProjectRepository`).
+- **Content.** Resume copy is used verbatim from the design handoff. All six catalogue
+  entries now describe real repositories, and five are `LIVE` with public URLs —
+  `tesseraapp`, `dev-hub`, `angular-concepts`, `dev-learning-hub` and `websitehub`
+  (this site lists itself like any other project). `luv2shop` stays `WIP` until it has
+  a deployed URL (see `InMemoryProjectRepository`). Contact details were reviewed
+  and made public-safe on 2026-09-06, and the placeholder LinkedIn link was removed
+  rather than shipped as a fake slug — re-add it only when a real vanity URL exists.
 - **Budget / hosting.** Free hosting tiers only. Decided 2026-09-04 (the owner
   delegated the choice): GitHub Pages for the frontend and Render's free tier for
   the API, no card on file; Cloud Run stays documented as the alternative.

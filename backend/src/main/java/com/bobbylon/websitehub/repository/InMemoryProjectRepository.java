@@ -128,9 +128,9 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     "This site. Angular 21 frontend over a Spring Boot 4.1 REST API, deployed as a static "
                             + "site plus a Docker web service. Each card links out to its project's own "
                             + "deployment.",
-                    null,
+                    "https://bbobbylon.github.io/Resume/",
                     "https://github.com/bbobbylon/Resume",
-                    ProjectStatus.WIP,
+                    ProjectStatus.LIVE,
                     List.of("Angular 21", "Spring Boot 4.1", "Java 21", "Docker", "GitHub Actions"),
                     List.of("shots/websitehub-1.webp", "shots/websitehub-2.webp", "shots/websitehub-3.webp"),
                     List.of(
@@ -144,8 +144,8 @@ public class InMemoryProjectRepository implements ProjectRepository {
                                     "Ledger, Gallery and Dossier render the same /api data; switch between "
                                             + "them with ?layout=ledger|gallery|dossier.")
                     ),
-                    null,
-                    "GitHub Actions CI",
+                    "GitHub Pages · Render (Docker)",
+                    "GitHub Actions · automated Pages deploy",
                     false,
                     new CaseStudy(
                             "A portfolio hub needed to showcase several independently-hosted projects "
@@ -156,8 +156,10 @@ public class InMemoryProjectRepository implements ProjectRepository {
                                     + "Controller → Service → Repository with in-memory repositories behind "
                                     + "interfaces, so a real database is a one-class swap with no change to "
                                     + "the layers above.",
-                            "Deployed as a static site plus a Docker web service; each project card links "
-                                    + "out to that project's own deployment rather than embedding it."
+                            "Live as a prerendered static site on GitHub Pages with the API as a free-tier "
+                                    + "Docker web service; a deploy-time snapshot of that API keeps every page "
+                                    + "complete while the service wakes, and each project card links out to "
+                                    + "that project's own deployment rather than embedding it."
                     )
             ),
             new Project(

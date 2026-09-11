@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.3.0 |
-| **Date** | 2026-09-04 |
+| **Version** | 0.4.0 |
+| **Date** | 2026-09-11 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
 | **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) |
 
@@ -77,10 +77,11 @@ Angular components (`frontend/src/app/shared/`):
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
 | `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
-| `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. `compact` input for a dot-only, `title`-labelled variant. |
+| `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. A "+N more" text button expands up to four older events as a bordered list below (closes on Escape or an outside click); it wraps onto its own line via `flex-basis: 100%` rather than using `position: absolute`, which Dossier's sticky, scrolling aside would clip. `compact` input for a dot-only, `title`-labelled variant — no disclosure there. |
 | `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". Mounted once at the app root. |
 | `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
-| `TechFilter` | `app-tech-filter` | Chip row in each layout's Projects section: "All" plus one outlined chip per technology family used by two or more projects, each with a count and each a real link setting `?tech=` (merged with `?layout=`, `fragment="projects"` so a click stays put). The active chip takes the accent outline via `aria-current`; a `role="status"` line underneath reads "Showing 5 of 6 projects built with Angular." |
+| `TechFilter` | `app-tech-filter` | Chip row in each layout's Projects section: "All" plus one outlined chip per technology family used by two or more projects, each with a count and each a real link setting `?tech=` (merged with `?layout=`, `fragment="projects"` so a click stays put). The active chip takes the accent outline via `aria-current`. The `role="status"` line underneath covers **both** filter axes — "Showing 5 of 6 projects built with Angular", "…matching \"api\"", or both clauses — and renders whenever either is active, even on a catalogue with no chips to show. |
+| `ProjectSearch` | `app-project-search` | Search box beside the chips: magnifier glyph + a 320 px-max bordered field that takes the accent border on `:focus-within`. Writes `?q=` as you type (debounced 200 ms, `replaceUrl`), and reads its value back from the URL, so Back/Forward and deep links keep the box and the list in agreement. Its label is `.sr-only`; the placeholder carries the visible affordance. |
 | `LayoutSwitcher` | `app-layout-switcher` | Centered `.seg` pill (reusing the token sheet's until-now-unused segmented-control style) linking to Ledger / Gallery / Dossier via the `?layout=` param; the current one gets `aria-current="page"`. Rendered once by `Landing`, above the chosen layout. |
 | `ArrowUpRight` | `app-arrow-up-right` | Phosphor icon, `size` input. |
 | `SearchIcon` | `app-search-icon` | Phosphor magnifying-glass icon, `size` input. |
@@ -153,10 +154,15 @@ margins. This is what `npm run resume:pdf` captures.
 
 1. **Recruiter → live project.** Land on `/` → scan rows/cards → "Open tesseraapp.dev ↗"
    (new tab) or "Details" → `/projects/tesseraapp` → highlights, stack, "Source on GitHub".
-2. **Recruiter → resume.** Nav "Resume" → `/resume` → read; "Download PDF" → `resume.pdf`.
-3. **Owner → choose layout.** Append `?layout=gallery` / `dossier` → compare → set
-   `environment.landingLayout` → redeploy.
-4. **Owner → add a project.** Add a `Project` to `InMemoryProjectRepository` (status
+2. **Recruiter → the work in their stack.** Land on `/` → pick a chip ("Angular 5")
+   or type in the search box → the list narrows, the `role="status"` line says how
+   many of how many and why, and the URL now carries `?tech=` / `?q=` so the view can
+   be sent to a colleague. From a project's detail page, a Stack tag is a link back
+   into that same filtered landing, so one project leads to its siblings.
+3. **Recruiter → resume.** Nav "Resume" → `/resume` → read; "Download PDF" → `resume.pdf`.
+4. **Owner → choose layout.** Use the switcher above the hero, or append
+   `?layout=gallery` / `dossier` → compare → set `environment.landingLayout` → redeploy.
+5. **Owner → add a project.** Add a `Project` to `InMemoryProjectRepository` (status
    WIP, `url` null) → tests enforce id uniqueness / 3 highlights / one featured →
    when deployed, set `url` and status `LIVE`.
 
@@ -181,6 +187,11 @@ margins. This is what `npm run resume:pdf` captures.
   so the dot's colour is never the only signal.
 - Images: real screenshots get descriptive `alt`; placeholders expose the project
   name via `role="img"` + `aria-label`.
+- Filtering announces itself: the search input carries an `.sr-only` label (the
+  placeholder alone is not one), and the result count under the chips is a
+  `role="status"` region, so narrowing the list by chip or by typing is spoken
+  rather than only seen. The activity strip's "+N more" is a real `<button>` with
+  `aria-expanded` / `aria-controls`, not a link.
 - The command palette is `role="dialog"` `aria-modal="true"` over an ARIA
   combobox/listbox: the search field is the dialog's one real focusable
   element (`aria-activedescendant` tracks the highlighted `role="option"`),

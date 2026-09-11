@@ -2,8 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 0.3.0 |
-| **Date** | 2026-09-04 (provider limits verified against vendor docs on this date — re-check before relying on them) |
+| **Version** | 0.4.0 |
+| **Date** | 2026-09-11 (provider limits in §1 were verified against vendor docs on 2026-09-04 — re-check before relying on them) |
+| **State** | Both halves are live: <https://bbobbylon.github.io/Resume/> and <https://bobs-resume.onrender.com>. §3 is done except the optional custom domain. |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) |
 
 ## 0. The decision
@@ -62,31 +63,26 @@ workspace, which is exactly what this repo deploys.
 No secrets exist. If any are added, use GitHub Actions secrets / Render environment
 settings — never the repo.
 
-## 3. Go-live runbook (what is left, in order)
+## 3. Go-live runbook (done, kept as the rebuild recipe)
 
-Each step is a one-time action that needs the owner's own accounts; the repo is
-ready for all of them.
+Every step below is complete except the optional domain (step 6). It stays here as
+the procedure for rebuilding this from scratch — or for standing up the next repo the
+same way.
 
-1. **Push the repo.** The remote `github.com/bbobbylon/Resume` already exists and is
-   empty. From the repo root:
+1. **Push the repo.** ✅ Done 2026-09-04. The repo must be public for free GitHub
+   Pages, and everything in the seed data becomes public with it — the contact
+   details in `InMemoryProfileRepository` were reviewed and swapped for public ones
+   before this (see BACKLOG "Content flags resolved"). Every push to `main` runs
+   `ci.yml` (build + tests, both halves) and, when it touches the frontend or the
+   seed data, `deploy-pages.yml`.
 
-   ```bash
-   git add -A
-   git commit -m "WebsiteHub: Angular 21 + Spring Boot 4.1 portfolio hub"
-   git push -u origin main
-   ```
-
-   The repo must be public for free GitHub Pages. Everything in the seed data becomes
-   public with it — currently that includes the phone number and the Deloitte e-mail
-   in `InMemoryProfileRepository`; remove anything that should stay private first.
-   The push runs `ci.yml` (build + tests, both halves) and `deploy-pages.yml`.
-
-2. **Check Pages is on.** The workflow asks GitHub to enable Pages for the repo by
-   itself (`actions/configure-pages` with `enablement: true`). If the deploy job
-   fails with a Pages-not-enabled error instead: repo → Settings → Pages → Build and
-   deployment → Source: **GitHub Actions**, then Actions → "Deploy frontend to GitHub
-   Pages" → Run workflow. The site comes up at `https://bbobbylon.github.io/Resume/`,
-   rendering from the snapshot until the API exists.
+2. **Check Pages is on.** ✅ Done 2026-09-05, **by hand**. The workflow asks GitHub to
+   enable Pages itself (`actions/configure-pages` with `enablement: true`), but that
+   call cannot create a Pages site on a repo's *first* deploy — the default
+   `GITHUB_TOKEN` lacks the repo-admin right — so the first run failed at that step.
+   The fix is the one-time flip: repo → Settings → Pages → Build and deployment →
+   Source: **GitHub Actions**, then re-run the workflow. Expect this on every new
+   repo; the same thing happened on the `dev-hub` repo a day later.
 
 3. **Create the API on Render.** ✅ Done 2026-09-04, by hand: New → Web Service →
    `bbobbylon/Resume`, name `bobs-resume`, runtime Docker, root directory `backend`,
@@ -104,7 +100,8 @@ ready for all of them.
 
 5. **Smoke test** on the live site: `/`, `/resume`, `/projects/tesseraapp`,
    `/projects/nope` (not-found state), `/any/typo` (not-found page), the Download
-   PDF button, `https://bobs-resume.onrender.com/docs` (Swagger UI), and
+   PDF button, the landing params (`?layout=`, `?tech=`, `?q=` — and the three
+   combined), `https://bobs-resume.onrender.com/docs` (Swagger UI), and
 
    ```bash
    curl https://bobs-resume.onrender.com/actuator/health    # first call may take ~1 min
@@ -121,7 +118,7 @@ ready for all of them.
 
 `.github/workflows/ci.yml` runs on push/PR to `main` and on demand:
 backend `mvn -B verify` (13 tests) + Docker image build; frontend `npm ci`,
-`npm test -- --watch=false` (37 tests), then the backend is started (composite
+`npm test -- --watch=false` (110 tests), then the backend is started (composite
 action `.github/actions/start-backend`: build the jar, run it, wait for
 `/actuator/health`) and `npm run build` prerenders every route against it — the
 job fails if no `/projects/<id>` page came out. CI never deploys.
@@ -134,11 +131,21 @@ demand. Steps: enable Pages if needed → start the backend (the same composite 
 CI uses) → `npm run snapshot` → substitute `API_BASE_URL` into `environment.ts` if
 the variable is set → `npm run build -- --base-href …`, which prerenders every route
 against the local backend and writes `sitemap.xml` (fails if no project page was
-prerendered) → stop the backend → stamp the site URL into every `*.html`, `*.js`,
-`robots.txt` and `sitemap.xml` (replacing the `https://bobbylon.dev` placeholder) →
-copy the client shell `index.csr.html` to `404.html` (known deep links such as
-`/projects/tesseraapp` are real files; unknown ones boot the SPA and reach the
-not-found page) → write `CNAME` → deploy.
+prerendered) → stop the backend → **regenerate `resume.pdf` from the build** →
+stamp the site URL into every `*.html`, `*.js`, `robots.txt` and `sitemap.xml`
+(replacing the `https://bobbylon.dev` placeholder) → copy the client shell
+`index.csr.html` to `404.html` (known deep links such as `/projects/tesseraapp` are
+real files; unknown ones boot the SPA and reach the not-found page) → write `CNAME`
+→ deploy.
+
+The PDF step is why the deployed resume can never lag the seed data: `/resume` is
+already static HTML by then, so `resume:pdf` runs against a throwaway static server
+over the build output (no dev server, no backend) using the Chrome that
+`browser-actions/setup-chrome` installs. It is deliberately **best-effort** — a 60 s
+hard timeout backstops it and any failure logs a `::warning::` and keeps the
+committed `resume.pdf` rather than failing the deploy. See the 2026-09-06 BACKLOG
+entry for why (the earlier CLI `--print-to-pdf` approach hung for the full timeout in
+CI; driving Chrome over the DevTools protocol with `puppeteer-core` fixed it).
 
 Without a custom domain the site lives at `https://bbobbylon.github.io/Resume/`
 (base href `/Resume/`, the workflow default).
@@ -212,8 +219,9 @@ cd frontend && npm ci && npm test -- --watch=false && npm start                 
 ```
 
 Check: `http://localhost:4222/?layout=ledger|gallery|dossier`, `/resume`,
-`/projects/tesseraapp`, `/projects/nope` (not-found state), and
-`curl localhost:8420/actuator/health`.
+`/projects/tesseraapp`, `/projects/nope` (not-found state), the landing filters
+(`/?tech=Angular`, `/?q=jwt`, and both at once with `?layout=`), Ctrl+K, the theme
+toggle, and `curl localhost:8420/actuator/health`.
 
 To see the production path locally: with the backend running, `npm run snapshot` and
 `npm run build` (the build prerenders against `prerenderApiBaseUrl`, the local
@@ -223,16 +231,27 @@ which fails or times out, and every page is already complete from its prerendere
 HTML (`data/*.json` covers a page that was not prerendered). Verified this way on
 2026-09-04: Lighthouse mobile 99 / 100 / 96 / 100, 200 kB transferred.
 
-## 10. Regenerating the resume PDF, screenshots and snapshot
+## 10. Regenerating the resume PDF, screenshots, icons and snapshot
 
-`frontend/public/resume.pdf` is printed from the live `/resume` page (print
-stylesheet, Letter, 14 mm margins). With the backend and dev server running:
+`frontend/public/resume.pdf` is printed from the `/resume` page (print stylesheet,
+Letter, 14 mm margins) by driving headless Chrome over the DevTools protocol. Two
+ways to run it:
 
 ```bash
-cd frontend && npm run resume:pdf        # needs Chrome; override with CHROME=/path/to/chrome
+cd frontend
+npm run resume:pdf                                             # against the dev server (backend + ng serve up)
+BUILD_DIR=dist/frontend/browser BASE_HREF=/Resume/ npm run resume:pdf   # against a finished build, no servers
 ```
 
-Commit the new PDF alongside the content change that motivated it.
+The second form is what the Pages deploy uses (§5): `/resume` is static HTML after
+`ng build`, so the script serves the build output itself
+(`scripts/static-server.mjs`) and needs neither the backend nor `ng serve`. Chrome is
+found automatically; override with `CHROME=/path/to/chrome`, and redirect the output
+with `RESUME_OUT=`.
+
+Commit the new PDF alongside the content change that motivated it — the deploy
+regenerates it anyway, but the committed copy is the fallback if that step ever
+warns.
 
 Project screenshots — `frontend/public/shots/<id>-<n>.webp` (1600×1000), the
 `-800.webp` variant for `srcset`, and `<id>-social.jpg` (1200×630) for the page's
@@ -249,6 +268,19 @@ in `scripts/screenshots.mjs`; new files are referenced from `imageUrls` in
 `InMemoryProjectRepository`. Restart `ng serve` after adding files under `public/`
 — the dev server only indexes assets at start-up.
 
+The app icons — `public/icons/icon-{192,512}.png`, `icon-maskable-512.png` and
+`public/apple-touch-icon.png`, everything `manifest.webmanifest` and `index.html`
+point at — are generated from an inline SVG monogram (there is no separate logo
+asset; the brand mark is a wordmark):
+
+```bash
+cd frontend && npm run icons
+```
+
+Only needed if the Nocturne background/accent tokens change — `scripts/icons.mjs`
+holds them as literals because it runs outside the Angular build and cannot read the
+CSS custom properties. The outputs are committed.
+
 The API snapshot (`public/data/*.json`) is `npm run snapshot` with the backend
 running. It is git-ignored: the Pages workflow regenerates it on every deploy.
 
@@ -263,8 +295,10 @@ the API returns it.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
 - [ ] `landingLayout` set to the chosen layout.
 - [ ] `resume.pdf` regenerated if resume content changed; `npm run shots` re-run if a project's UI changed.
+- [ ] If a new outbound request was added (any new host the visitor's browser contacts), `/privacy` lists it — see SRS FR-27.
 - [ ] The build log's `prerendered:` line lists every project id in `InMemoryProjectRepository` (`sitemap.xml` follows from it).
-- [ ] Push to `main` → CI green → Pages deploy green → Render deploy green → smoke-test the five pages on the real domain, once with the API awake and once after it slept.
+- [ ] Push to `main` → CI green → Pages deploy green (including no `::warning::` from the resume.pdf step) → Render deploy green → smoke-test the five pages on the real domain, once with the API awake and once after it slept.
+- [ ] Standing rule from the owner: a push that lands red is a defect in itself. Confirm the real run went green, not just the local test.
 
 ## 12. Cost flags outside this repo
 

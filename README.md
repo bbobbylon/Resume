@@ -33,9 +33,8 @@ cd frontend && npm install && npm start
 ./run.sh
 ```
 
-Pages to try: `/` (add `?layout=ledger`, `?layout=gallery` or `?layout=dossier`,
-and `?tech=Angular` to filter the project list — the two params combine),
-`/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`, `/projects/nope` (not-found state).
+Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
+`/projects/nope` (not-found state), `/any/typo` (not-found page).
 
 `docker compose up --build` runs the backend as a container the way the hosts will.
 
@@ -43,9 +42,43 @@ and `?tech=Angular` to filter the project list — the two params combine),
 
 ```bash
 cd backend  && mvn -B verify              # JUnit 5 + MockMvc slices (13 tests)
-cd frontend && npm test -- --watch=false  # Vitest / jsdom (37 tests)
-cd frontend && npm run build              # prerenders every route + writes sitemap.xml (~370 kB raw JS)
+cd frontend && npm test -- --watch=false  # Vitest / jsdom (110 tests across 24 files)
+cd frontend && npm run build              # prerenders every route + writes sitemap.xml
 ```
+
+## Using the site
+
+Every view is a URL, so anything you can see you can link or bookmark.
+
+| What | How | Notes |
+|------|-----|-------|
+| Switch landing layout | The pill above the hero, or `?layout=ledger\|gallery\|dossier` | Default is `landingLayout` in `frontend/src/environments/`; an unknown value falls back to it |
+| Filter projects by technology | The chip row in the Projects section, or `?tech=Angular` | Matches by *family*, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page |
+| Search projects | The box beside the chips, or `?q=jwt` | Matches name, tagline and stack, case-insensitive; typing rewrites the URL (debounced), so Back walks your searches |
+| Command palette | `Ctrl+K` / `Cmd+K`, or the search button in the nav | Home, Resume, every project, both legal pages and a theme action; arrows move, Enter runs, Escape closes |
+| Light / dark | The sun/moon button in the nav | Follows the OS until you pick one; that choice is the only `localStorage` key the site writes |
+| Skip to content | `Tab` as the first keypress on any page | Moves focus (not just scroll) into that page's `<main>` |
+| Save it to a home screen | Safari/Chrome on mobile → Share/menu → "Add to Home Screen" | Uses `manifest.webmanifest` + the monogram icons, and opens without browser chrome (`display: standalone`). There is deliberately **no service worker**, so no offline mode — and Chrome's automatic install prompt, which requires one, will not appear |
+| Download the resume | The PDF button in the nav | `frontend/public/resume.pdf`, regenerated from `/resume` on every deploy |
+
+The landing params combine and survive Back: `/?layout=gallery&tech=Angular&q=api`
+is a valid, shareable view. Filters apply only after hydration, so the prerendered
+HTML a crawler sees always lists every project.
+
+## Scripts
+
+All from `frontend/`. The three generators write files that are committed
+(`resume.pdf`, `shots/`, `icons/`); `snapshot` writes git-ignored data.
+
+| Script | What it does | When to run it |
+|--------|--------------|----------------|
+| `npm start` | Dev server on :4222, pre-wired to the local backend | Day-to-day work |
+| `npm run build` | Prerenders every route against the backend, then writes `sitemap.xml` (`postbuild`) | Before a release; CI runs it too |
+| `npm test -- --watch=false` | Vitest/jsdom suite | Every change |
+| `npm run snapshot` | Captures `/api/{profile,projects,resume}` into `public/data/*.json` | Needs the backend up; the Pages deploy does it automatically |
+| `npm run resume:pdf` | Prints `/resume` to `public/resume.pdf` via headless Chrome | After resume content changes (the deploy also regenerates it, best-effort) |
+| `npm run shots` | Project screenshots (WebP 1600/800 + social JPEG) and `og.png` | After a project's UI changes; `-- --only <id>` for one |
+| `npm run icons` | Regenerates the PWA icons and `apple-touch-icon.png` from the monogram | Only if the Nocturne background/accent tokens change |
 
 ## Stack, and why
 
@@ -100,15 +133,20 @@ Resume/
 ├── backend/                       Spring Boot API (Javadoc'd throughout)
 │   └── src/main/java/com/bobbylon/websitehub/{controller,service,repository,model,config}
 ├── frontend/                      Angular app
-│   ├── public/                    resume.pdf, og.png, shots/ (WebP + social JPEG), robots.txt, data/ (generated)
-│   ├── scripts/                   resume-pdf.mjs, screenshots.mjs, snapshot.mjs, sitemap.mjs (postbuild)
+│   ├── public/                    resume.pdf, og.png, shots/ (WebP + social JPEG), robots.txt,
+│   │                              manifest.webmanifest + icons/ + apple-touch-icon.png, data/ (generated)
+│   ├── scripts/                   resume-pdf.mjs, screenshots.mjs, icons.mjs, snapshot.mjs,
+│   │                              sitemap.mjs (postbuild), chrome.mjs + static-server.mjs (helpers)
 │   └── src/
 │       ├── fonts/                 self-hosted Inter (variable woff2, latin + latin-ext)
 │       ├── main.ts · main.server.ts   browser bootstrap · prerender bootstrap
 │       └── app/
 │           ├── app.config.ts · app.config.server.ts · app.routes.ts · app.routes.server.ts
-│           ├── models/  services/ TS mirrors of the records; Api (build-time data ∥ live) → signals; PageMeta
-│           ├── shared/            nav, footer, status-tag, project-image, live-status, icons, pipes
+│           ├── models/  services/ TS mirrors of the records; Api (build-time data ∥ live) → signals;
+│           │                      ProjectFilter (?tech= + ?q=), PageMeta, Theme, CommandPaletteService
+│           ├── shared/            nav, footer, status-tag, project-image, live-status, github-activity,
+│           │                      theme-toggle, command-palette (+trigger), layout-switcher,
+│           │                      tech-filter, project-search, icons, pipes
 │           └── pages/             landing (+ ledger / gallery / dossier), resume, project-detail, legal (terms + privacy), not-found
 ├── docs/                          SRS, ARCHITECTURE, CODE-MAP, UI-DESIGN, DEPLOYMENT, BACKLOG, design handoff + mocks
 ├── .github/                       workflows (ci.yml, deploy-pages.yml), actions/start-backend, dependabot.yml
@@ -129,26 +167,43 @@ social preview. `sitemap.xml` is generated from the prerendered routes on every 
 so a new project needs no SEO bookkeeping.
 The landing layout default is `landingLayout` in `frontend/src/environments/`.
 
-## Status (2026-09-04)
+## Status (2026-09-11)
 
-- Backend and frontend build and pass their tests locally. `main` is pushed and CI,
-  the Pages deploy and Dependabot run on GitHub.
+**Live:** frontend at <https://bbobbylon.github.io/Resume/>, API at
+<https://bobs-resume.onrender.com> (`/api/projects`, `/docs`). The last push
+(`d3e482e`) was green on both `CI` and `Deploy frontend to GitHub Pages`.
+
+- Backend and frontend build and pass their tests locally (13 backend, 110 frontend)
+  and in CI; the Pages deploy and Dependabot run on GitHub.
+- Landing is browsable three ways (Ledger / Gallery / Dossier via the switcher or
+  `?layout=`), filterable by technology (`?tech=`) and searchable (`?q=`), with a
+  Ctrl+K command palette over every page and project. A live GitHub activity strip
+  in the hero shows recent public events, newest inline and up to four more behind a
+  disclosure.
+- Installable as an app (`manifest.webmanifest` + monogram icons); no service
+  worker, so no offline mode — the site is still a plain static bundle.
 - Rendering: every route is prerendered to static HTML at build time (project pages
   from the ids the API returns) and hydrated in the browser; the client shell doubles
   as the Pages `404.html`. Lighthouse (mobile, gzip static host): performance 99,
   accessibility 100, best practices 96, SEO 100; 200 kB total transfer.
-- Content: resume, TesseraApp, Angular Concepts, Dev Learning Hub and Dev Hub are real
-  and live (Dev Hub went live on GitHub Pages 2026-09-06). Luv2Shop and WebsiteHub are
-  `WIP` with no live URL. (A former `fullstack-starter` entry was removed 2026-09-05:
-  it described the same codebase as TesseraApp, not a separate project.)
-- Screenshots exist for TesseraApp and WebsiteHub (WebP at 1600 and 800 px plus a
-  1200×630 social JPEG, captured with `npm run shots`); projects without a live URL
-  render the initial placeholder. Inter is self-hosted, so a visit makes no
-  third-party request.
+- Content: five of the six catalogue entries are `LIVE` with real URLs — TesseraApp,
+  Angular Concepts, Dev Learning Hub, Dev Hub, and WebsiteHub itself (this site, listed
+  like any other project). Only Luv2Shop is still `WIP`, waiting on its database and
+  Render service. (A former `fullstack-starter` entry was removed 2026-09-05: it
+  described the same codebase as TesseraApp, not a separate project.)
+- Screenshots exist for TesseraApp, WebsiteHub, Angular Concepts, Dev Learning Hub
+  and Dev Hub (WebP at 1600 and 800 px plus a 1200×630 social JPEG, captured with
+  `npm run shots`); projects without a live URL render the initial placeholder.
+  Inter is self-hosted, so page rendering needs no third-party host; the only
+  cross-origin requests a visit makes are the API, `api.github.com` for the activity
+  strip, and a project's own URL when its status dot scrolls into view — the same
+  set `/privacy` enumerates, which is why a new outbound request means editing that
+  page in the same commit.
 - SEO: per-page `<title>`, description and Open Graph/Twitter tags (each project page
-  previews with its own screenshot), JSON-LD `Person` data, `robots.txt`, a generated
-  `sitemap.xml`; the production origin is stamped in by the Pages workflow. Unknown
-  paths get a real not-found page.
+  previews with its own screenshot), JSON-LD (`Person` site-wide, plus
+  `SoftwareSourceCode` + `BreadcrumbList` on each project page), `robots.txt`, a
+  generated `sitemap.xml`; the production origin is stamped in by the Pages workflow.
+  Unknown paths get a real not-found page.
 - Project detail pages probe the project's live URL from the visitor's browser and
   say whether it answers right now; route changes cross-fade where the browser
   supports view transitions.
@@ -156,6 +211,7 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
   `Cache-Control`, OpenAPI docs at `/docs`. Dependabot watches npm, Maven, Docker
   and Actions weekly.
 - Hosting: the API is live on Render's free tier at `https://bobs-resume.onrender.com`
-  (created 2026-09-04) and the frontend deploys to GitHub Pages from `main`; the
-  remaining go-live checks are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) §3, and
-  everything else that is open or next lives in [docs/BACKLOG.md](docs/BACKLOG.md).
+  (created 2026-09-04) and the frontend deploys to GitHub Pages from `main` on every
+  push that touches it. The go-live runbook is [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+  §3 (all steps done except the optional custom domain, deliberately deferred), and
+  everything else open or next lives in [docs/BACKLOG.md](docs/BACKLOG.md).

@@ -122,6 +122,90 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — WebsiteHub lists itself as `LIVE`, and `npm start` actually works. Two
+  things the doc pass turned up by checking claims against reality:
+  1. **The site advertised itself as `WIP` with no live URL** while a visitor was
+     looking at it — the `websitehub` entry had never been flipped after the site went
+     up on 2026-09-05. Now `LIVE` at `https://bbobbylon.github.io/Resume/`, with
+     `hosting` "GitHub Pages · Render (Docker)" (it was `null`), `delivery` widened
+     from "GitHub Actions CI" to "GitHub Actions · automated Pages deploy", and the
+     case study's outcome restated to what actually shipped (prerendered static site,
+     free-tier Docker API, deploy-time snapshot covering the wake-up). Five of six
+     entries are now live; only Luv2Shop is `WIP`. Verified on the real detail page:
+     the Live tag, the "Open bbobbylon.github.io" button, and the `LiveStatus` probe
+     answering "Up now" against the deployed site.
+  2. **`npm start` served on 4200, but CORS only allows 4222** — so following the
+     README's own instructions gave you a dev session where every API call came back
+     `403` (confirmed by curling both origins). Everything else in the repo agreed on
+     4222 — `run.sh` (which passes `--port 4222` explicitly, which is why nobody
+     noticed), `docker-compose.yml`'s `ALLOWED_ORIGIN`, and the backend's own default
+     — only bare `ng serve` disagreed. Fixed at the source: `angular.json`'s `serve`
+     target now sets `"port": 4222`, so `ng serve`, `npm start` and `run.sh` all land
+     on the same port as the CORS whitelist.
+  Also re-captured this project's screenshots and `og.png`, which dated to 2026-09-04
+  and predated five shipped features — the card and social preview were showing a
+  version of the site that no longer exists. The new ones carry the layout switcher,
+  the ⌘K trigger, the theme toggle, the GitHub activity strip (with its "+4 more"
+  disclosure) and the search box + chip row. 110 frontend and 13 backend tests green.
+
+- 2026-09-11 — Doc refresh over the whole set, after checking every claim against the
+  code. The two most recent features had reached **no** doc at all: `?q=` search and
+  the PWA manifest/icons are now in SRS (FR-31, FR-32, a recruiter user story, the
+  §2 feature list), ARCHITECTURE (the tree, plus two new patterns — "the URL is the
+  view state" and "query params apply only after hydration", which was previously
+  only a footnote in §8 of CODE-MAP), UI-DESIGN (a `ProjectSearch` row, a rewritten
+  `TechFilter`/`GithubActivity` row, a search user flow, an a11y bullet), CODE-MAP
+  (rows for the new component, spec and script; the `?tech=`/`?q=` asymmetry written
+  down) and the README. Stale numbers fixed everywhere: the test count was quoted as
+  37 in two places and 76 in another (really 110 across 24 files). DEPLOYMENT gained
+  the `resume.pdf` regeneration step in §5 (it has been in `deploy-pages.yml` since
+  2026-09-06 and was documented nowhere), the build-directory form of `resume:pdf`,
+  an `npm run icons` section, `?tech=`/`?q=` in both the local and live smoke tests,
+  and two new release-checklist lines (privacy-page rule, and the owner's
+  green-push rule). Its §3 runbook is relabelled from "what is left" to the rebuild
+  recipe, with steps 1–2 marked done and the first-deploy Pages gotcha written down
+  as something to expect on every new repo. README gained two sections the repo never
+  had: **Using the site** (every feature, its keyboard/URL affordance, and what it
+  does *not* do) and **Scripts** (all seven `npm run` targets and when to run each).
+  Two claims were corrected rather than copied forward: "a visit makes no third-party
+  request" has been false since the GitHub activity strip shipped, and installability
+  was overstated — with no service worker there is no Chrome install prompt, only
+  Add to Home Screen, and both docs now say so.
+
+- 2026-09-11 — Free-text project search, a GitHub activity history disclosure, and
+  PWA installability. A new `ProjectSearch` (`app-project-search`) sits next to
+  `TechFilter`'s chip row in all three landing layouts and writes `?q=` through
+  `ProjectFilter.search()`, debounced 200ms so a fast typist produces one navigation
+  per pause instead of one per keystroke; the input itself stays a dumb
+  `[value]`/`(input)` binding onto `filter.queryText()`, so it also follows the URL
+  on a Back/Forward through search history or a deep link like `/?q=angular`.
+  `ProjectFilter` now filters on two independent axes — the existing `?tech=` and
+  the new `?q=` — a project must satisfy whichever are set; `?q=` matches a
+  project's name, tagline, or any tech-stack entry, case-insensitive. `TechFilter`'s
+  result-summary line ("Showing N of M projects…") now keys off the new
+  `filter.active()` instead of `filter.selected()`, so it appears for a search with
+  no tech chip too, and composes both ("built with Angular matching \"api\"") when
+  they're both active. All three layouts gained a "No projects match your search."
+  empty state, distinct from the existing "no projects yet" one — Gallery also
+  suppresses its dashed placeholder slots under it, same as it already does for an
+  active tech filter. Same commit, unrelated but shipped together: `GithubActivity`
+  now keeps up to 5 recognized events instead of 1 — the newest stays the
+  always-visible badge, the rest sit behind a "+N more" disclosure that closes on
+  an outside click or Escape (`compact` mode never renders it — there's no room for
+  a second control in a sidebar dot). And the site is now installable:
+  `manifest.webmanifest`, three PNG icons (192/512/maskable-512) and
+  `apple-touch-icon.png`, generated by a new `npm run icons` (`scripts/icons.mjs`,
+  a Nocturne "b" monogram rendered via `sharp` since no separate logo asset
+  exists) and linked from `index.html`. Not a service worker — the site stays a
+  plain static page, just offers a real icon instead of a screenshot thumbnail on
+  "Add to Home Screen". Frontend gained 34 new tests (110/110 total, up from 76);
+  backend unaffected (13/13, no backend files touched). Verified: a real `npm test`
+  run confirms 110/110 green, the push went green end-to-end on both workflows
+  (`CI` run 34576131490, `Deploy frontend to GitHub Pages` run 34576131516), and a
+  post-deploy spot check confirms `bbobbylon.github.io/Resume/` and its
+  `manifest.webmanifest` both 200, and the Render API still answers
+  `/api/projects`.
+
 - 2026-09-07 — Keyboard bypass block and one real `<main>` per route. The first Tab on
   any page now reveals a "Skip to content" link that moves *focus* (not just scroll)
   into `<main id="main" tabindex="-1">`; the project detail page had no `<main>` at all

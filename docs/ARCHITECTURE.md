@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.3.0 |
-| **Date** | 2026-09-04 |
+| **Version** | 0.4.0 |
+| **Date** | 2026-09-11 |
 | **Related** | [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) |
 
 ## 1. System Architecture
@@ -86,8 +86,10 @@ Resume/
 │   └── src/test/java/…                     @WebMvcTest slices + repository unit tests (13 tests)
 ├── frontend/
 │   ├── angular.json · package.json · tsconfig*.json
-│   ├── public/                             favicon.ico, resume.pdf, og.png, robots.txt, shots/ (WebP + social JPEG), data/ (generated, git-ignored)
-│   ├── scripts/                            chrome.mjs (shared), resume-pdf.mjs, screenshots.mjs, snapshot.mjs, sitemap.mjs (postbuild: prerendered routes → sitemap.xml)
+│   ├── public/                             favicon.ico, resume.pdf, og.png, robots.txt, shots/ (WebP + social JPEG),
+│   │                                       manifest.webmanifest + icons/ + apple-touch-icon.png, data/ (generated, git-ignored)
+│   ├── scripts/                            chrome.mjs + static-server.mjs (shared), resume-pdf.mjs, screenshots.mjs, icons.mjs,
+│   │                                       snapshot.mjs, sitemap.mjs (postbuild: prerendered routes → sitemap.xml)
 │   └── src/
 │       ├── index.html · main.ts · main.server.ts · styles.css (Nocturne tokens, @font-face, page primitives, print)
 │       ├── fonts/                          Inter variable woff2 (latin, latin-ext) + OFL licence
@@ -95,20 +97,22 @@ Resume/
 │       └── app/
 │           ├── app.ts · app.config.ts · app.routes.ts · app.config.server.ts · app.routes.server.ts
 │           ├── models/                     project, profile, resume, landing-layout
-│           ├── services/                   Api (build-time data ∥ live, live replaces), ProfileService, ProjectService, ProjectFilter (?tech=), ResumeService, PageMeta, Theme, CommandPaletteService
+│           ├── services/                   Api (build-time data ∥ live, live replaces), ProfileService, ProjectService, ProjectFilter (?tech= + ?q=), ResumeService, PageMeta, Theme, CommandPaletteService
 │           ├── shared/                     nav, footer, status-tag, project-image (srcset), live-status, github-activity,
-│           │                             theme-toggle, command-palette (+trigger), layout-switcher, tech-filter, icons, pipes
+│           │                             theme-toggle, command-palette (+trigger), layout-switcher, tech-filter,
+│           │                             project-search, icons, pipes
 │           └── pages/
 │               ├── landing/                Landing (@switch) + ledger/ gallery/ dossier/
 │               ├── resume/                 ResumePage
 │               ├── project-detail/         ProjectDetail
+│               ├── legal/                  TermsPage, PrivacyPage
 │               └── not-found/              NotFound (catch-all route)
 ├── docs/                                   SRS, ARCHITECTURE, UI-DESIGN, DEPLOYMENT, BACKLOG,
 │   ├── design-handoff.md                   the original Nocturne handoff spec
 │   └── design/                             .dc.html mocks + _ds/ token sheet (references only)
 ├── .github/actions/start-backend/          composite: build the jar, run it, wait for /actuator/health
 ├── .github/workflows/ci.yml                build + test both halves (the frontend build prerenders against the backend), Docker image
-├── .github/workflows/deploy-pages.yml      run backend → snapshot → prerender build → stamp site URL → publish to GitHub Pages
+├── .github/workflows/deploy-pages.yml      run backend → snapshot → prerender build → regenerate resume.pdf → stamp site URL → publish to GitHub Pages
 ├── .github/dependabot.yml                  weekly npm / Maven / Docker / Actions updates
 ├── render.yaml · docker-compose.yml · run.sh
 └── README.md
@@ -129,6 +133,18 @@ Resume/
   resolved from the query string, then the environment. The three layouts are plain
   standalone components sharing `Nav`, `Footer`, `StatusTag`, `ProjectImage`,
   `ArrowUpRight` and `DomainPipe`.
+- **The URL is the view state.** Which layout you see (`?layout=`), which technology
+  is selected (`?tech=`) and what is searched (`?q=`) all live in the query string,
+  never in component state, so every view is linkable, shareable and Back-friendly.
+  Two rules keep that honest: the params **merge** rather than replace each other,
+  and an unrecognized value falls back to showing everything rather than erroring —
+  so no layout needs a dead-end state. `ProjectFilter` is the single root service
+  that reads them and hands all three layouts one already-filtered list.
+- **Query params apply only after hydration.** `/` is prerendered with no query
+  string, so filtering during the first render would hand the browser markup that
+  disagrees with the HTML it is adopting. `ProjectFilter`, `LiveStatus` and
+  `GithubActivity` all gate their browser-only behaviour behind `afterNextRender`
+  for this reason. It is the single easiest invariant in the codebase to break.
 - **Skeleton states.** Every data-bound block has an `@else` branch rendering
   `.skeleton` spans of the same footprint, so layout does not shift when data lands.
 - **Render where the data is.** `Api` branches on `PLATFORM_ID`: during the build it
