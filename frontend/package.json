@@ -10,6 +10,7 @@
     "test": "ng test",
     "resume:pdf": "node scripts/resume-pdf.mjs",
     "shots": "node scripts/screenshots.mjs",
+    "icons": "node scripts/icons.mjs",
     "snapshot": "node scripts/snapshot.mjs"
   },
   "private": true,

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProjectFilter } from '../../services/project-filter';
 
@@ -17,7 +17,10 @@ import { ProjectFilter } from '../../services/project-filter';
  * page every time they picked a chip.
  *
  * Nothing renders until the catalogue has at least one shared technology, so an
- * empty or one-project API never leaves a stray "All" chip behind.
+ * empty or one-project API never leaves a stray "All" chip behind. The result
+ * summary below the chips is independent of that: it also covers `app-project-search`
+ * (rendered just above this component in each layout), so it shows whenever either
+ * axis narrows the list, even on a catalogue with no shared technology to chip.
  */
 @Component({
   selector: 'app-tech-filter',
@@ -44,11 +47,11 @@ import { ProjectFilter } from '../../services/project-filter';
           >{{ facet.label }} <span class="count">{{ facet.count }}</span></a>
         }
       </nav>
-      @if (filter.selected(); as facet) {
-        <p class="filter-summary" role="status">
-          Showing {{ filter.projects()?.length ?? 0 }} of {{ filter.total() }} projects built with {{ facet.label }}.
-        </p>
-      }
+    }
+    @if (filter.active()) {
+      <p class="filter-summary" role="status">
+        Showing {{ filter.projects()?.length ?? 0 }} of {{ filter.total() }} projects{{ summarySuffix() }}.
+      </p>
     }
   `,
   styles: `
@@ -73,4 +76,14 @@ import { ProjectFilter } from '../../services/project-filter';
 export class TechFilter {
   /** All of this component's state; the template reads its signals directly. */
   protected readonly filter = inject(ProjectFilter);
+
+  /** " built with X", " matching \"y\"", both, or "" — appended after "N of M projects" in the summary. */
+  protected readonly summarySuffix = computed(() => {
+    const tech = this.filter.selected();
+    const q = this.filter.queryText().trim();
+    const parts: string[] = [];
+    if (tech) parts.push(`built with ${tech.label}`);
+    if (q) parts.push(`matching "${q}"`);
+    return parts.length ? ` ${parts.join(' ')}` : '';
+  });
 }

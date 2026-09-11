@@ -68,4 +68,52 @@ describe('GithubActivity', () => {
     expect(link.textContent?.trim()).toBe('');
     expect(link.getAttribute('title')).toContain('Pushed to Resume');
   });
+
+  const manyEvents = [
+    { type: 'PushEvent', created_at: new Date(Date.now() - 1 * 3_600_000).toISOString(), repo: { name: 'bbobbylon/Resume' } },
+    { type: 'WatchEvent', created_at: new Date(Date.now() - 2 * 3_600_000).toISOString(), repo: { name: 'bbobbylon/dev-hub' } },
+    { type: 'ForkEvent', created_at: new Date(Date.now() - 3 * 3_600_000).toISOString(), repo: { name: 'bbobbylon/Luv2Shop' } },
+  ];
+
+  it('shows a "+N more" disclosure when there is more than one recognized event', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(manyEvents), { status: 200 })));
+    const fixture = await render();
+    const toggle: HTMLButtonElement = fixture.nativeElement.querySelector('.more-toggle');
+    expect(toggle.textContent?.trim()).toBe('+2 more');
+    expect(fixture.nativeElement.querySelector('.activity-list')).toBeNull();
+  });
+
+  it('expands the rest of the history on click, newest of the rest first', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(manyEvents), { status: 200 })));
+    const fixture = await render();
+    (fixture.nativeElement.querySelector('.more-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const links = [...fixture.nativeElement.querySelectorAll('.activity-list a')] as HTMLAnchorElement[];
+    expect(links.map((a) => a.href)).toEqual([
+      'https://github.com/bbobbylon/dev-hub',
+      'https://github.com/bbobbylon/Luv2Shop',
+    ]);
+  });
+
+  it('collapses the disclosure again on Escape', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(manyEvents), { status: 200 })));
+    const fixture = await render();
+    (fixture.nativeElement.querySelector('.more-toggle') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.activity-list')).not.toBeNull();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.activity-list')).toBeNull();
+  });
+
+  it('never shows the disclosure toggle in compact mode, even with more history', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(manyEvents), { status: 200 })));
+    const fixture = TestBed.createComponent(GithubActivity);
+    fixture.componentRef.setInput('compact', true);
+    await fixture.whenStable();
+    await new Promise((r) => setTimeout(r, 0));
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('.more-toggle')).toBeNull();
+  });
 });

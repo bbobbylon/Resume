@@ -40,6 +40,7 @@
   <main id="main" tabindex="-1" class="main">
     <section id="projects" aria-labelledby="projects-kicker">
       <p id="projects-kicker" class="kicker">Projects</p>
+      <app-project-search />
       <app-tech-filter />
       <div class="table-wrap">
         <table class="table">
@@ -68,7 +69,7 @@
                   </td>
                 </tr>
               } @empty {
-                <tr><td colspan="5" class="muted">No projects published yet.</td></tr>
+                <tr><td colspan="5" class="muted">{{ filter.active() ? 'No projects match your search.' : 'No projects published yet.' }}</td></tr>
               }
             } @else {
               @for (n of [0, 1, 2]; track n) {

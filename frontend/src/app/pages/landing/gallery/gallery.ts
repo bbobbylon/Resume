@@ -11,6 +11,7 @@ import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
 import { TechFilter } from '../../../shared/tech-filter/tech-filter';
+import { ProjectSearch } from '../../../shared/project-search/project-search';
 
 /**
  * Landing layout 1b "Gallery" (handoff → Landing variants → 1b): a `5fr | 7fr`
@@ -21,7 +22,7 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
  */
 @Component({
   selector: 'app-gallery',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter, ProjectSearch],
   templateUrl: './gallery.html',
   styleUrl: './gallery.css',
 })
@@ -29,12 +30,19 @@ export class Gallery {
   /** Identity and the `stats` this layout renders as its full-bleed stat band. */
   protected readonly profile = inject(ProfileService).profile;
   /**
-   * Held as the service (not just its list) because {@link emptySlots} also needs to
-   * know whether a filter is active.
+   * Held as the service (not just its list) because {@link emptySlots} and
+   * {@link noResults} also need to know whether a filter is active.
    */
   private readonly filter = inject(ProjectFilter);
   /** The filtered catalogue; `featured` and `rest` are both derived from it. */
   private readonly projects = this.filter.projects;
+
+  /**
+   * True once the catalogue has loaded and an active tech/search filter leaves
+   * nothing to show — distinct from `undefined` (still loading), which the
+   * featured card and grid already render skeletons for.
+   */
+  protected readonly noResults = computed(() => this.filter.active() && this.projects()?.length === 0);
 
   /** The featured project (first flagged one, else the first in the list). */
   protected readonly featured = computed(() => {
@@ -54,8 +62,8 @@ export class Gallery {
    * until there are at least three non-featured projects (handoff: remove once ≥3).
    */
   protected readonly emptySlots = computed(() => {
-    // Under an active tech filter a short list is the filter's doing, not an empty portfolio.
-    if (this.filter.selected()) return [];
+    // Under an active tech or search filter a short list is the filter's doing, not an empty portfolio.
+    if (this.filter.active()) return [];
     const n = this.rest()?.length ?? 0;
     return n >= 3 ? [] : Array.from({ length: 3 - n }, (_, i) => i);
   });

@@ -81,4 +81,23 @@ describe('TechFilter', () => {
     const el = await render('/', [project('solo', ['Rust'])]);
     expect(el.querySelector('.tech-filter')).toBeNull();
   });
+
+  it('summarises a search-only filter without a tech chip selected', async () => {
+    const el = await render('/?q=react');
+    expect(el.querySelector('a.chip[aria-current]')?.textContent).toContain('All');
+    expect(el.querySelector('.filter-summary')?.textContent?.replace(/\s+/g, ' ').trim())
+      .toBe('Showing 1 of 3 projects matching "react".');
+  });
+
+  it('summarises a combined tech + search filter', async () => {
+    const el = await render('/?tech=Angular&q=tessera');
+    expect(el.querySelector('.filter-summary')?.textContent?.replace(/\s+/g, ' ').trim())
+      .toBe('Showing 1 of 3 projects built with Angular matching "tessera".');
+  });
+
+  it('still shows a search summary when no technology is shared to chip', async () => {
+    const el = await render('/?q=solo', [project('solo', ['Rust'])]);
+    expect(el.querySelector('.tech-filter')).toBeNull();
+    expect(el.querySelector('.filter-summary')?.textContent).toContain('Showing 1 of 1 projects');
+  });
 });

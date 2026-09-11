@@ -11,6 +11,7 @@ import { DomainPipe } from '../../../shared/pipes/domain.pipe';
 import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
 import { TechFilter } from '../../../shared/tech-filter/tech-filter';
+import { ProjectSearch } from '../../../shared/project-search/project-search';
 
 /**
  * Landing layout 1a "Ledger" (handoff → Landing variants → 1a): a single 1120px
@@ -20,18 +21,20 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
  */
 @Component({
   selector: 'app-ledger',
-  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter],
+  imports: [RouterLink, Nav, Footer, StatusTag, ProjectImage, ArrowUpRight, DomainPipe, LiveStatus, GithubActivity, TechFilter, ProjectSearch],
   templateUrl: './ledger.html',
   styleUrl: './ledger.css',
 })
 export class Ledger {
   /** Identity, contact and bio for the hero and the two-column contact block. */
   protected readonly profile = inject(ProfileService).profile;
+  /** Backs {@link projects} and tells the `@empty` block whether zero rows means "no data yet" or "no match". */
+  protected readonly filter = inject(ProjectFilter);
   /**
    * The rows to render — from {@link ProjectFilter}, not {@link ProjectService}, so
-   * the `?tech=` chips above the list actually narrow it. `undefined` while loading.
+   * the `?tech=`/`?q=` controls above the list actually narrow it. `undefined` while loading.
    */
-  protected readonly projects = inject(ProjectFilter).projects;
+  protected readonly projects = this.filter.projects;
   /** Skeleton rows while the project list loads. */
   protected readonly placeholders = [0, 1, 2];
 

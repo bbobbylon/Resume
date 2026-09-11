@@ -1,6 +1,6 @@
 import { ApplicationRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { of } from 'rxjs';
@@ -26,12 +26,15 @@ const projects = [
 ];
 
 /**
- * Builds the service with `?tech=` already set. `live` stays false until a render
- * pass runs, so the returned `render()` is what "the browser has hydrated" means
- * here — call it to let the filter engage.
+ * Builds the service with `?tech=` and/or `?q=` already set. `live` stays false
+ * until a render pass runs, so the returned `render()` is what "the browser has
+ * hydrated" means here — call it to let the filter engage.
  */
-function setup(tech: string | null, catalogue: Project[] = projects) {
-  const paramMap = convertToParamMap(tech ? { tech } : {});
+function setup(tech: string | null, catalogue: Project[] = projects, q: string | null = null) {
+  const params: Record<string, string> = {};
+  if (tech) params['tech'] = tech;
+  if (q) params['q'] = q;
+  const paramMap = convertToParamMap(params);
   TestBed.configureTestingModule({
     providers: [
       provideRouter([]),
@@ -122,5 +125,71 @@ describe('ProjectFilter', () => {
     const { filter, render } = setup(null, [project('solo', ['Rust'])]);
     render();
     expect(filter.chips()).toEqual([]);
+  });
+
+  it('narrows by ?q= across name, tagline and stack, case-insensitively', () => {
+    const { filter, render } = setup(null, projects, 'REACT');
+    render();
+    expect(filter.projects()?.map((p) => p.id)).toEqual(['dev-hub']);
+    expect(filter.active()).toBe(true);
+    expect(filter.selected()).toBeUndefined();
+  });
+
+  it('combines ?tech= and ?q= — a project must satisfy both', () => {
+    const { filter, render } = setup('Angular', projects, 'websitehub');
+    render();
+    expect(filter.projects()?.map((p) => p.id)).toEqual(['websitehub']);
+  });
+
+  it('returns an empty list, not everything, when nothing matches the search text', () => {
+    const { filter, render } = setup(null, projects, 'nonexistent-xyz');
+    render();
+    expect(filter.projects()).toEqual([]);
+    expect(filter.active()).toBe(true);
+  });
+
+  it('does not search until hydration, matching the tech-filter rule', () => {
+    const { filter, render } = setup(null, projects, 'React');
+    expect(filter.active()).toBe(false);
+    expect(filter.projects()?.length).toBe(4);
+    render();
+    expect(filter.projects()?.length).toBe(1);
+  });
+
+  it('search() debounces and navigates to / with ?q= merged into the existing params', () => {
+    vi.useFakeTimers();
+    const { filter } = setup(null);
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    filter.search('Ang');
+    filter.search('Angu');
+    filter.search('Angular');
+    expect(navigateSpy).not.toHaveBeenCalled();
+
+    vi.advanceTimersByTime(200);
+    expect(navigateSpy).toHaveBeenCalledTimes(1);
+    expect(navigateSpy).toHaveBeenCalledWith(['/'], {
+      queryParams: { q: 'Angular' },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    vi.useRealTimers();
+  });
+
+  it('search() clears ?q= when the box is emptied', () => {
+    vi.useFakeTimers();
+    const { filter } = setup(null);
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    filter.search('   ');
+    vi.advanceTimersByTime(200);
+    expect(navigateSpy).toHaveBeenCalledWith(['/'], {
+      queryParams: { q: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+    vi.useRealTimers();
   });
 });

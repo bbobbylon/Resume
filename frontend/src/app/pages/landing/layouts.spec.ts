@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { Type } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Ledger } from './ledger/ledger';
@@ -44,6 +45,20 @@ async function render(component: Type<unknown>) {
   return fixture.nativeElement as HTMLElement;
 }
 
+/** Like {@link render}, but through a real navigation so `?q=`/`?tech=` on the URL reach `ProjectFilter`. */
+async function renderAtUrl(component: Type<unknown>, url: string) {
+  TestBed.configureTestingModule({
+    providers: [provideRouter([{ path: '', component }]), provideHttpClient(), provideHttpClientTesting()],
+  });
+  const harness = await RouterTestingHarness.create(url);
+  const http = TestBed.inject(HttpTestingController);
+  http.match((r) => r.url.endsWith('/api/profile')).forEach((r) => r.flush(profile));
+  http.match((r) => r.url.endsWith('/api/projects')).forEach((r) => r.flush(projects));
+  http.match((r) => r.url.endsWith('/api/resume')).forEach((r) => r.flush(resume));
+  harness.detectChanges();
+  return harness.routeNativeElement as HTMLElement;
+}
+
 describe('Landing layouts', () => {
   // Each layout now shows an app-live-status dot per project card; keep the probes off the network.
   beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => new Response())));
@@ -74,5 +89,24 @@ describe('Landing layouts', () => {
     expect(el.textContent).toContain('Lead bullet');
     expect(el.textContent).toContain('M.S. CS');
     expect(el.querySelector('a.btn-block')?.getAttribute('href')).toBe('resume.pdf');
+  });
+
+  it('Ledger shows "no match" copy, not "no projects", when a search matches nothing', async () => {
+    const el = await renderAtUrl(Ledger, '/?q=nonexistent-xyz');
+    expect(el.querySelectorAll('article.row').length).toBe(0);
+    expect(el.textContent).toContain('No projects match your search.');
+  });
+
+  it('Gallery hides the featured card and grid (not a stuck skeleton) when a search matches nothing', async () => {
+    const el = await renderAtUrl(Gallery, '/?q=nonexistent-xyz');
+    expect(el.querySelector('.featured')).toBeNull();
+    expect(el.querySelectorAll('.grid .card, .grid .slot').length).toBe(0);
+    expect(el.textContent).toContain('No projects match your search.');
+  });
+
+  it('Dossier shows "no match" copy in the table when a search matches nothing', async () => {
+    const el = await renderAtUrl(Dossier, '/?q=nonexistent-xyz');
+    expect(el.querySelectorAll('table.table tbody tr').length).toBe(1);
+    expect(el.textContent).toContain('No projects match your search.');
   });
 });

@@ -11,6 +11,7 @@ import { LiveStatus } from '../../../shared/live-status/live-status';
 import { GithubActivity } from '../../../shared/github-activity/github-activity';
 import { CommandPaletteTrigger } from '../../../shared/command-palette-trigger/command-palette-trigger';
 import { TechFilter } from '../../../shared/tech-filter/tech-filter';
+import { ProjectSearch } from '../../../shared/project-search/project-search';
 
 /**
  * Landing layout 1c "Dossier" (handoff → Landing variants → 1c): a `360px | 1fr`
@@ -21,15 +22,17 @@ import { TechFilter } from '../../../shared/tech-filter/tech-filter';
  */
 @Component({
   selector: 'app-dossier',
-  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity, CommandPaletteTrigger, TechFilter],
+  imports: [RouterLink, StatusTag, ArrowUpRight, DomainPipe, ThemeToggle, LiveStatus, GithubActivity, CommandPaletteTrigger, TechFilter, ProjectSearch],
   templateUrl: './dossier.html',
   styleUrl: './dossier.css',
 })
 export class Dossier {
   /** Identity and contact for the sticky aside (this layout has no top `Nav`). */
   protected readonly profile = inject(ProfileService).profile;
+  /** Backs {@link projects} and tells the table's `@empty` row whether zero means "no data yet" or "no match". */
+  protected readonly filter = inject(ProjectFilter);
   /** The filtered catalogue, rendered as the main column's `.table` rows. */
-  protected readonly projects = inject(ProjectFilter).projects;
+  protected readonly projects = this.filter.projects;
   /**
    * Experience and education for the lower half of the main column — the same
    * `GET /api/resume` payload the `/resume` page uses, so the two never disagree.

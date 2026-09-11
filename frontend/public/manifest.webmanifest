@@ -1,0 +1,15 @@
+{
+  "name": "Robert Oliver, Jr. — Software Engineer",
+  "short_name": "bobbylon",
+  "description": "Projects, live demos and resume of Robert Oliver, Jr., a software engineer working in identity & access management.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#161826",
+  "theme_color": "#161826",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

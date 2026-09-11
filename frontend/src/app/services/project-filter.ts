@@ -1,9 +1,12 @@
 import { afterNextRender, computed, inject, Injectable, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { Project } from '../models/project.model';
 import { ProjectService } from './project.service';
+
+/** How long {@link ProjectFilter.search} waits after the last keystroke before touching the URL. */
+const SEARCH_DEBOUNCE_MS = 200;
 
 /** One filterable technology: what its chip says and how many projects use it. */
 export interface TechFacet {
@@ -47,6 +50,12 @@ export function techFamily(tech: string): string {
  * forgiving rule `Landing` applies to an unknown `?layout=`, and it means no layout
  * ever has to render a "nothing matched" state.
  *
+ * A second, independent axis — `?q=` free-text search over name, tagline and stack
+ * — merges with `?tech=` the same way: both narrow the same {@link projects} list,
+ * a project must satisfy whichever of the two are set, and {@link search} (called
+ * from the search box's `(input)`, not a link) writes `?q=` the way a chip's
+ * `routerLink` writes `?tech=`.
+ *
  * The param is only honoured **after hydration** (`live`): `/` is prerendered at
  * build time with no query string, so filtering during the first render would hand
  * the browser markup that disagrees with the HTML it is adopting. Same reason
@@ -60,6 +69,8 @@ export class ProjectFilter {
    * same `?tech=` without threading it through three templates.
    */
   private readonly route = inject(ActivatedRoute);
+  /** Used by {@link search} to write `?q=` — a chip can use a plain `routerLink`, a live-typed search box cannot. */
+  private readonly router = inject(Router);
   /** The unfiltered catalogue; everything below is derived from it. */
   private readonly all = inject(ProjectService).projects;
 
@@ -75,6 +86,15 @@ export class ProjectFilter {
     this.route.queryParamMap.pipe(map((q) => q.get('tech'))),
     { initialValue: this.route.snapshot.queryParamMap.get('tech') },
   );
+
+  /** The raw `?q=` value as a signal, seeded the same way as {@link param}. */
+  private readonly queryParam = toSignal(
+    this.route.queryParamMap.pipe(map((q) => q.get('q'))),
+    { initialValue: this.route.snapshot.queryParamMap.get('q') },
+  );
+
+  /** Pending {@link search} write, so a fast typist only touches the URL once they pause. */
+  private searchTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     afterNextRender(() => this.live.set(true));
@@ -110,6 +130,19 @@ export class ProjectFilter {
   });
 
   /**
+   * The raw `?q=` text, exactly as typed (for redisplaying it in the search box —
+   * including after a browser Back restores an earlier search) — `''` before
+   * hydration or when the param is absent.
+   */
+  readonly queryText = computed(() => (this.live() ? (this.queryParam() ?? '') : ''));
+
+  /** {@link queryText} trimmed and lowercased for matching, or `undefined` when there is nothing to match. */
+  private readonly query = computed<string | undefined>(() => this.queryText().trim().toLowerCase() || undefined);
+
+  /** True once a tech chip, a search term, or both narrow the catalogue. */
+  readonly active = computed(() => !!this.selected() || !!this.query());
+
+  /**
    * The chips to render: the popular families, plus the selected one when a deep
    * link picked a technology too rare to have earned a chip — the active filter
    * always has a visible, clickable home.
@@ -120,14 +153,48 @@ export class ProjectFilter {
     return active && !facets.includes(active) ? [...facets, active] : facets;
   });
 
-  /** The projects to render, filtered; `undefined` until the catalogue loads. */
+  /**
+   * The projects to render: everything left after applying both axes — a project
+   * must match the selected tech family (if any) *and* contain the search text (if
+   * any) in its name, tagline or stack. `undefined` until the catalogue loads.
+   */
   readonly projects = computed<Project[] | undefined>(() => {
     const list = this.all();
-    const active = this.selected();
-    if (!list || !active) return list;
-    return list.filter((p) => p.techStack.some((t) => techFamily(t) === active.key));
+    if (!list) return list;
+    const tech = this.selected();
+    const q = this.query();
+    if (!tech && !q) return list;
+    return list.filter((p) => {
+      if (tech && !p.techStack.some((t) => techFamily(t) === tech.key)) return false;
+      return !q || this.matchesQuery(p, q);
+    });
   });
+
+  /** Whether `q` (already trimmed/lowercased) appears in a project's name, tagline or stack. */
+  private matchesQuery(project: Project, q: string): boolean {
+    return (
+      project.name.toLowerCase().includes(q) ||
+      project.tagline.toLowerCase().includes(q) ||
+      project.techStack.some((t) => t.toLowerCase().includes(q))
+    );
+  }
 
   /** How many projects exist in total, filtered or not — the "of 6" in "3 of 6". */
   readonly total = computed(() => this.all()?.length ?? 0);
+
+  /**
+   * Writes `?q=` from the search box as the visitor types, debounced so a fast
+   * typist produces one navigation per pause rather than one per keystroke. Landing
+   * is the only route `ProjectFilter` is used from, so the navigation targets it
+   * directly the way a tech chip's `routerLink="/"` does.
+   *
+   * @param value the search box's current text; an empty/whitespace value clears `?q=`
+   */
+  search(value: string): void {
+    clearTimeout(this.searchTimer);
+    const q = value.trim() || null;
+    this.searchTimer = setTimeout(() => {
+      void this.router.navigate(['/'], { queryParams: { q }, queryParamsHandling: 'merge', replaceUrl: true });
+    }, SEARCH_DEBOUNCE_MS);
+  }
 }
