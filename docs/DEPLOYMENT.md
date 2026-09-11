@@ -118,7 +118,7 @@ same way.
 
 `.github/workflows/ci.yml` runs on push/PR to `main` and on demand:
 backend `mvn -B verify` (13 tests) + Docker image build; frontend `npm ci`,
-`npm test -- --watch=false` (110 tests), then the backend is started (composite
+`npm test -- --watch=false` (114 tests), then the backend is started (composite
 action `.github/actions/start-backend`: build the jar, run it, wait for
 `/actuator/health`) and `npm run build` prerenders every route against it — the
 job fails if no `/projects/<id>` page came out. CI never deploys.

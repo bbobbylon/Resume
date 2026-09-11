@@ -54,8 +54,27 @@ describe('ProjectSearch', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: 'angular' },
       queryParamsHandling: 'merge',
-      replaceUrl: true,
+      replaceUrl: false,
     });
+    vi.useRealTimers();
+  });
+
+  it('drops a pending write when the box is destroyed, so leaving the page stays left', () => {
+    TestBed.configureTestingModule({
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+    });
+    const fixture = TestBed.createComponent(ProjectSearch);
+    fixture.detectChanges();
+    const navigateSpy = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+    const input = fixture.nativeElement.querySelector('input[type="search"]') as HTMLInputElement;
+
+    vi.useFakeTimers();
+    input.value = 'tess';
+    input.dispatchEvent(new Event('input'));
+    fixture.destroy(); // the visitor opened a project inside the debounce window
+    vi.advanceTimersByTime(200);
+
+    expect(navigateSpy).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
 });

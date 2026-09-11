@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { ProjectFilter } from '../../services/project-filter';
 import { SearchIcon } from '../icons/search';
 
@@ -12,8 +12,9 @@ import { SearchIcon } from '../icons/search';
  * against the catalogue; this component only renders the box.
  *
  * The `[value]` binding reads `filter.queryText()` rather than a local field, so the
- * box also follows the URL when it changes from outside a keystroke — a browser
- * Back/Forward through search history, or a deep link like `/?q=angular`.
+ * box also follows the URL when it changes from outside a keystroke — a Back out of a
+ * project detail page into the search that led there, or a deep link like
+ * `/?q=angular`.
  */
 @Component({
   selector: 'app-project-search',
@@ -54,4 +55,11 @@ import { SearchIcon } from '../icons/search';
 export class ProjectSearch {
   /** All of this component's state; the template reads and writes through it directly. */
   protected readonly filter = inject(ProjectFilter);
+
+  constructor() {
+    // Leaving the landing page destroys this box but not `ProjectFilter`, which is
+    // root-provided — so a write still sitting in the debounce would land after the
+    // visitor had already opened a project and pull them straight back out of it.
+    inject(DestroyRef).onDestroy(() => this.filter.cancelSearch());
+  }
 }

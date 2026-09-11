@@ -77,17 +77,24 @@ opens each project's live app.
 | FR-28 | Each technology in a project detail page's Stack list is a link to the landing page filtered to that technology, so a visitor can go from one project to its siblings without returning to the hub first. | `ProjectDetail`, `ProjectFilter` |
 | FR-29 | Every page starts with a "Skip to content" link that is off-screen until focused and moves keyboard focus into that page's single `<main>` landmark. | `App` |
 | FR-30 | Project detail pages carry schema.org JSON-LD in the prerendered HTML — the project as `SoftwareSourceCode` (with its repository, stack and live deployment as `targetProduct`) plus a `BreadcrumbList` — built from the same data the page renders. | `ProjectDetail`, `PageMeta` |
-| FR-31 | The landing page can be narrowed by free text: a search box beside the technology chips matches a project's name, tagline or any tech-stack entry, case-insensitively, and publishes the term as a `?q=` query parameter (debounced, merged with `?layout=` and `?tech=`, written with `replaceUrl` so one search does not bury the previous page in history). The two filter axes compose — a project must satisfy both when both are set — and each layout shows a "no match" message distinct from its empty-catalogue state. Like `?tech=`, it applies only after hydration. | `ProjectSearch`, `ProjectFilter`, `TechFilter` |
+| FR-31 | The landing page can be narrowed by free text: a search box beside the technology chips matches a project's name, tagline or any tech-stack entry, case-insensitively, and publishes the term as a `?q=` query parameter (debounced, merged with `?layout=` and `?tech=`). History is written so that Back means one thing: starting a search **pushes** an entry, refining or clearing one **replaces** it, so a single Back returns to the unfiltered list instead of either leaving the site or walking back through every word typed. A write still inside the debounce window is cancelled when the search box is destroyed, so opening a project mid-keystroke stays open. The two filter axes compose — a project must satisfy both when both are set — and each layout shows a "no match" message distinct from its empty-catalogue state. Like `?tech=`, it applies only after hydration. | `ProjectSearch`, `ProjectFilter`, `TechFilter` |
 | FR-32 | A visitor who saves the site to a home screen gets the site's own mark and a standalone window, not a screenshot thumbnail in a browser tab: a web app manifest declares the name, theme and `display: standalone`, backed by 192/512 and maskable icons plus an Apple touch icon. Scope is deliberately limited to that — there is **no service worker**, so there is no offline mode, no cache to invalidate, and no automatic Chrome install prompt (which requires one). | `manifest.webmanifest`, `index.html`, `scripts/icons.mjs` |
 
 ## 4. Non-Functional Requirements
 
-- **Performance.** Static frontend ≤ 400 kB raw initial JS (currently ~370 kB / ~96 kB
-  transferred). Lighthouse on the static build served with gzip, mobile emulation,
-  API unreachable: performance 99, accessibility 100, best practices 96, SEO 100;
-  FCP 1.7 s, LCP 1.9 s, CLS 0.01; 200 kB total transfer and no third-party host
-  (fonts self-hosted, screenshots WebP with `srcset`) (2026-09-04) — measured
-  before `GithubActivity` (FR-23) existed. That widget deliberately adds exactly
+- **Performance.** Static frontend ≤ 500 kB raw initial payload, enforced — the
+  budget lives in `frontend/angular.json` (`maximumWarning: 440kB`,
+  `maximumError: 500kB`), so `ng build` fails CI rather than merely documenting the
+  ceiling. Measured 2026-09-11: 415.15 kB raw / 106.43 kB transferred (401.65 kB JS
+  + 13.51 kB CSS). ~295 kB of that is the Angular runtime (`core` 150, `router` 79,
+  `common` 32, `rxjs` 21, `platform-browser` 14) and is effectively the floor; all
+  application code is ~100 kB. Routes are imported eagerly on purpose — every route
+  is prerendered, so a lazy chunk would delay *hydration* of a page whose HTML had
+  already arrived, which is the wrong trade here. Lighthouse on the static build
+  served with gzip, mobile emulation, API unreachable: performance 99, accessibility
+  100, best practices 96, SEO 100; FCP 1.7 s, LCP 1.9 s, CLS 0.01; 200 kB total
+  transfer and no third-party host (fonts self-hosted, screenshots WebP with
+  `srcset`) (2026-09-04) — measured before `GithubActivity` (FR-23) existed. That widget deliberately adds exactly
   one small, deferred, client-side call to `api.github.com` (chosen over an
   embeddable third-party stats-image service for this reason); it never blocks
   render, adds no bundled script, and fails silently, so its effect on the score
@@ -140,7 +147,7 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (110 tests) + `npm run build`, which must prerender every
+  frontend `ng test` (114 tests) + `npm run build`, which must prerender every
   project page. The owner's standing rule is that a red push is a defect in its own
   right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social

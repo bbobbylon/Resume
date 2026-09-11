@@ -42,7 +42,7 @@ Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
 
 ```bash
 cd backend  && mvn -B verify              # JUnit 5 + MockMvc slices (13 tests)
-cd frontend && npm test -- --watch=false  # Vitest / jsdom (110 tests across 24 files)
+cd frontend && npm test -- --watch=false  # Vitest / jsdom (114 tests across 24 files)
 cd frontend && npm run build              # prerenders every route + writes sitemap.xml
 ```
 
@@ -54,7 +54,7 @@ Every view is a URL, so anything you can see you can link or bookmark.
 |------|-----|-------|
 | Switch landing layout | The pill above the hero, or `?layout=ledger\|gallery\|dossier` | Default is `landingLayout` in `frontend/src/environments/`; an unknown value falls back to it |
 | Filter projects by technology | The chip row in the Projects section, or `?tech=Angular` | Matches by *family*, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page |
-| Search projects | The box beside the chips, or `?q=jwt` | Matches name, tagline and stack, case-insensitive; typing rewrites the URL (debounced), so Back walks your searches |
+| Search projects | The box beside the chips, or `?q=jwt` | Matches name, tagline and stack, case-insensitive; typing rewrites the URL (debounced). Starting a search adds one history entry, refining it replaces that entry, so a single Back always returns to the unfiltered list |
 | Command palette | `Ctrl+K` / `Cmd+K`, or the search button in the nav | Home, Resume, every project, both legal pages and a theme action; arrows move, Enter runs, Escape closes |
 | Light / dark | The sun/moon button in the nav | Follows the OS until you pick one; that choice is the only `localStorage` key the site writes |
 | Skip to content | `Tab` as the first keypress on any page | Moves focus (not just scroll) into that page's `<main>` |
@@ -173,7 +173,7 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
 <https://bobs-resume.onrender.com> (`/api/projects`, `/docs`). The last push
 (`d3e482e`) was green on both `CI` and `Deploy frontend to GitHub Pages`.
 
-- Backend and frontend build and pass their tests locally (13 backend, 110 frontend)
+- Backend and frontend build and pass their tests locally (13 backend, 114 frontend)
   and in CI; the Pages deploy and Dependabot run on GitHub.
 - Landing is browsable three ways (Ledger / Gallery / Dossier via the switcher or
   `?layout=`), filterable by technology (`?tech=`) and searchable (`?q=`), with a

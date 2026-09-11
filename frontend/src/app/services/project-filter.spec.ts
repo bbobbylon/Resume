@@ -172,14 +172,32 @@ describe('ProjectFilter', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: 'Angular' },
       queryParamsHandling: 'merge',
+      // Starting a search pushes: Back has to lead to the unfiltered list, not off the site.
+      replaceUrl: false,
+    });
+    vi.useRealTimers();
+  });
+
+  it('search() replaces rather than pushes while refining a search that is already on the URL', () => {
+    vi.useFakeTimers();
+    const { filter } = setup(null, projects, 'Ang');
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    filter.search('Angular');
+    vi.advanceTimersByTime(200);
+    expect(navigateSpy).toHaveBeenCalledWith(['/'], {
+      queryParams: { q: 'Angular' },
+      queryParamsHandling: 'merge',
+      // Otherwise one typed word would bury the unfiltered list a dozen entries deep.
       replaceUrl: true,
     });
     vi.useRealTimers();
   });
 
-  it('search() clears ?q= when the box is emptied', () => {
+  it('search() clears ?q= in place when the box is emptied', () => {
     vi.useFakeTimers();
-    const { filter } = setup(null);
+    const { filter } = setup(null, projects, 'jwt');
     const router = TestBed.inject(Router);
     const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 
@@ -190,6 +208,32 @@ describe('ProjectFilter', () => {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
+    vi.useRealTimers();
+  });
+
+  it('search() does not navigate at all when an empty box matches an empty URL', () => {
+    vi.useFakeTimers();
+    const { filter } = setup(null);
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    filter.search('a');
+    filter.search('   '); // typed and deleted again inside one debounce window
+    vi.advanceTimersByTime(200);
+    expect(navigateSpy).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('cancelSearch() drops a write that has not fired yet', () => {
+    vi.useFakeTimers();
+    const { filter } = setup(null);
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    filter.search('Angular');
+    filter.cancelSearch(); // the box went away — e.g. the visitor opened a project
+    vi.advanceTimersByTime(200);
+    expect(navigateSpy).not.toHaveBeenCalled();
     vi.useRealTimers();
   });
 });

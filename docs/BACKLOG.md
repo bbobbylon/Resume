@@ -122,6 +122,50 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — The performance budget is real now, and one dependency was fiction.
+  The SRS promised "≤ 400 kB raw initial JS (currently ~370 kB)"; a fresh measurement
+  says **415.15 kB raw / 106.43 kB transferred**, and nothing enforced the ceiling —
+  `angular.json` carried the CLI's default 500 kB warning / 1 MB error, so the app
+  could have doubled without a single build complaining. Budgets are now
+  `maximumWarning: 440kB` / `maximumError: 500kB`: roughly 25 kB of headroom before it
+  nags and 85 kB before `ng build` fails, which is enough for ordinary feature work
+  and not nearly enough to smuggle in a charting library. A breakdown of the bundle
+  (`ng build --stats-json`) shows why there is nothing to cut: ~295 kB is the Angular
+  runtime (`core` 150, `router` 79, `common` 32, `rxjs` 21, `platform-browser` 14) and
+  all application code together is ~100 kB. Lazy routes were reconsidered and rejected
+  again for a written-down reason: every route is prerendered, so a lazy chunk would
+  delay *hydration* of a page whose HTML has already arrived. Separately,
+  `@angular/forms` was in `package.json` and imported by nothing — an `ng new` default
+  that never got used. Removed: the bundle is unchanged (it was already tree-shaken
+  out), but `npm ci` installs one less package and Dependabot has one less thing to
+  open PRs about. Build and 114 tests green after both changes.
+
+- 2026-09-11 — Two real bugs in the `?q=` search, found by driving the running app in
+  a headless browser rather than by reading the code, and both about history rather
+  than matching:
+  1. **Back left the site.** The first search called `router.navigate` with
+     `replaceUrl: true`, so `/` → `/?q=jwt` consumed the only history entry the visit
+     had: `history.length` stayed at 2 and Back went to `about:blank`. `search()` now
+     pushes when `?q=` is *not* already on the URL and replaces only when it is, so the
+     first search is a step you can take back and refining one still doesn't stack an
+     entry per pause. Verified: `history.length` 2 → 3, Back lands on `/`; typing
+     "angular" across three separate pauses is still one entry, and one Back clears it.
+  2. **Clicking a project inside the debounce window bounced you back out of it.**
+     `ProjectFilter` is root-provided, so a pending 200 ms timer outlived the search
+     box that scheduled it — type "tess", click the TesseraApp card immediately, and a
+     moment later the navigation fired and returned you to `/?q=tess`. `ProjectSearch`
+     now cancels that write from `DestroyRef.onDestroy` via a new
+     `ProjectFilter.cancelSearch()`. Verified: the click sticks.
+
+  Plus a third, smaller one: typing a character and deleting it inside one debounce
+  window used to navigate to the URL the browser was already on, duplicating the
+  current history entry for nothing — `search()` now returns early when an empty box
+  matches an empty `?q=`. Five new tests cover the three cases and the two that
+  encoded the old behaviour were rewritten (114 frontend tests across 24 files, 13
+  backend). SRS FR-31, CODE-MAP, UI-DESIGN, the README's "Using the site" table and
+  the class doc comments all described the pre-fix behaviour and now state the rule
+  they implement: **Back means return to the unfiltered list**.
+
 - 2026-09-11 — WebsiteHub lists itself as `LIVE`, and `npm start` actually works. Two
   things the doc pass turned up by checking claims against reality:
   1. **The site advertised itself as `WIP` with no live URL** while a visitor was

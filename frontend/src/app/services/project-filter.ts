@@ -93,7 +93,7 @@ export class ProjectFilter {
     { initialValue: this.route.snapshot.queryParamMap.get('q') },
   );
 
-  /** Pending {@link search} write, so a fast typist only touches the URL once they pause. */
+  /** Pending {@link search} write, so a fast typist only touches the URL once they pause; {@link cancelSearch} drops it. */
   private searchTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
@@ -130,9 +130,9 @@ export class ProjectFilter {
   });
 
   /**
-   * The raw `?q=` text, exactly as typed (for redisplaying it in the search box —
-   * including after a browser Back restores an earlier search) — `''` before
-   * hydration or when the param is absent.
+   * The raw `?q=` text, exactly as typed, for redisplaying it in the search box —
+   * including after a Back from a project detail page returns to the search that
+   * led there. `''` before hydration or when the param is absent.
    */
   readonly queryText = computed(() => (this.live() ? (this.queryParam() ?? '') : ''));
 
@@ -188,13 +188,37 @@ export class ProjectFilter {
    * is the only route `ProjectFilter` is used from, so the navigation targets it
    * directly the way a tech chip's `routerLink="/"` does.
    *
+   * History is the subtle part, and the rule is that Back means exactly one thing:
+   * *return to the full list*. Starting a search pushes an entry (otherwise Back
+   * from a search leaves the site entirely, since the search replaced the only entry
+   * there was); refining or clearing one replaces (otherwise a seven-letter word
+   * typed in four pauses buries the full list four entries deep).
+   *
    * @param value the search box's current text; an empty/whitespace value clears `?q=`
    */
   search(value: string): void {
     clearTimeout(this.searchTimer);
     const q = value.trim() || null;
+    // Typed and deleted again inside one debounce window: the URL already says what
+    // the box says, and navigating would only duplicate the current history entry.
+    if (!q && !this.queryParam()) return;
     this.searchTimer = setTimeout(() => {
-      void this.router.navigate(['/'], { queryParams: { q }, queryParamsHandling: 'merge', replaceUrl: true });
+      void this.router.navigate(['/'], {
+        queryParams: { q },
+        queryParamsHandling: 'merge',
+        // Push the first search, replace every edit of it — see the note above.
+        replaceUrl: !!this.queryParam(),
+      });
     }, SEARCH_DEBOUNCE_MS);
+  }
+
+  /**
+   * Drops a {@link search} write that has not fired yet. `ProjectFilter` is
+   * root-provided, so a pending timer outlives the box that scheduled it: without
+   * this, clicking a project within the debounce window would navigate the visitor
+   * back to the landing page a moment after they left it.
+   */
+  cancelSearch(): void {
+    clearTimeout(this.searchTimer);
   }
 }
