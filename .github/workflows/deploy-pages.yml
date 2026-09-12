@@ -21,6 +21,15 @@ name: Deploy frontend to GitHub Pages
 # DevTools protocol via puppeteer-core, printing the already-static /resume
 # page) so it can never drift from the seed data — best-effort, so a Chrome
 # hiccup never fails the deploy.
+#
+# Action versions: all seven were on the deprecated Node 20 runtime until
+# 2026-09-12 and were being force-run on Node 24, including the two that publish
+# the site (upload-pages-artifact, which pulls upload-artifact, and deploy-pages).
+# These majors are the Node 24 lines. Two are worth knowing about before touching
+# them again: upload-pages-artifact v4+ drops hidden files from the artifact (the
+# build output has none — checked), and setup-chrome v2 installs Chrome for
+# Testing at a new path, which is fine only because the step below reads the
+# action's own `chrome-path` output rather than assuming a location.
 on:
   push:
     branches: [main]
@@ -40,16 +49,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
         with:
           enablement: true
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -89,7 +98,7 @@ jobs:
         run: kill "$BACKEND_PID" 2>/dev/null || true
       - name: Set up Chrome (for regenerating resume.pdf)
         id: setup-chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
       - name: Regenerate resume.pdf from the build (best-effort; never lags the seed data)
         working-directory: frontend
         env:
@@ -125,7 +134,7 @@ jobs:
           # land on the not-found page instead of GitHub's.
           cp index.csr.html 404.html
           if [ -n "$CNAME" ]; then echo "$CNAME" > CNAME; fi
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: frontend/dist/frontend/browser
 
@@ -137,4 +146,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
