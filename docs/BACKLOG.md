@@ -226,18 +226,29 @@ the top of each section. Dates are when the item was added. See
   That divergence produces no red run; it produces a production-only failure
   later, which is the worst shape a CI problem can take here.
 
-  Both images now carry a semver-major `ignore` rule — the same guard, and the
-  same reasoning, already written in that file for Angular, TypeScript and
-  vitest: when a version is pinned by something outside the manifest, a blind
-  bump is noise at best. The comment records what lifting them requires
-  (`pom.xml`, both workflows' `setup-java` steps and both image tags moving
-  together) so it reads as a deferred decision, not an oversight. **Moving to
-  Java 25 LTS is a real option whenever you want it — it is a project decision,
-  not a chore.** `0487ceb`.
+  Both images now carry an `ignore` rule — the same guard, and the same
+  reasoning, already written in that file for Angular, TypeScript and vitest:
+  when a version is pinned by something outside the manifest, a blind bump is
+  noise at best. The comment records what lifting them requires (`pom.xml`, both
+  workflows' `setup-java` steps and both image tags moving together) so it reads
+  as a deferred decision, not an oversight. **Moving to Java 25 LTS is a real
+  option whenever you want it — it is a project decision, not a chore.**
 
-  Dependabot closes an ignored PR on its next evaluation rather than instantly,
-  so #1 and #2 (and #3–#7, now that the versions they propose are already in the
-  workflows) should disappear on their own.
+  The two rules are deliberately different shapes, and finding out why took
+  watching what Dependabot actually did with them. `0487ceb` gave both a
+  `semver-major` ignore. Within minutes Dependabot closed **six** PRs — #3–#7
+  (the action bumps, now already in the workflows) and #1, `eclipse-temurin`
+  21-jre → 25-jre, a real major — but **left #2 open**. The tag is the reason:
+  Dependabot reads `3.9-eclipse-temurin-21` as version `3.9`, so the proposed
+  `3-eclipse-temurin-26` reads as 3.9 → 3, not an increase at all, and the JDK
+  that actually changed lives in the suffix where no `update-types` filter can
+  see it. `maven` therefore takes an unconditional ignore instead,
+  which costs nothing: that tag already floats, so every `docker build` picks up the
+  newest 3.9.x on JDK 21 regardless.
+
+  Worth generalising: an `update-types` filter only works when the thing you
+  care about is the part of the tag Dependabot parses as the version. For images
+  whose tag encodes two toolchains, it usually is not.
 
 - 2026-09-11 — Three SEO defects on the live site, all in the head, none visible to
   anyone reading the page. Found by reading the deployed HTML rather than the source:

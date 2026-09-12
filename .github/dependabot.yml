@@ -59,11 +59,12 @@ updates:
   # verify a JDK 21 build while a JDK 26 build is what deploys — the toolchain
   # divergence would not show up until something broke in production.
   #
-  # So majors are ignored here, as they are for Angular and TypeScript above and
-  # for the same reason: the bump is a decision about the project, not about the
-  # dependency. Moving to a newer LTS means pom.xml, both workflows' setup-java
-  # steps and both image tags changing together, deliberately. Lift these two
-  # rules as part of that, not before it.
+  # So both are ignored here, as Angular and TypeScript are above and for the same
+  # reason: the bump is a decision about the project, not about the dependency.
+  # Moving to a newer LTS means pom.xml, both workflows' setup-java steps and both
+  # image tags changing together, deliberately. Lift these rules as part of that,
+  # not before it. The two entries below are shaped differently on purpose — see
+  # the note on `maven`.
   - package-ecosystem: docker
     directory: /backend
     schedule:
@@ -71,8 +72,17 @@ updates:
     ignore:
       - dependency-name: "eclipse-temurin"
         update-types: ["version-update:semver-major"]
+      # `maven` needs the blunt rule, and the reason is worth keeping. The tag is
+      # `3.9-eclipse-temurin-21`, and Dependabot reads its version as `3.9` — the
+      # JDK lives in the suffix, invisible to any `update-types` filter. So its
+      # proposal (#2, `3-eclipse-temurin-26`) reads as 3.9 → 3, not an increase
+      # at all, and a semver-major ignore never matched it: #1 closed the moment
+      # the rule above landed, #2 did not. Blocking every update is no real loss
+      # either way, because `3.9-eclipse-temurin-21` already floats — each
+      # `docker build` pulls the newest 3.9.x on JDK 21 without anyone's help.
+      # The only thing Dependabot can add here is a change to the two numbers
+      # that are deliberate, so it has nothing to offer.
       - dependency-name: "maven"
-        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
