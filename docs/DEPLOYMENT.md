@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.2 |
+| **Version** | 0.4.3 |
 | **Date** | 2026-09-11 (provider limits in §1 were verified against vendor docs on 2026-09-04 — re-check before relying on them) |
 | **State** | Both halves are live: <https://bbobbylon.github.io/Resume/> and <https://bobs-resume.onrender.com>. §3 is done except the optional custom domain. |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) |
@@ -118,7 +118,7 @@ same way.
 
 `.github/workflows/ci.yml` runs on push/PR to `main` and on demand:
 backend `mvn -B verify` (13 tests) + Docker image build; frontend `npm ci`,
-`npm test -- --watch=false` (116 tests), then the backend is started (composite
+`npm test -- --watch=false` (120 tests), then the backend is started (composite
 action `.github/actions/start-backend`: build the jar, run it, wait for
 `/actuator/health`) and `npm run build` prerenders every route against it — the
 job fails if no `/projects/<id>` page came out. CI never deploys.

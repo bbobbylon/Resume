@@ -41,6 +41,24 @@ describe('PageMeta', () => {
     expect(document.querySelector('script[type="application/ld+json"]')).toBeNull();
   });
 
+  it('writes one canonical link per page, and moves it rather than stacking links', () => {
+    const meta = TestBed.inject(PageMeta);
+    meta.apply({ title: 'A', description: 'a', path: '/' });
+    expect(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe(`${environment.siteUrl}/`);
+    meta.apply({ title: 'B', description: 'b', path: '/resume/' });
+    const links = document.querySelectorAll<HTMLLinkElement>('link[rel="canonical"]');
+    expect(links.length).toBe(1);
+    expect(links[0].href).toBe(`${environment.siteUrl}/resume/`);
+  });
+
+  it('canonicalises to the clean route, so the filtered landing page does not compete with /', () => {
+    // The layout switcher and the stack chips put ?layout=, ?tech= and ?q= links in
+    // the prerendered HTML. `Landing` applies `path: '/'` once, whatever the query
+    // string says, and that is what stops a crawler indexing a dozen near-copies.
+    TestBed.inject(PageMeta).apply({ title: 'Home', description: 'h', path: '/' });
+    expect(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toBe(`${environment.siteUrl}/`);
+  });
+
   it('builds absolute URLs on the site origin, with or without a leading slash', () => {
     const meta = TestBed.inject(PageMeta);
     expect(meta.absolute('/projects/x/')).toBe(`${environment.siteUrl}/projects/x/`);

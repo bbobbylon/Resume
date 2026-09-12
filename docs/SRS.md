@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.2 (prerendered) |
+| **Version** | 0.4.3 (prerendered) |
 | **Date** | 2026-09-11 |
 | **Status** | Live — frontend on GitHub Pages, API on Render (see [DEPLOYMENT.md](DEPLOYMENT.md)). Remaining work is incremental; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
@@ -64,7 +64,7 @@ opens each project's live app.
 | FR-15 | The API publishes an OpenAPI 3.1 document at `/v3/api-docs` (the four `/api` paths only) and Swagger UI at `/docs`. | `OpenApiConfig`, controllers |
 | FR-16 | The frontend shows build-time data immediately — the prerendered page's `TransferState`, else the deploy-time snapshot — and lets the live API response replace it. | `Api`, `scripts/snapshot.mjs` |
 | FR-17 | Every route is prerendered to static HTML at build time (`/`, `/resume`, each `/projects/<id>` the API lists) and hydrated in the browser; an id unknown at build time renders client-side. | `app.routes.server.ts`, `main.server.ts` |
-| FR-18 | Each page sets its own `<title>`, meta description and Open Graph/Twitter tags; a project page uses its first screenshot (1200×630 JPEG) as the preview image. | `PageMeta` |
+| FR-18 | Each page sets its own `<title>`, meta description, `<link rel="canonical">` and Open Graph/Twitter tags; a project page uses its first screenshot (1200×630 JPEG) as the preview image and its own `description` (not the tagline and the description joined, which restated itself and overran the ~160 characters a search result shows). The canonical is always the clean route, never the query string: the layout switcher and the stack chips put `?layout=`, `?tech=` and `?q=` links in the prerendered HTML, so a crawler finds a dozen near-copies of the landing page unless something says which one counts. The 404 route sets its own tags too, so it cannot inherit — and canonicalise itself to — the page a visitor came from. | `PageMeta`, `NotFound` |
 | FR-19 | Screenshots are served as WebP with an 800 px `srcset` variant; the first image on a page loads eagerly with high fetch priority, the rest lazily. | `ProjectImage`, `scripts/screenshots.mjs` |
 | FR-20 | `sitemap.xml` is generated from the prerendered routes on every build. | `scripts/sitemap.mjs` |
 | FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
@@ -163,7 +163,7 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (116 tests) + `npm run build`, which must prerender every
+  frontend `ng test` (120 tests) + `npm run build`, which must prerender every
   project page. The owner's standing rule is that a red push is a defect in its own
   right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social

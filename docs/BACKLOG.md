@@ -63,6 +63,34 @@ the top of each section. Dates are when the item was added. See
   component bug; the fix was to stop overclaiming in the label and to check it from
   Node instead (see Done, below).
 
+- [ ] **Dependabot PR #13's CI run is red, and the log needs your account to read**
+  (2026-09-11). `dependabot/npm_and_yarn/frontend/dev-tooling-20778f8f88`, run
+  34674475259: the `frontend` job fails at **Install dependencies**, so the test and
+  build steps never ran. What was ruled out from here: `npm ci` against that exact
+  `package.json` + `package-lock.json` succeeds locally (exit 0, 482 packages), and
+  the Node version is fine — `setup-node@v4` with `'22'` installs 22.23.2, which
+  satisfies jsdom 30's `^22.22.2`. That leaves either something Linux-specific or a
+  transient registry error, and the job log would say which in one line. The logs
+  endpoint returns 403 without repo-admin rights, so this needs one click from you:
+  open the run, read the failing step, and re-run it if it looks transient.
+
+  Separately, that PR could not have merged either way — it proposes `vitest ^5.0.0`
+  while `@angular/build@21.2.23` declares `vitest ^4.0.8` as its peer and the test
+  runner *is* Angular's builder. `.github/dependabot.yml` now ignores vitest majors
+  so the group stops re-proposing it weekly (see Done).
+
+- [ ] **The workflows are on actions that target the deprecated Node 20** (surfaced
+  2026-09-11 by reading a run's annotations). Every run — green ones included —
+  carries: "Node.js 20 is deprecated. The following actions target Node.js 20 but are
+  being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4,
+  actions/setup-node@v4", plus "setup-java v4 is deprecated and will no longer
+  receive updates." They still work today; the forcing is GitHub's grace period.
+  Dependabot already has the PRs open — #6 (checkout 4→7), #7 (setup-node 4→7), #4
+  (setup-java 4→6), #3 (configure-pages 5→6), #5 (deploy-pages 4→5). Left for you
+  deliberately: these are major bumps to the steps that *do the deploy*, and your
+  standing rule is that a real run has to prove a CI change, not a local test. Merge
+  them one at a time and watch each deploy rather than all five at once.
+
 - [ ] **`dev-learning-hub`'s "Code" link 404s** (suspected 2026-09-05, confirmed
   2026-09-11). `https://github.com/bbobbylon/OOPFundamentals` returns 404 to anyone
   who is not signed in as the owner, while its Pages site at
@@ -150,6 +178,54 @@ the top of each section. Dates are when the item was added. See
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-09-11 — Three SEO defects on the live site, all in the head, none visible to
+  anyone reading the page. Found by reading the deployed HTML rather than the source:
+
+  1. **Project pages said the same thing twice.** The meta description was the
+     tagline and the description joined, and for most projects those restate each
+     other — TesseraApp's ran "Zero-trust CIAM: revocable JWT sessions, TOTP MFA,
+     OAuth2/OIDC federation. Zero-trust CIAM platform: revocable JWT sessions,
+     in-house TOTP MFA, OAuth2/OIDC federation with Google, GitHub and Microsoft,
+     org-scoped RBAC." at 218 characters. A search result renders about 160, so the
+     stutter *was* the snippet, on the flagship project. Now the `description` alone:
+     143 characters, reads once, and matches what the page's JSON-LD already used —
+     which is what `structuredData`'s own doc comment had claimed all along.
+     Measured across all six: the join ran 139–234 characters, `description` alone
+     runs 76–173.
+  2. **No page had a `<link rel="canonical">`.** That matters more here than on a
+     typical site: the layout switcher and every stack chip put `?layout=gallery`,
+     `?layout=dossier`, `?tech=<anything>` and `?q=` links into the *prerendered*
+     HTML, and robots.txt allows all of it — so a crawler finds a dozen near-copies
+     of the landing page competing with `/`. `PageMeta` now writes one canonical
+     from the same clean `path` it already used for `og:url`, so the query-string
+     variants all point home. Managed by hand next to the JSON-LD block, for the same
+     reason: `Meta` covers `<meta>` only.
+  3. **The 404 route inherited whatever page you came from.** `NotFound` never called
+     `PageMeta`, so a client-side navigation into a bad URL kept the last page's
+     title and description — the tab would read "TesseraApp — Robert Oliver, Jr."
+     while the page said there was nothing there — and with canonical added it would
+     have pointed a not-found page at a real one. It now describes itself.
+
+  Verified in the built output, not just in tests: every prerendered route carries a
+  canonical, `index.csr.html` (the 404 shell) carries none, and the deploy's blanket
+  `sed` over `*.html`/`*.js` rewrites the placeholder origin in the canonical exactly
+  as it already did for `og:url`, so the live site cannot end up pointing at a domain
+  it is not served from. Four new tests (120 now).
+
+- 2026-09-11 — Dependabot will stop proposing a vitest major it cannot land.
+  `@angular/build@21.2.23` declares `vitest ^4.0.8` as a peer, and the test runner is
+  Angular's builder rather than vitest's own CLI, so a vitest 5 bump is an `ng update`
+  question, not a version bump. The dev-tooling group proposed `vitest ^5.0.0` anyway
+  (PR #13). `.github/dependabot.yml` now ignores vitest majors — the same guard, and
+  the same reasoning, the file already documents for Angular and TypeScript. Lift it
+  when Angular widens the peer range.
+
+  This is not a claim about why that PR's CI went red: the run fails at "Install
+  dependencies" and the log needs repo-admin rights to read. `npm ci` against that
+  branch's exact lockfile succeeds locally, and `setup-node@v4` with `'22'` installs
+  22.23.2, which satisfies jsdom 30's `^22.22.2` — so the two obvious culprits are
+  both ruled out. Filed above for the owner, who can read the log.
 
 - 2026-09-11 — The site was telling visitors a dead project was fine. `LiveStatus`
   labelled any answer "Up now", and `https://tesseraapp.dev` — the flagship card,

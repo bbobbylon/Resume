@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Nav } from '../../shared/nav/nav';
 import { Footer } from '../../shared/footer/footer';
+import { PageMeta } from '../../services/page-meta';
 
 /**
  * The `**` route. On GitHub Pages every unknown path serves a copy of index.html,
@@ -38,4 +39,16 @@ import { Footer } from '../../shared/footer/footer';
 export class NotFound {
   /** The path the visitor asked for, relative to the app's base href. */
   protected readonly path = inject(Location).path() || '/';
+
+  constructor() {
+    // Without this the 404 route keeps whatever the previous page set — its title,
+    // its description, its canonical URL — so a visitor who mistypes a link from a
+    // project page sees that project's name in the tab while the page tells them
+    // nothing is here, and the canonical would point a not-found page at a real one.
+    inject(PageMeta).apply({
+      title: 'Page not found — Robert Oliver, Jr.',
+      description: 'There is nothing at this address on Robert Oliver, Jr.’s portfolio.',
+      path: this.path,
+    });
+  }
 }

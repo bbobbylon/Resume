@@ -59,12 +59,13 @@ export class PageMeta {
   apply({ title, description, path, image, jsonLd }: PageMetaInput): void {
     const img = image ?? { url: 'og.png', width: 1200, height: 630, alt: 'WebsiteHub landing page' };
     const imageUrl = this.absolute(img.url);
+    const pageUrl = this.absolute(path);
     this.title.setTitle(title);
     const tags: Array<[attr: 'name' | 'property', key: string, content: string]> = [
       ['name', 'description', description],
       ['property', 'og:title', title],
       ['property', 'og:description', description],
-      ['property', 'og:url', this.absolute(path)],
+      ['property', 'og:url', pageUrl],
       ['property', 'og:image', imageUrl],
       ['property', 'og:image:width', String(img.width)],
       ['property', 'og:image:height', String(img.height)],
@@ -76,7 +77,31 @@ export class PageMeta {
     for (const [attr, key, content] of tags) {
       this.meta.updateTag({ [attr]: key, content }, `${attr}="${key}"`);
     }
+    this.setCanonical(pageUrl);
     this.setJsonLd(jsonLd);
+  }
+
+  /**
+   * Points this page at the one URL it should be indexed under.
+   *
+   * The landing page is reachable as `/`, `/?layout=gallery`, `/?layout=dossier`,
+   * `/?tech=Angular`, `/?q=api` and every combination of those — and those are real
+   * `<a href>`s in the prerendered HTML (the layout switcher, the stack chips), so a
+   * crawler follows them and finds a dozen near-identical pages competing with each
+   * other. The canonical link collapses them back onto `/`. It works because `path`
+   * is always the clean route and never the query string.
+   *
+   * Managed by hand for the same reason as the JSON-LD block: {@link Meta} covers
+   * `<meta>` only, and this is a `<link>`.
+   *
+   * @param url the absolute URL this page should be indexed as
+   */
+  private setCanonical(url: string): void {
+    const existing = this.doc.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const link = existing ?? this.doc.createElement('link');
+    link.setAttribute('rel', 'canonical');
+    link.setAttribute('href', url);
+    if (!existing) this.doc.head.appendChild(link);
   }
 
   /**

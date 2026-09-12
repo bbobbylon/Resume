@@ -63,6 +63,19 @@ describe('ProjectDetail', () => {
     expect(crumbs.itemListElement.map((i: { name: string }) => i.name)).toEqual(['Projects', 'TesseraApp']);
   });
 
+  it('describes itself once, not the tagline and the description back to back', async () => {
+    const { fixture, http } = setup('tesseraapp');
+    http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);
+    http.match(() => true).forEach((r) => { if (!r.cancelled) r.flush({}); }); // a live flush cancels its snapshot twin
+    await fixture.whenStable();
+
+    // The two fields restate each other, so joining them read as a stutter and blew
+    // past the ~160 characters a search result renders. The description alone is the
+    // snippet, and it is what the JSON-LD above already used.
+    expect(document.querySelector<HTMLMetaElement>('meta[name="description"]')?.content).toBe('d');
+    expect(document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toContain('/projects/tesseraapp/');
+  });
+
   it('turns each stack tag into a link to the landing page filtered to that technology', async () => {
     const { fixture, http } = setup('tesseraapp');
     http.expectOne((r) => r.url.endsWith('/api/projects')).flush([tessera]);

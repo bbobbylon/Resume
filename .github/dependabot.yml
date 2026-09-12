@@ -9,6 +9,14 @@
 # blind npm version bump, so major versions are left for a human to do
 # deliberately; Dependabot here only auto-proposes minor/patch, which stay
 # peer-compatible within a major line.
+#
+# `vitest` is the same story one layer down and was missed the first time:
+# @angular/build declares `vitest ^4.0.8` as a peer, and the test runner is
+# Angular's builder, not vitest's CLI. The dev-tooling group duly proposed
+# vitest ^5.0.0 on 2026-09-11 (PR #13) — a PR that could not have merged
+# whatever CI said, because the builder is written against vitest 4's API.
+# Majors are ignored here too, so the group stops re-proposing it every week;
+# lift this when Angular widens that peer range.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -30,6 +38,8 @@ updates:
       - dependency-name: "@angular-builders/*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "vitest"
         update-types: ["version-update:semver-major"]
   - package-ecosystem: maven
     directory: /backend

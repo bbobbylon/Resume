@@ -78,11 +78,22 @@ export class ProjectDetail {
     return list[(i + 1) % list.length];
   });
 
-  /** Title + social tags for a found project; its social image follows the shots naming convention. */
+  /**
+   * Title + social tags for a found project; its social image follows the shots
+   * naming convention.
+   *
+   * The description is the project's `description` alone. It used to be the tagline
+   * and the description joined, which read as a stutter — the two say the same thing
+   * in different words ("Zero-trust CIAM: revocable JWT sessions, TOTP MFA…" followed
+   * by "Zero-trust CIAM platform: revocable JWT sessions, in-house TOTP MFA…") — and
+   * the join ran to 218 characters, well past the ~160 a search result renders, so
+   * the repeat was most of what anyone actually saw. `description` alone fits, reads
+   * once, and matches what {@link structuredData} below already used.
+   */
   private describe(project: Project): void {
     this.pageMeta.apply({
       title: `${project.name} — Robert Oliver, Jr.`,
-      description: `${project.tagline.replace(/\.$/, '')}. ${project.description}`,
+      description: project.description,
       path: `/projects/${project.id}/`,
       image: project.imageUrls.length
         ? { url: `shots/${project.id}-social.jpg`, width: 1200, height: 630, alt: `${project.name} screenshot` }

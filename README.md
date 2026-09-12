@@ -42,7 +42,7 @@ Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
 
 ```bash
 cd backend  && mvn -B verify              # JUnit 5 + MockMvc slices (13 tests)
-cd frontend && npm test -- --watch=false  # Vitest / jsdom (116 tests across 24 files)
+cd frontend && npm test -- --watch=false  # Vitest / jsdom (120 tests across 24 files)
 cd frontend && npm run build              # prerenders every route + writes sitemap.xml
 ```
 
