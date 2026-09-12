@@ -48,10 +48,31 @@ updates:
     directory: /backend
     schedule:
       interval: weekly
+  # Both images in backend/Dockerfile carry a Java version, and that version is
+  # not theirs to choose: pom.xml pins <java.version>21</java.version> and all
+  # three setup-java steps install 21. Dependabot does not read either, so it
+  # proposed eclipse-temurin 21-jre → 25-jre (PR #1) and maven 3.9-temurin-21 →
+  # 3-temurin-26 (PR #2), both open and unmergeable since 2026-09-05.
+  #
+  # The second is the dangerous one. The Dockerfile's build stage is what
+  # actually compiles the jar that ships to Render, so taking it would have CI
+  # verify a JDK 21 build while a JDK 26 build is what deploys — the toolchain
+  # divergence would not show up until something broke in production.
+  #
+  # So majors are ignored here, as they are for Angular and TypeScript above and
+  # for the same reason: the bump is a decision about the project, not about the
+  # dependency. Moving to a newer LTS means pom.xml, both workflows' setup-java
+  # steps and both image tags changing together, deliberately. Lift these two
+  # rules as part of that, not before it.
   - package-ecosystem: docker
     directory: /backend
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "maven"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
