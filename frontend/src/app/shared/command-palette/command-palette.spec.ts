@@ -27,6 +27,12 @@ describe('CommandPalette', () => {
     return { fixture, http, palette: TestBed.inject(CommandPaletteService), router: TestBed.inject(Router) };
   }
 
+  beforeEach(() => {
+    // jsdom has no scrollIntoView at all, and the palette calls it to keep the
+    // highlighted row visible in the scrolling list.
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
   afterEach(() => {
     document.body.style.overflow = '';
   });
@@ -88,6 +94,22 @@ describe('CommandPalette', () => {
 
     expect(navigateSpy).toHaveBeenCalledWith(['/resume']);
     expect(palette.open()).toBe(false);
+  });
+
+  it('scrolls the highlighted row into view, so wrapping past the fold stays visible', async () => {
+    const { fixture, palette } = setup();
+    palette.show();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView');
+    keydown({ key: 'ArrowUp' }); // wraps from Home (0) to the last row, Toggle theme
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(scrollIntoView).toHaveBeenCalled();
+    const row = scrollIntoView.mock.contexts.at(-1) as HTMLElement;
+    expect(row.id).toBe('cp-opt-action-theme');
   });
 
   it('Escape closes the palette', async () => {

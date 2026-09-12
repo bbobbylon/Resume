@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Component, ElementRef, HostListener, PLATFORM_ID, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, PLATFORM_ID, afterRenderEffect, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommandPaletteService } from '../../services/command-palette';
 import { ProjectService } from '../../services/project.service';
@@ -137,6 +137,17 @@ export class CommandPalette {
         this.lastFocused?.focus();
         this.lastFocused = null;
       }
+    });
+
+    // The list scrolls (`.cp-panel` is capped at 60vh), and real focus never leaves
+    // the input — so the browser will not follow the arrow keys for us the way it
+    // does for a normal focus ring. Without this, ArrowUp from the first row wraps
+    // to the last and the highlight lands somewhere off-screen: the visitor presses
+    // Enter on a row they cannot see. Runs after render so the row exists, and only
+    // in the browser, which is what `afterRenderEffect` guarantees.
+    afterRenderEffect(() => {
+      const id = this.activeId();
+      if (id) this.doc.getElementById(id)?.scrollIntoView({ block: 'nearest' });
     });
   }
 

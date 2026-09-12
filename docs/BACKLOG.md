@@ -122,6 +122,31 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — The Ctrl+K palette's highlight can no longer end up somewhere the
+  visitor cannot see. The palette moves a *virtual* cursor — `aria-activedescendant`
+  on the search input, which never loses real focus — and that is what lets the focus
+  trap be a one-line `Tab` swallow. The cost, which had not been paid: a browser only
+  scrolls for the element it is actually focusing, so nothing scrolled the list. The
+  panel is capped at `60vh` with `.cp-results { overflow-y: auto }`, so on a 600 px-tall
+  window the eleven rows (two pages, six projects, two legal pages, one action) are
+  475 px of content in a 308 px box — and ArrowUp from the first row, which wraps to
+  the last, highlighted a row four rows below the fold. Fixed with an
+  `afterRenderEffect` that calls `scrollIntoView({ block: 'nearest' })` on the active
+  row. Verified in a real browser at 1100×600: ArrowUp now scrolls the list to 159 and
+  "Toggle theme" is inside the viewport; three ArrowDowns wrap back and scroll to 8.
+  One new test (115 total); jsdom implements no `scrollIntoView` at all, so the spec
+  installs one and asserts which row was scrolled to.
+
+  Also corrected a false claim in `app.routes.ts`: GitHub Pages serves **404.html**,
+  not index.html, for a path it has no file for. The fallback works — the deploy
+  workflow has been copying `index.csr.html` to `404.html` all along, and
+  `/Resume/projects/does-not-exist` was confirmed live to return the app shell with a
+  404 status — but the comment described a mechanism that does not exist, which is the
+  kind of thing that gets "simplified" away later. The eager-import rationale in the
+  same comment was rewritten too: the real reason is that a lazy chunk would delay
+  hydration of an already-painted prerendered page, not that round-trips are
+  expensive.
+
 - 2026-09-11 — The performance budget is real now, and one dependency was fiction.
   The SRS promised "≤ 400 kB raw initial JS (currently ~370 kB)"; a fresh measurement
   says **415.15 kB raw / 106.43 kB transferred**, and nothing enforced the ceiling —

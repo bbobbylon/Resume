@@ -14,13 +14,21 @@ import { PrivacyPage } from './pages/legal/privacy';
  * - `/resume`        — the in-app resume.
  * - `/projects/:id`  — one project's detail page (`:id` is the backend's slug id).
  * - `/terms`, `/privacy` — the two legal pages every footer links to.
- * - anything else    — a not-found page (GitHub Pages serves index.html for unknown
- *                       paths, so the app boots and lands here).
+ * - anything else    — a not-found page. GitHub Pages serves `404.html` (not
+ *                       index.html) for a path it has no file for; the Pages
+ *                       workflow copies the client-render shell there, so the app
+ *                       boots and the router lands on this route — with a real 404
+ *                       status, which is the right answer for a page that is
+ *                       genuinely missing.
  *
- * Components are imported eagerly: the whole app is a few hundred kB and a handful
- * of routes, so lazy `loadComponent` chunks would cost more round-trips than they
- * save. Each route is also prerendered (app.routes.server.ts), so the first paint of
- * any of them is finished HTML, not a bundle download.
+ * Components are imported eagerly, and the reason is prerendering rather than size:
+ * every route here is built to static HTML (app.routes.server.ts), so its first
+ * paint is finished markup, not a bundle download — but *hydration* still needs the
+ * component, and a `loadComponent` chunk would make a page that has already painted
+ * wait on a second round-trip before it became interactive. The size argument points
+ * the same way: all six route components — the three landing layouts included — are
+ * ~66 kB of a ~400 kB bundle that is otherwise the Angular runtime (~295 kB), so
+ * there is not much to defer anyway.
  */
 export const routes: Routes = [
   { path: '', component: Landing, title: 'Robert Oliver, Jr. — Software Engineer' },

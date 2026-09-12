@@ -70,7 +70,7 @@ opens each project's live app.
 | FR-21 | The project detail page shows whether the project's live URL answers right now — checking, up, or not reachable — probed from the visitor's browser. | `LiveStatus` |
 | FR-22 | Route changes cross-fade where the browser supports view transitions; the fade is skipped under reduced motion. | `app.config.ts` |
 | FR-23 | The landing page shows the most recent recognized public GitHub event (push, PR, issue, star, fork or release) for `environment.githubUsername`, fetched live client-side from GitHub's public REST API; nothing renders on a rate limit, network error, or no public activity in the last 90 days. Up to four further recent events sit behind a "+N more" disclosure that closes on Escape or an outside click; the compact (dot-only) placement never offers it. | `GithubActivity` |
-| FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight, Enter runs the highlighted item, Escape or a backdrop click closes it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
+| FR-24 | Ctrl+K / Cmd+K opens a global search overlay (also reachable from a trigger button in the nav and Dossier's aside) listing Home, Resume, every project and a theme-toggle action, filtered by substring as the visitor types; arrow keys move the highlight (wrapping at both ends, and scrolling the highlighted row into view — the list is scrollable inside a 60vh panel and real focus never leaves the input, so nothing else would), Enter runs the highlighted item, Escape or a backdrop click closes it and returns focus to whatever opened it, and Tab is swallowed so focus never leaves the search field. | `CommandPalette`, `CommandPaletteTrigger`, `CommandPaletteService` |
 | FR-25 | The landing page can be narrowed to one technology: a chip row in the Projects section (every family used by two or more projects, plus the selected one) sets a `?tech=` query parameter that merges with `?layout=` rather than replacing it. Matching is by family, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page. The parameter is applied only after hydration, so the prerendered HTML always lists every project. | `TechFilter`, `ProjectFilter` |
 | FR-26 | Every page links to a Terms of Use page (`/terms`) and a Privacy Policy page (`/privacy`) from its footer, and both are prerendered like the rest of the site. | `TermsPage`, `PrivacyPage`, `Footer` |
 | FR-27 | The privacy page states what the site actually does: no accounts, no cookies, no analytics, one `localStorage` key for the theme, and the four hosts the visitor's browser contacts (Pages, the API on Render, `api.github.com`, and each project's own site when its status dot scrolls into view). It is factual about the code, so any new outbound request must be added to it in the same commit. | `PrivacyPage` |
@@ -85,7 +85,7 @@ opens each project's live app.
 - **Performance.** Static frontend ≤ 500 kB raw initial payload, enforced — the
   budget lives in `frontend/angular.json` (`maximumWarning: 440kB`,
   `maximumError: 500kB`), so `ng build` fails CI rather than merely documenting the
-  ceiling. Measured 2026-09-11: 415.15 kB raw / 106.43 kB transferred (401.65 kB JS
+  ceiling. Measured 2026-09-11: 417.06 kB raw / 107.04 kB transferred (403.55 kB JS
   + 13.51 kB CSS). ~295 kB of that is the Angular runtime (`core` 150, `router` 79,
   `common` 32, `rxjs` 21, `platform-browser` 14) and is effectively the floor; all
   application code is ~100 kB. Routes are imported eagerly on purpose — every route
@@ -147,7 +147,7 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (114 tests) + `npm run build`, which must prerender every
+  frontend `ng test` (115 tests) + `npm run build`, which must prerender every
   project page. The owner's standing rule is that a red push is a defect in its own
   right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social

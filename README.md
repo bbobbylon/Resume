@@ -42,7 +42,7 @@ Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
 
 ```bash
 cd backend  && mvn -B verify              # JUnit 5 + MockMvc slices (13 tests)
-cd frontend && npm test -- --watch=false  # Vitest / jsdom (114 tests across 24 files)
+cd frontend && npm test -- --watch=false  # Vitest / jsdom (115 tests across 24 files)
 cd frontend && npm run build              # prerenders every route + writes sitemap.xml
 ```
 
@@ -173,7 +173,7 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
 <https://bobs-resume.onrender.com> (`/api/projects`, `/docs`). The last push
 (`d3e482e`) was green on both `CI` and `Deploy frontend to GitHub Pages`.
 
-- Backend and frontend build and pass their tests locally (13 backend, 114 frontend)
+- Backend and frontend build and pass their tests locally (13 backend, 115 frontend)
   and in CI; the Pages deploy and Dependabot run on GitHub.
 - Landing is browsable three ways (Ledger / Gallery / Dossier via the switcher or
   `?layout=`), filterable by technology (`?tech=`) and searchable (`?q=`), with a

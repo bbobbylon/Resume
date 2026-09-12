@@ -78,7 +78,7 @@ Angular components (`frontend/src/app/shared/`):
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
 | `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
 | `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. A "+N more" text button expands up to four older events as a bordered list below (closes on Escape or an outside click); it wraps onto its own line via `flex-basis: 100%` rather than using `position: absolute`, which Dossier's sticky, scrolling aside would clip. `compact` input for a dot-only, `title`-labelled variant — no disclosure there. |
-| `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". Mounted once at the app root. |
+| `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". The panel is capped at `60vh` and the list scrolls inside it, so the arrow keys scroll the highlighted row into view — on a 600 px-tall window eleven rows overflow a 308 px list, and wrapping from the first row to the last would otherwise highlight something off-screen. Mounted once at the app root. |
 | `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
 | `TechFilter` | `app-tech-filter` | Chip row in each layout's Projects section: "All" plus one outlined chip per technology family used by two or more projects, each with a count and each a real link setting `?tech=` (merged with `?layout=`, `fragment="projects"` so a click stays put). The active chip takes the accent outline via `aria-current`. The `role="status"` line underneath covers **both** filter axes — "Showing 5 of 6 projects built with Angular", "…matching \"api\"", or both clauses — and renders whenever either is active, even on a catalogue with no chips to show. |
 | `ProjectSearch` | `app-project-search` | Search box beside the chips: magnifier glyph + a 320 px-max bordered field that takes the accent border on `:focus-within`. Writes `?q=` as you type (debounced 200 ms; the first search pushes a history entry, every edit of it replaces, so one Back returns to the unfiltered list), and reads its value back from the URL, so Back/Forward and deep links keep the box and the list in agreement. Its label is `.sr-only`; the placeholder carries the visible affordance. |
@@ -181,6 +181,11 @@ margins. This is what `npm run resume:pdf` captures.
 - Keyboard: every action is a real `<a>`/`<button>`; `:focus-visible` shows a 2 px
   accent ring (from the sheet). Duplicate image links are `tabindex="-1"` +
   `aria-hidden` so tab order isn't doubled.
+- The command palette moves a *virtual* cursor (`aria-activedescendant`) rather than
+  real focus, which is what lets Tab be swallowed wholesale. The trade-off is that
+  the browser does not scroll for it, so the component does: the active row is
+  `scrollIntoView({ block: 'nearest' })`-ed after every render. A highlight you
+  cannot see is the same bug for a sighted keyboard user as no highlight at all.
 - Motion: the skeleton shimmer, the live-status pulse and the route cross-fade are
   all disabled under `prefers-reduced-motion`.
 - Live status is a `role="status"` element with an `aria-label` ("Live site Up now"),
