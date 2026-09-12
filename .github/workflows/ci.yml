@@ -7,6 +7,13 @@ name: CI
 # The frontend job starts the backend first, because `ng build` prerenders every
 # route against it: a build that silently produced skeleton pages would still
 # "pass" otherwise. It is the same composite action the deploy uses.
+#
+# Action versions are pinned to a major tag and kept current deliberately: every
+# action here ran on the Node 20 runtime until 2026-09-12, which GitHub has
+# deprecated and was force-running on Node 24 (a warning annotation on every run,
+# green ones included). These majors are the Node 24 releases. Dependabot proposes
+# the bumps; take them one workflow at a time and confirm the run's annotation
+# count actually drops, since a deploy step that breaks here breaks the live site.
 on:
   push:
     branches: [main]
@@ -18,8 +25,8 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -33,13 +40,13 @@ jobs:
   frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
