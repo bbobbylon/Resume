@@ -19,6 +19,13 @@ const TYPES = {
  * absolute asset URLs the same way in this throwaway server as it would in
  * production. Extension-less routes fall back to `<path>/index.html`, matching
  * how Angular's static prerendering lays out each route as a directory.
+ *
+ * A path with no file behind it gets the same SPA fallback Pages gives it: the
+ * body of `404.html` with a 404 status. In a local `ng build` that file does not
+ * exist yet — deploy-pages.yml creates it by copying `index.csr.html` — so the
+ * shell is used directly when it does not, which is the same bytes the deployed
+ * site would answer with. Without this, anything checking the built output
+ * against a not-found path silently audits *Chrome's* error page instead.
  */
 export function serveStatic(dir, basePath = '/') {
   const prefix = basePath.replace(/\/+$/, '');
@@ -32,7 +39,13 @@ export function serveStatic(dir, basePath = '/') {
     let file = join(dir, path);
     if (!existsSync(file) || statSync(file).isDirectory()) file = join(file, 'index.html');
     if (!existsSync(file)) {
-      res.writeHead(404).end();
+      const fallback = [join(dir, '404.html'), join(dir, 'index.csr.html')].find((f) => existsSync(f));
+      if (!fallback) {
+        res.writeHead(404).end();
+        return;
+      }
+      res.writeHead(404, { 'Content-Type': 'text/html' });
+      createReadStream(fallback).pipe(res);
       return;
     }
     res.writeHead(200, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream' });

@@ -68,13 +68,16 @@ HTML a crawler sees always lists every project.
 ## Scripts
 
 All from `frontend/`. The three generators write files that are committed
-(`resume.pdf`, `shots/`, `icons/`); `snapshot` writes git-ignored data.
+(`resume.pdf`, `shots/`, `icons/`); `snapshot` writes git-ignored data. The four
+Chrome-driven ones (`a11y`, `resume:pdf`, `shots`, `snapshot`) need a Chrome on
+the machine — they use `puppeteer-core`, which does not download one.
 
 | Script | What it does | When to run it |
 |--------|--------------|----------------|
 | `npm start` | Dev server on :4222, pre-wired to the local backend | Day-to-day work |
 | `npm run build` | Prerenders every route against the backend, then writes `sitemap.xml` (`postbuild`) | Before a release; CI runs it too |
 | `npm test -- --watch=false` | Vitest/jsdom suite | Every change |
+| `npm run a11y` | axe-core over 15 page states x both themes in real Chrome; fails on any WCAG 2.x A/AA violation | After UI or colour-token changes. Add `BUILD_DIR=dist/frontend/browser` to audit a finished build instead of the dev server |
 | `npm run snapshot` | Captures `/api/{profile,projects,resume}` into `public/data/*.json` | Needs the backend up; the Pages deploy does it automatically |
 | `npm run resume:pdf` | Prints `/resume` to `public/resume.pdf` via headless Chrome | After resume content changes (the deploy also regenerates it, best-effort) |
 | `npm run shots` | Project screenshots (WebP 1600/800 + social JPEG) and `og.png` | After a project's UI changes; `-- --only <id>` for one |

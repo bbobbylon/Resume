@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.0 (prerendered) |
+| **Version** | 0.4.1 (prerendered) |
 | **Date** | 2026-09-11 |
 | **Status** | Live — frontend on GitHub Pages, API on Render (see [DEPLOYMENT.md](DEPLOYMENT.md)). Remaining work is incremental; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
@@ -115,7 +115,11 @@ opens each project's live app.
   live-status pulse and route transitions. The command palette (FR-24) follows
   the ARIA combobox/listbox pattern (`aria-activedescendant` tracks the
   highlighted option) and traps focus on its one real focusable control, the
-  search field. Target WCAG 2.1 AA.
+  search field. Target WCAG 2.1 AA, **verified rather than assumed**: `npm run a11y`
+  drives axe-core through real Chrome over 15 page states in both themes and exits
+  non-zero on any WCAG 2.0/2.1 A or AA violation. 2026-09-11: 30/30 clean. It is a
+  release-checklist step rather than a CI job, because headless Chrome has been
+  unreliable on this repo's Actions runner.
 - **Responsiveness.** Usable from 360 px to 1440 px wide; breakpoints at 880 / 720 / 480 px.
 - **Maintainability.** Controller → Service → Repository layering on the backend;
   standalone signal-based components on the frontend; every new endpoint gets a

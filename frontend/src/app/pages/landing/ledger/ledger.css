@@ -31,7 +31,11 @@
   padding: 70px 0 56px; display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px 48px;
 }
-.contact h3 { font-size: 24px; line-height: 28px; margin: 0; font-weight: 500; }
+/* Sized like the h3 it used to be — the level is about document structure, not
+   type scale: every project card is an h2, so a page-level section that follows
+   them must be one too, or a search that matches nothing leaves an h1 followed
+   straight by an h3. */
+.contact h2 { font-size: 24px; line-height: 28px; margin: 0; font-weight: 500; }
 .contact p { font-size: 15.5px; line-height: 28px; margin: 14px 0 0; }
 .contact-links { display: flex; flex-direction: column; gap: 6px; font-size: 15px; line-height: 28px; }
 .contact-links a { text-decoration: none; }

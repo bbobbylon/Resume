@@ -122,6 +122,39 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — Accessibility is measured now, not asserted. The docs have claimed a
+  WCAG 2.1 AA target since the first design pass with nothing checking it. New
+  `npm run a11y` (`frontend/scripts/a11y.mjs`, `axe-core` as a devDependency) drives
+  real Chrome through 15 page states — every route, each landing layout, each filter
+  axis, the no-match state and the 404 — in **both themes**, and exits non-zero on any
+  WCAG 2.0/2.1 A or AA violation. Both themes because the palettes are different
+  colours: a contrast failure can live in one and not the other. It follows the house
+  shape of `resume-pdf.mjs` — dev server by default, `BUILD_DIR=…` to audit a finished
+  build instead. Deliberately not a CI job: headless Chrome has hung on this repo's
+  runner before, and a flaky gate on a repo whose standing rule is "every push goes
+  green" is worse than a checklist line, so it is one (DEPLOYMENT §11).
+
+  The first run was 30/30 clean on WCAG A/AA and turned up two things worth acting on:
+  1. **A skipped heading level.** Ledger's "Get in touch" was an `<h3>` while every
+     project card is an `<h2>`. Normally that reads h1 → h2 → h3 and nobody notices —
+     but a search that matches nothing removes every card, leaving h1 followed straight
+     by h3. It is now an `<h2>` (the CSS keeps the old size; the level is about document
+     structure, not type scale).
+  2. **`static-server.mjs` did not model the Pages 404 fallback.** A path with no file
+     got a bodyless 404, so Chrome rendered *its own* error page — and the audit
+     dutifully reported violations against Chrome's error page (`#main-content`, a
+     `meta-viewport` that blocks zoom) as if they were the site's. It now serves
+     `404.html`, or `index.csr.html` when that file does not exist yet, with a 404
+     status — the same bytes GitHub Pages answers with, since the deploy makes one from
+     the other.
+
+  One advisory was investigated and deliberately **not** acted on: axe 4.10 flagged
+  `landmark-complementary-is-top-level` for the project detail page's `<aside>`.
+  Chrome's own accessibility tree lists no `complementary` landmark on that page at all
+  — the aside sits inside an unnamed `<section>`, which HTML-AAM maps to `generic` — so
+  the rule was a static-heuristic false positive, and axe 4.13 no longer raises it.
+  Worth writing down so nobody "fixes" working markup to satisfy a linter.
+
 - 2026-09-11 — Typing in the search box no longer throws the page to the top. The
   search box lives inside the Projects section, which is below the fold in all three
   layouts — and `app.config.ts` enables `scrollPositionRestoration: 'enabled'`, which

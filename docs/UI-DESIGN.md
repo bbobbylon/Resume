@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.0 |
+| **Version** | 0.4.1 |
 | **Date** | 2026-09-11 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
 | **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) |
@@ -168,6 +168,13 @@ margins. This is what `npm run resume:pdf` captures.
 
 ## 5. Accessibility
 
+- **Measured, not asserted.** `npm run a11y` runs axe-core in real Chrome over 15
+  page states — every route, each landing layout, each filter axis, the no-match
+  state and the 404 — in **both themes**, and fails on any WCAG 2.0/2.1 A or AA
+  violation. Last run 2026-09-11: **30/30 states clean**, no A/AA violations and no
+  best-practice advisories either. Both themes matter because the palettes are
+  different colours: a contrast failure can exist in one and not the other, and only
+  one is ever on screen.
 - Target WCAG 2.1 AA. Text on ground: `#e9e9ed` on `#161826` ≈ 14:1; muted 78 % ≈ 9:1;
   neutral-500 on ground ≈ 5.5:1; accent `#9184d9` on ground ≈ 5.6:1. Footer text at
   55 % is decorative-level (≈ 5:1 still passes for 13 px).

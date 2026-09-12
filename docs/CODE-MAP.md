@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.0 |
+| **Version** | 0.2.1 |
 | **Date** | 2026-09-11 |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [BACKLOG.md](BACKLOG.md) |
 
@@ -224,12 +224,13 @@ things that do.
 | File | Role |
 |---|---|
 | `chrome.mjs` | Shared helpers for the headless-Chrome scripts: finds a Chrome binary (`$CHROME` first, then the usual install paths) and lends each run a throwaway profile directory. |
+| `a11y.mjs` (`npm run a11y`) | Runs axe-core over 15 page states (every route, each landing layout, each filter axis, the no-match state, the 404) in **both themes** and exits non-zero on any WCAG 2.0/2.1 A or AA violation. Best-practice rules are printed but never fail the run — some are static heuristics that disagree with what the browser actually exposes, so they want a decision, not obedience. Points at the dev server by default, or at a finished build with `BUILD_DIR=dist/frontend/browser`. Not wired into CI: headless Chrome has been unreliable on this repo's Actions runner (see BACKLOG), so it is a release-checklist step. |
 | `resume-pdf.mjs` (`npm run resume:pdf`) | Regenerates `public/resume.pdf` from a rendered `/resume` using the app's own print stylesheet, so the PDF can never drift from the page. Drives Chrome through `puppeteer-core` rather than the `--print-to-pdf` flag, which hung on the CI runner. |
 | `screenshots.mjs` | `npm run shots` — captures every live project into `public/shots/` as WebP at two widths plus a JPEG social crop, and the landing page as `public/og.png`. Feeds `ProjectImage`'s `srcset` and the OG tags `PageMeta` sets. |
 | `icons.mjs` (`npm run icons`) | Renders the PWA icons (192/512/maskable) and `apple-touch-icon.png` from an inline SVG monogram via `sharp`. There is no logo asset to resize — the brand mark is a wordmark — so the glyph is drawn here, with the Nocturne background/accent as literals because this runs outside the Angular build. Re-run only if those tokens change. |
 | `snapshot.mjs` | Writes `public/data/{profile,projects,resume}.json` from a running backend. This is the fallback `Api` serves while a sleeping Render service wakes; the Pages workflow regenerates it every deploy, which is why `public/data/` is git-ignored. |
 | `sitemap.mjs` | `postbuild` — turns the routes `ng build` actually prerendered into `sitemap.xml`, so a new project reaches the sitemap by existing in the backend. Strips the `--base-href` prefix that the origin substitution downstream re-adds. |
-| `static-server.mjs` | A minimal static server for pointing headless Chrome at a finished `ng build` without the dev server or the backend. |
+| `static-server.mjs` | A minimal static server for pointing headless Chrome at a finished `ng build` without the dev server or the backend. Models GitHub Pages closely enough to be worth trusting: `--base-href` prefixes, `<path>/index.html` for extension-less routes, and — for a path with no file — the body of `404.html` (or `index.csr.html`, which is what the deploy copies into it) with a 404 status. Without that last part, auditing a built site's not-found path silently measured *Chrome's* error page. |
 
 ### 4.8 Frontend tooling
 

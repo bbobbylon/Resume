@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.0 |
+| **Version** | 0.4.1 |
 | **Date** | 2026-09-11 (provider limits in §1 were verified against vendor docs on 2026-09-04 — re-check before relying on them) |
 | **State** | Both halves are live: <https://bbobbylon.github.io/Resume/> and <https://bobs-resume.onrender.com>. §3 is done except the optional custom domain. |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) |
@@ -281,6 +281,26 @@ Only needed if the Nocturne background/accent tokens change — `scripts/icons.m
 holds them as literals because it runs outside the Angular build and cannot read the
 CSS custom properties. The outputs are committed.
 
+### Accessibility audit
+
+```bash
+cd frontend && npm run a11y                               # against the dev server on :4222
+BUILD_DIR=dist/frontend/browser npm run a11y              # against a finished build
+BASE_HREF=/Resume/ BUILD_DIR=dist/frontend/browser npm run a11y   # ...built for Pages
+```
+
+Runs axe-core in real Chrome over 15 page states — every route, each landing layout,
+each filter axis, the no-match state and the 404 — in both the dark and light themes,
+and exits non-zero on any WCAG 2.0/2.1 A or AA violation. Best-practice rules print as
+advisories and never fail the run: some are static heuristics that disagree with what
+the browser actually exposes, so they want a decision, not obedience.
+
+Deliberately **not** a CI job. Headless Chrome has a history of hanging on this repo's
+Actions runner (see docs/BACKLOG.md), and a flaky gate on a repo whose standing rule is
+"every push goes green" is worse than a checklist line. The `BUILD_DIR` form is the one
+worth running before a release: it audits the exact artifact about to ship, and
+`static-server.mjs` serves its `404.html` the way Pages will.
+
 The API snapshot (`public/data/*.json`) is `npm run snapshot` with the backend
 running. It is git-ignored: the Pages workflow regenerates it on every deploy.
 
@@ -292,6 +312,7 @@ the API returns it.
 ## 11. Release checklist
 
 - [ ] `mvn -B verify` and `npm test -- --watch=false` green locally.
+- [ ] `npm run a11y` clean (axe-core, real Chrome, 15 page states x both themes). It is not in CI — headless Chrome has been unreliable on this repo's runner — so it only happens if someone runs it. `BUILD_DIR=dist/frontend/browser npm run a11y` audits the artifact that is actually about to ship, including its 404 page.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
 - [ ] `landingLayout` set to the chosen layout.
 - [ ] `resume.pdf` regenerated if resume content changed; `npm run shots` re-run if a project's UI changed.
