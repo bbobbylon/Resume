@@ -54,6 +54,7 @@ describe('ProjectSearch', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: 'angular' },
       queryParamsHandling: 'merge',
+      fragment: 'projects',
       replaceUrl: false,
     });
     vi.useRealTimers();

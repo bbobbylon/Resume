@@ -172,6 +172,9 @@ describe('ProjectFilter', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: 'Angular' },
       queryParamsHandling: 'merge',
+      // Without the fragment `withInMemoryScrolling` throws the visitor to the top of
+      // the page mid-keystroke; the chips carry the same one.
+      fragment: 'projects',
       // Starting a search pushes: Back has to lead to the unfiltered list, not off the site.
       replaceUrl: false,
     });
@@ -189,6 +192,7 @@ describe('ProjectFilter', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: 'Angular' },
       queryParamsHandling: 'merge',
+      fragment: 'projects',
       // Otherwise one typed word would bury the unfiltered list a dozen entries deep.
       replaceUrl: true,
     });
@@ -206,6 +210,7 @@ describe('ProjectFilter', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['/'], {
       queryParams: { q: null },
       queryParamsHandling: 'merge',
+      fragment: 'projects',
       replaceUrl: true,
     });
     vi.useRealTimers();

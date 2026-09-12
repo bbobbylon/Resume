@@ -122,6 +122,19 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — Typing in the search box no longer throws the page to the top. The
+  search box lives inside the Projects section, which is below the fold in all three
+  layouts — and `app.config.ts` enables `scrollPositionRestoration: 'enabled'`, which
+  makes the router scroll *any* navigation without an anchor back to `[0, 0]`. So the
+  debounced `?q=` write, which fires 200 ms after a keystroke while the visitor is
+  still typing, yanked them out of the list they were filtering: measured at
+  `scrollY 750 → 0` with focus still in the box. The chips never had this bug because
+  they already carry `fragment="projects"`; `search()` now does the same. Verified in
+  all three layouts: Ledger 750 → 750, Gallery 556 → 556, Dossier 109 → 109, box on
+  screen throughout, and `?layout=` still merged. (A visitor scrolled *past* the
+  section top is pulled back to it, exactly as clicking a chip does — that is the
+  behaviour being matched, not a no-op.)
+
 - 2026-09-11 — Switching landing layout no longer throws away the visitor's filters.
   The README has promised since the search shipped that the three landing params
   combine — `/?layout=gallery&tech=Angular&q=api` is a valid, shareable view — and

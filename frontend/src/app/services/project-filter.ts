@@ -194,6 +194,12 @@ export class ProjectFilter {
    * there was); refining or clearing one replaces (otherwise a seven-letter word
    * typed in four pauses buries the full list four entries deep).
    *
+   * The `#projects` fragment is not decoration either. `app.config.ts` enables
+   * `scrollPositionRestoration`, which scrolls any navigation without an anchor back
+   * to the top of the page — and this navigation fires *while the visitor is typing*,
+   * in a box that lives well below the fold. The chips carry the same fragment for
+   * the same reason.
+   *
    * @param value the search box's current text; an empty/whitespace value clears `?q=`
    */
   search(value: string): void {
@@ -206,6 +212,11 @@ export class ProjectFilter {
       void this.router.navigate(['/'], {
         queryParams: { q },
         queryParamsHandling: 'merge',
+        // Same `#projects` the chips use. `withInMemoryScrolling` scrolls a
+        // fragment-less navigation to the top of the page, so without this each
+        // debounced keystroke threw the visitor out of the Projects section they
+        // were typing in — see the note above.
+        fragment: 'projects',
         // Push the first search, replace every edit of it — see the note above.
         replaceUrl: !!this.queryParam(),
       });
