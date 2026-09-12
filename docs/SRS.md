@@ -51,7 +51,7 @@ opens each project's live app.
 | FR-2 | `GET /api/projects` returns all projects in display order, each with id, name, tagline, description, long description, live URL (nullable), repo URL, status (`LIVE`/`WIP`/`ARCHIVED`), tech stack, image URLs, three highlights, hosting, delivery, featured flag and a problem/approach/outcome case study. | `ProjectController` |
 | FR-3 | `GET /api/projects/{id}` returns one project or HTTP 404. | `ProjectController` |
 | FR-4 | `GET /api/resume` returns summary, skills (grouped into labeled categories), experience, resume projects, education, achievements and the PDF URL. | `ResumeController` |
-| FR-5 | The landing route `/` renders the layout named by `environment.landingLayout`; a `?layout=ledger\|gallery\|dossier` query parameter overrides it. Unknown values fall back to the default. A `LayoutSwitcher` strip above the chosen layout links to the other two, so all three stay reachable to any visitor, not just reviewable via a hand-typed query param. | `Landing`, `LayoutSwitcher` |
+| FR-5 | The landing route `/` renders the layout named by `environment.landingLayout`; a `?layout=ledger\|gallery\|dossier` query parameter overrides it. Unknown values fall back to the default. A `LayoutSwitcher` strip above the chosen layout links to the other two, so all three stay reachable to any visitor, not just reviewable via a hand-typed query param. Those links merge rather than replace the query string: a layout switch changes how the projects are shown, never which, so `?tech=` and `?q=` survive it — in the href as well as the navigation, so a copied link keeps them too. | `Landing`, `LayoutSwitcher` |
 | FR-6 | Every layout shows all projects with status tags, stack chips, an "Open <domain>" button when a live URL exists, a "Source" link, and a link to the detail page. | `Ledger`, `Gallery`, `Dossier` |
 | FR-7 | `/projects/:id` renders the detail page (tags, title, lede, actions, meta grid, 21:9 hero, a problem/approach/outcome case study, numbered highlights, extra screenshots, stack, "Next project" teaser) and a not-found state for unknown ids. | `ProjectDetail` |
 | FR-8 | `/resume` renders the full resume from `/api/resume`, with contact details from `/api/profile`, and a "Download PDF" link to `profile.resumeUrl`. | `ResumePage` |
@@ -147,7 +147,7 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (115 tests) + `npm run build`, which must prerender every
+  frontend `ng test` (116 tests) + `npm run build`, which must prerender every
   project page. The owner's standing rule is that a red push is a defect in its own
   right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social

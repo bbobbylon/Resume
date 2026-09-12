@@ -7,6 +7,13 @@ import { LandingLayout } from '../../models/landing-layout';
  * three interchangeable variants (docs/UI-DESIGN.md → "Landing variants"), so a
  * visitor can reach Gallery/Dossier without knowing the `?layout=` query param —
  * that param still exists underneath and is what these links set.
+ *
+ * `queryParamsHandling="merge"` matters as much as the param itself: a layout
+ * switch changes *how* the projects are shown, never *which*, so `?tech=` and `?q=`
+ * have to survive it. Without the merge Angular replaces the whole query string,
+ * and the href would read `/?layout=gallery` even while the visitor was looking at
+ * a filtered, searched list — which also means a copied link would lose them.
+ * `TechFilter`'s chips merge for the same reason.
  */
 @Component({
   selector: 'app-layout-switcher',
@@ -14,7 +21,14 @@ import { LandingLayout } from '../../models/landing-layout';
   template: `
     <nav class="seg layout-switch" aria-label="Landing layout">
       @for (l of layouts; track l.id) {
-        <a class="seg-opt" routerLink="/" [queryParams]="{ layout: l.id }" [attr.aria-current]="current() === l.id ? 'page' : null">{{ l.label }}</a>
+        <a
+          class="seg-opt"
+          routerLink="/"
+          [queryParams]="{ layout: l.id }"
+          queryParamsHandling="merge"
+          [attr.aria-current]="current() === l.id ? 'page' : null"
+          >{{ l.label }}</a
+        >
       }
     </nav>
   `,

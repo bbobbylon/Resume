@@ -122,6 +122,22 @@ the top of each section. Dates are when the item was added. See
 
 ## Done
 
+- 2026-09-11 — Switching landing layout no longer throws away the visitor's filters.
+  The README has promised since the search shipped that the three landing params
+  combine — `/?layout=gallery&tech=Angular&q=api` is a valid, shareable view — and
+  they do, if you type them yourself. `LayoutSwitcher`'s links did not: they set
+  `[queryParams]="{ layout: l.id }"` with no `queryParamsHandling`, and Angular's
+  default **replaces** the whole query string. Confirmed in a real browser from
+  `/?tech=Angular&q=api`: the three hrefs read `/?layout=ledger|gallery|dossier` — the
+  other params were not even in the link, so copying one lost them too — and clicking
+  Gallery landed on `/?layout=gallery` with the search box empty and the filter gone.
+  `TechFilter`'s chips have always merged, which is what makes this an inconsistency
+  rather than a design choice: a layout switch changes *how* the projects are shown,
+  never *which*. Added `queryParamsHandling="merge"` and a test pinning the exact
+  hrefs (116 tests). Verified: the links now read
+  `/?tech=Angular&q=api&layout=gallery`, and the switch keeps both the box and the
+  one matching card.
+
 - 2026-09-11 — The Ctrl+K palette's highlight can no longer end up somewhere the
   visitor cannot see. The palette moves a *virtual* cursor — `aria-activedescendant`
   on the search input, which never loses real focus — and that is what lets the focus

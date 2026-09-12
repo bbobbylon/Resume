@@ -162,7 +162,7 @@ pair is listed once, with the `.ts`.
 | `footer/footer.ts` (+ `.html`, `.css`) | Site footer in the owner's preferred shape: © line and a one-line privacy note, Terms/Privacy links (`aria-current` on the one you are reading), and Contact set apart under a hairline. `compact` (Ledger) keeps the © and the legal links only. Dossier has no `app-footer` — its inline `.foot` carries the same two links. |
 | `tech-filter/tech-filter.ts` | The chip row that drives `ProjectFilter`. Every chip is a real link setting `?tech=` (shareable, Back-friendly, merges with `?layout=`) with `fragment="projects"` so picking one doesn't scroll the visitor back to the hero. Also carries the `role="status"` summary line for **both** filters — "Showing 5 of 6 projects built with Angular matching \"api\"" — which is why the line is outside the chips' own `@if`: a search with no chips still needs it. |
 | `project-search/project-search.ts` | The search box beside the chips. A live-typed field cannot be a `routerLink`, so it writes through `ProjectFilter.search()` instead and reads `filter.queryText()` back for its value — which is what makes Back/Forward and `/?q=…` deep links move the box, not just the list. Its one piece of logic is a `DestroyRef.onDestroy` that cancels a pending search write, since `ProjectFilter` is root-provided and would otherwise navigate a visitor who has already left. |
-| `layout-switcher/layout-switcher.ts` | Three links above the landing layout, one per variant, so `?layout=` is discoverable rather than a hidden parameter. |
+| `layout-switcher/layout-switcher.ts` | Three links above the landing layout, one per variant, so `?layout=` is discoverable rather than a hidden parameter. Each is `queryParamsHandling="merge"` — Angular's default replaces the whole query string, which would silently drop the visitor's `?tech=` and `?q=` on a switch that is only meant to change presentation. |
 | `command-palette/command-palette.ts` (+ `.html`, `.css`) | The Ctrl+K / Cmd+K overlay. Flattens pages, projects, the legal pages and actions into one row shape, filters on label+hint, and drives selection with `aria-activedescendant` — real focus never leaves the search input, which is what makes the focus trap a one-line `Tab` swallow. That choice has a cost the component pays back explicitly: the browser will not scroll for a highlight it is not focusing, so an `afterRenderEffect` calls `scrollIntoView({ block: 'nearest' })` on the active row. Without it, ArrowUp from the first row wraps to the last and — on any window short enough for the 60vh panel to clip the list — highlights a row the visitor cannot see. Mounted once, in `App`. |
 | `command-palette-trigger/command-palette-trigger.ts` | The icon button that opens it, sized to match `ThemeToggle`; mounted in the nav and in Dossier's aside. |
 | `theme-toggle/theme-toggle.ts` | The sun/moon button over `ThemeService`. Both icons are always in the DOM and CSS picks one, so the server and browser markup match. |
@@ -185,7 +185,7 @@ contract the templates are written against.
 | `resume.model.ts` | `Resume`, `Experience`, `ResumeProject`, `Education`, `Achievement`, `SkillGroup`. |
 | `landing-layout.ts` | The `LandingLayout` union, the list of all three, and the `isLandingLayout` guard `Landing` uses to validate `?layout=`. Frontend-only — the backend knows nothing about layouts. |
 
-### 4.6 Tests — `*.spec.ts` (Vitest, 115 tests across 24 files)
+### 4.6 Tests — `*.spec.ts` (Vitest, 116 tests across 24 files)
 
 Run with `npm test` from `frontend/`. Always the full suite: `npx vitest run <file>`
 bypasses the Angular builder's setup and fails with "describe is not defined".
@@ -212,7 +212,7 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 | `shared/project-image/project-image.spec.ts` | The initial-letter placeholder when there is no screenshot, and the lighten blend when there is. |
 | `shared/live-status/live-status.spec.ts` | "Up now" on any answer (even opaque), "Not reachable" on failure, nothing without a URL, compact mode, and that it only probes once the dot scrolls into view. |
 | `shared/github-activity/github-activity.spec.ts` | Event → linked sentence, skipping unrecognized event types, compact mode, and silence on a failed, empty or rate-limited response — plus the disclosure: the count it advertises, expanding to the rest of the history newest-first, collapsing on Escape, and never appearing in compact mode. |
-| `shared/layout-switcher/layout-switcher.spec.ts` | One link per layout, each setting `?layout=`, with the current one marked. |
+| `shared/layout-switcher/layout-switcher.spec.ts` | One link per layout, each setting `?layout=`, with the current one marked — and that each href keeps a `?tech=`/`?q=` already on the URL rather than replacing it. |
 | `shared/theme-toggle/theme-toggle.spec.ts` | A labelled button that flips the theme. |
 | `shared/pipes/domain.pipe.spec.ts` | Bare hostname by default, path kept when asked, non-URLs and blanks passed through. |
 
