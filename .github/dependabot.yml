@@ -13,10 +13,13 @@
 # `vitest` is the same story one layer down and was missed the first time:
 # @angular/build declares `vitest ^4.0.8` as a peer, and the test runner is
 # Angular's builder, not vitest's CLI. The dev-tooling group duly proposed
-# vitest ^5.0.0 on 2026-09-11 (PR #13) — a PR that could not have merged
-# whatever CI said, because the builder is written against vitest 4's API.
-# Majors are ignored here too, so the group stops re-proposing it every week;
-# lift this when Angular widens that peer range.
+# vitest ^5.0.0 on 2026-09-11 (PR #13), and that PR's `npm ci` failed in CI
+# while succeeding locally — npm on the runner is stricter about the recorded
+# peer conflict than npm 11 here. Proof it was vitest and not a flake: the
+# moment this rule landed, Dependabot closed #13 and opened #15 with jsdom 30
+# alone off the same base, which went green. Majors are ignored here too, so
+# the group stops re-proposing it every week; lift this when Angular widens
+# that peer range.
 version: 2
 updates:
   - package-ecosystem: npm

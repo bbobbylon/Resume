@@ -63,22 +63,6 @@ the top of each section. Dates are when the item was added. See
   component bug; the fix was to stop overclaiming in the label and to check it from
   Node instead (see Done, below).
 
-- [ ] **Dependabot PR #13's CI run is red, and the log needs your account to read**
-  (2026-09-11). `dependabot/npm_and_yarn/frontend/dev-tooling-20778f8f88`, run
-  34674475259: the `frontend` job fails at **Install dependencies**, so the test and
-  build steps never ran. What was ruled out from here: `npm ci` against that exact
-  `package.json` + `package-lock.json` succeeds locally (exit 0, 482 packages), and
-  the Node version is fine — `setup-node@v4` with `'22'` installs 22.23.2, which
-  satisfies jsdom 30's `^22.22.2`. That leaves either something Linux-specific or a
-  transient registry error, and the job log would say which in one line. The logs
-  endpoint returns 403 without repo-admin rights, so this needs one click from you:
-  open the run, read the failing step, and re-run it if it looks transient.
-
-  Separately, that PR could not have merged either way — it proposes `vitest ^5.0.0`
-  while `@angular/build@21.2.23` declares `vitest ^4.0.8` as its peer and the test
-  runner *is* Angular's builder. `.github/dependabot.yml` now ignores vitest majors
-  so the group stops re-proposing it weekly (see Done).
-
 - [ ] **The workflows are on actions that target the deprecated Node 20** (surfaced
   2026-09-11 by reading a run's annotations). Every run — green ones included —
   carries: "Node.js 20 is deprecated. The following actions target Node.js 20 but are
@@ -221,11 +205,22 @@ the top of each section. Dates are when the item was added. See
   the same reasoning, the file already documents for Angular and TypeScript. Lift it
   when Angular widens the peer range.
 
-  This is not a claim about why that PR's CI went red: the run fails at "Install
-  dependencies" and the log needs repo-admin rights to read. `npm ci` against that
-  branch's exact lockfile succeeds locally, and `setup-node@v4` with `'22'` installs
-  22.23.2, which satisfies jsdom 30's `^22.22.2` — so the two obvious culprits are
-  both ruled out. Filed above for the owner, who can read the log.
+  It also turned out to be the red run's cause, which the rule was not expected to
+  settle. PR #13 (vitest 5 **and** jsdom 30) failed at "Install dependencies" — a log
+  that needs repo-admin rights to read, so it was filed as a question for the owner.
+  Minutes after the ignore rule landed, Dependabot closed #13 and opened **#15 with
+  jsdom 30 alone, off the same base**: green, both jobs, install included. Same repo,
+  same lockfile machinery, one variable removed, red to green — so vitest 5 was the
+  cause, not a transient.
+
+  Why it only showed up in CI: `npm ci` against #13's exact lockfile succeeds here
+  (exit 0, 482 packages) and the runner's Node is fine (`setup-node@v4` with `'22'`
+  installs 22.23.2, satisfying jsdom 30's `^22.22.2`). The remaining difference is
+  npm itself — this machine runs npm 11.12.1, the runner runs the npm bundled with
+  Node 22 — and npm's strictness about a recorded peer conflict changed between those
+  majors. That last step is inference, not something the log confirmed; the
+  comparison above is the part that is measured. Worth remembering either way: a
+  local `npm ci` passing does **not** prove a Dependabot PR will install in CI.
 
 - 2026-09-11 — The site was telling visitors a dead project was fine. `LiveStatus`
   labelled any answer "Up now", and `https://tesseraapp.dev` — the flagship card,
