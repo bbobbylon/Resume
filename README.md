@@ -20,7 +20,12 @@ Styled on the **Nocturne** design system with three interchangeable landing layo
 
 ## Running it locally
 
-Requirements: JDK 21, Maven, Node 20+ (no database — the API is in-memory).
+Requirements: JDK 21, Maven, Node 22.12+ (no database — the API is in-memory).
+
+The Node floor is not arbitrary: every `@angular/*` package declares
+`engines.node` as `^20.19.0 || ^22.12.0 || >=24.0.0`, so plain "Node 20" is not
+enough, and CI builds on 22 — that is the version this repo is actually known to
+work on. Node 24 also satisfies Angular if you prefer it.
 
 ```bash
 # backend → http://localhost:8420  (try: curl localhost:8420/api/projects)

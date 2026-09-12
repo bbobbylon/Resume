@@ -63,18 +63,6 @@ the top of each section. Dates are when the item was added. See
   component bug; the fix was to stop overclaiming in the label and to check it from
   Node instead (see Done, below).
 
-- [ ] **The workflows are on actions that target the deprecated Node 20** (surfaced
-  2026-09-11 by reading a run's annotations). Every run — green ones included —
-  carries: "Node.js 20 is deprecated. The following actions target Node.js 20 but are
-  being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4,
-  actions/setup-node@v4", plus "setup-java v4 is deprecated and will no longer
-  receive updates." They still work today; the forcing is GitHub's grace period.
-  Dependabot already has the PRs open — #6 (checkout 4→7), #7 (setup-node 4→7), #4
-  (setup-java 4→6), #3 (configure-pages 5→6), #5 (deploy-pages 4→5). Left for you
-  deliberately: these are major bumps to the steps that *do the deploy*, and your
-  standing rule is that a real run has to prove a CI change, not a local test. Merge
-  them one at a time and watch each deploy rather than all five at once.
-
 - [ ] **`dev-learning-hub`'s "Code" link 404s** (suspected 2026-09-05, confirmed
   2026-09-11). `https://github.com/bbobbylon/OOPFundamentals` returns 404 to anyone
   who is not signed in as the owner, while its Pages site at
@@ -162,6 +150,94 @@ the top of each section. Dates are when the item was added. See
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-09-12 — Both workflows are off the deprecated Node 20 runtime, and the
+  count of actions that needed moving was **seven, not the five Dependabot had
+  PRs for**. That gap is the part worth remembering: the open-PR list is not a
+  complete inventory of what is out of date.
+
+  Reading a *deploy* run's annotations (rather than a CI run's, or the PR list)
+  named six actions in the `build` job alone. Two of them had no Dependabot PR
+  and never would have:
+
+  - `actions/upload-artifact@v4` — nothing in this repo references it. It
+    arrives inside `upload-pages-artifact@v3`, so it only moves when that does.
+  - `browser-actions/setup-chrome@v1` — third-party, and the github-actions
+    ecosystem had nothing newer to offer inside the `v1` line.
+
+  Merging the five open PRs would have left the deploy workflow still warning
+  and looked like the job was finished.
+
+  Done in two pushes so a failure would be attributable, not a guess:
+
+  1. `0758a2b` — `ci.yml` only: checkout v4→v7, setup-java v4→v6, setup-node
+     v4→v7. Alone on purpose: `deploy-pages.yml`'s `paths:` filter does not list
+     `ci.yml`, so this exercised the three toolchain actions without putting the
+     live site behind them. Confirmed — the deploy workflow did not run.
+  2. `eb8b103` — `deploy-pages.yml`: those three plus configure-pages v5→v6,
+     setup-chrome v1→v2, upload-pages-artifact v3→v5, deploy-pages v4→v5. The
+     Pages pair moved together deliberately: deploy-pages needs an artifact from
+     upload-pages-artifact v3+, so splitting them risks a mismatch for no gain.
+
+  Each major was checked against what these workflows actually ask for, rather
+  than assumed to be drop-in. Three could have bitten and did not:
+
+  - **setup-node v5** added automatic caching driven by a `packageManager` field.
+    `frontend/package.json` has one (`npm@10.9.7`) — but the step already passes
+    `cache: npm` explicitly, and the action reads the *root* `package.json`,
+    which does not exist here.
+  - **upload-pages-artifact v4** stopped putting hidden files in the artifact.
+    Anything dot-prefixed the site needed would have vanished from the deploy
+    silently. `frontend/public` has none and neither does a built
+    `dist/frontend/browser` — checked before the bump, not after. A future
+    `.nojekyll` or `.well-known/` would need its own handling.
+  - **setup-chrome v2** installs Chrome for Testing at a different path instead
+    of driving the official installer. Survivable only because the resume.pdf
+    step passes the action's own `chrome-path` output through `$CHROME`, and
+    `scripts/chrome.mjs` prefers `$CHROME` over its hardcoded candidates.
+
+  Measured, not asserted:
+
+  - Deprecation annotations **4 → 0** on CI (against `4e4099f`) and **6 → 0** on
+    the deploy (against `d41cc43`). All four jobs green.
+  - The riskiest quiet failure was resume.pdf: that step is best-effort, so
+    Chrome breaking under v2 would only have printed a warning while the deploy
+    stayed green. The check that catches it is the file itself — the live
+    `resume.pdf` stayed 155,649 bytes with a **new hash** (`abc15093…` →
+    `f458d6e5…`), i.e. freshly rendered, rather than reverting to the committed
+    fallback's 197,925. A PDF's bytes differ run to run, so a changed hash at the
+    same size is the signature of a real re-render.
+  - Live site re-verified after: `/`, `/projects/tesseraapp/`, `/resume/`,
+    `/terms/`, `/privacy/`, `/sitemap.xml`, `/robots.txt` all 200, and the
+    canonical tags still carry the real origin — so the deploy's origin-rewriting
+    `sed` still reaches the files through `upload-pages-artifact@v5`.
+
+- 2026-09-12 — Dependabot will stop proposing a Java version this project has not
+  chosen. PRs #1 (`eclipse-temurin` 21-jre-jammy → 25-jre-jammy) and #2
+  (`maven:3.9-eclipse-temurin-21` → `3-eclipse-temurin-26`) had been open and
+  unmergeable since 2026-09-05. Neither is really a dependency question:
+  `backend/pom.xml` pins `<java.version>21</java.version>` and all three
+  `setup-java` steps install 21, so the tag on those images is that same decision
+  written a third and fourth time — and Dependabot cannot see the other three.
+
+  #2 is the one worth stopping deliberately rather than just ignoring. The
+  Dockerfile's build stage compiles the jar Render actually runs, so taking it
+  would leave CI verifying a JDK 21 build while a JDK 26 build is what ships.
+  That divergence produces no red run; it produces a production-only failure
+  later, which is the worst shape a CI problem can take here.
+
+  Both images now carry a semver-major `ignore` rule — the same guard, and the
+  same reasoning, already written in that file for Angular, TypeScript and
+  vitest: when a version is pinned by something outside the manifest, a blind
+  bump is noise at best. The comment records what lifting them requires
+  (`pom.xml`, both workflows' `setup-java` steps and both image tags moving
+  together) so it reads as a deferred decision, not an oversight. **Moving to
+  Java 25 LTS is a real option whenever you want it — it is a project decision,
+  not a chore.** `0487ceb`.
+
+  Dependabot closes an ignored PR on its next evaluation rather than instantly,
+  so #1 and #2 (and #3–#7, now that the versions they propose are already in the
+  workflows) should disappear on their own.
 
 - 2026-09-11 — Three SEO defects on the live site, all in the head, none visible to
   anyone reading the page. Found by reading the deployed HTML rather than the source:
