@@ -14,10 +14,10 @@ describe('LiveStatus', () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it('shows "Up now" when the host answers (even opaquely)', async () => {
+  it('shows "Responding" when the host answers (even opaquely)', async () => {
     const fixture = await render('https://tesseraapp.dev', async () => new Response(null, { status: 200 }));
     expect(fetch).toHaveBeenCalledWith('https://tesseraapp.dev', expect.objectContaining({ mode: 'no-cors' }));
-    expect(fixture.nativeElement.textContent).toContain('Up now');
+    expect(fixture.nativeElement.textContent).toContain('Responding');
     expect(fixture.nativeElement.querySelector('.status').dataset['state']).toBe('up');
   });
 
@@ -42,8 +42,8 @@ describe('LiveStatus', () => {
     await fixture.whenStable();
     const status: HTMLElement = fixture.nativeElement.querySelector('.status');
     expect(status.textContent?.trim()).toBe('');
-    expect(status.getAttribute('title')).toBe('Up now');
-    expect(status.getAttribute('aria-label')).toBe('Live site Up now');
+    expect(status.getAttribute('title')).toBe('Responding');
+    expect(status.getAttribute('aria-label')).toBe('Live site Responding');
   });
 
   it('only probes once the dot scrolls into view, when IntersectionObserver exists', async () => {

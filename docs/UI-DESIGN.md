@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.1 |
+| **Version** | 0.4.2 |
 | **Date** | 2026-09-11 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
 | **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) |
@@ -76,7 +76,7 @@ Angular components (`frontend/src/app/shared/`):
 | `Footer` | `app-footer` | Row 1: © + one-line privacy note left, Terms of Use / Privacy Policy right (the current one gets `aria-current`). Row 2, under a hairline: "Contact" label + Email / LinkedIn / GitHub. `compact` (Ledger) keeps row 1 without the note and drops row 2. Dossier renders no `app-footer` — its inline `.foot` carries the © and the same two links. |
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
-| `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Up now" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
+| `LiveStatus` | `app-live-status` | 8 px dot + 13 px label — "Checking…" (pulsing), "Responding" (success), "Not reachable right now" (warning) — from a browser-side `no-cors` probe of the project URL after hydration. |
 | `GithubActivity` | `app-github-activity` | Dot + "Pushed to Resume · 7m ago"-style label, linked to the event's repo; browser-only fetch of GitHub's public events API, `:host { display: contents }` so it takes no space when it renders nothing. A "+N more" text button expands up to four older events as a bordered list below (closes on Escape or an outside click); it wraps onto its own line via `flex-basis: 100%` rather than using `position: absolute`, which Dossier's sticky, scrolling aside would clip. `compact` input for a dot-only, `title`-labelled variant — no disclosure there. |
 | `CommandPalette` | `app-command-palette` | The Ctrl+K / Cmd+K overlay: backdrop + panel with a search field and a filtered `listbox` of Home / Resume / every project / "Toggle theme". The panel is capped at `60vh` and the list scrolls inside it, so the arrow keys scroll the highlighted row into view — on a 600 px-tall window eleven rows overflow a 308 px list, and wrapping from the first row to the last would otherwise highlight something off-screen. Mounted once at the app root. |
 | `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
@@ -195,7 +195,7 @@ margins. This is what `npm run resume:pdf` captures.
   cannot see is the same bug for a sighted keyboard user as no highlight at all.
 - Motion: the skeleton shimmer, the live-status pulse and the route cross-fade are
   all disabled under `prefers-reduced-motion`.
-- Live status is a `role="status"` element with an `aria-label` ("Live site Up now"),
+- Live status is a `role="status"` element with an `aria-label` ("Live site Responding"),
   so the dot's colour is never the only signal.
 - Images: real screenshots get descriptive `alt`; placeholders expose the project
   name via `role="img"` + `aria-label`.

@@ -68,9 +68,11 @@ HTML a crawler sees always lists every project.
 ## Scripts
 
 All from `frontend/`. The three generators write files that are committed
-(`resume.pdf`, `shots/`, `icons/`); `snapshot` writes git-ignored data. The four
-Chrome-driven ones (`a11y`, `resume:pdf`, `shots`, `snapshot`) need a Chrome on
-the machine — they use `puppeteer-core`, which does not download one.
+(`resume.pdf`, `shots/`, `icons/`); `snapshot` writes git-ignored data. The three
+Chrome-driven ones (`a11y`, `resume:pdf`, `shots`) need a Chrome already on the
+machine — they drive it through `puppeteer-core` or its own CLI, and neither
+downloads one. `snapshot` and `linkcheck` only make HTTP requests, so they run
+anywhere Node does.
 
 | Script | What it does | When to run it |
 |--------|--------------|----------------|
@@ -78,6 +80,7 @@ the machine — they use `puppeteer-core`, which does not download one.
 | `npm run build` | Prerenders every route against the backend, then writes `sitemap.xml` (`postbuild`) | Before a release; CI runs it too |
 | `npm test -- --watch=false` | Vitest/jsdom suite | Every change |
 | `npm run a11y` | axe-core over 15 page states x both themes in real Chrome; fails on any WCAG 2.x A/AA violation | After UI or colour-token changes. Add `BUILD_DIR=dist/frontend/browser` to audit a finished build instead of the dev server |
+| `npm run linkcheck` | Requests every link the catalogue advertises (live sites, repos, social) and fails on any that a visitor would find broken | Before a release, and any time a project's hosting changes. Defaults to the deployed catalogue; `SITE=` or `BUILD_DIR=` point it elsewhere |
 | `npm run snapshot` | Captures `/api/{profile,projects,resume}` into `public/data/*.json` | Needs the backend up; the Pages deploy does it automatically |
 | `npm run resume:pdf` | Prints `/resume` to `public/resume.pdf` via headless Chrome | After resume content changes (the deploy also regenerates it, best-effort) |
 | `npm run shots` | Project screenshots (WebP 1600/800 + social JPEG) and `og.png` | After a project's UI changes; `-- --only <id>` for one |
@@ -187,8 +190,9 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
   worker, so no offline mode — the site is still a plain static bundle.
 - Rendering: every route is prerendered to static HTML at build time (project pages
   from the ids the API returns) and hydrated in the browser; the client shell doubles
-  as the Pages `404.html`. Lighthouse (mobile, gzip static host): performance 99,
-  accessibility 100, best practices 96, SEO 100; 200 kB total transfer.
+  as the Pages `404.html`. Lighthouse (mobile) against the deployed site on
+  2026-09-11: performance 100, accessibility 100, best practices 96, SEO 100;
+  FCP 1.0 s, LCP 1.0 s, CLS 0.019, 280 kB transferred.
 - Content: five of the six catalogue entries are `LIVE` with real URLs — TesseraApp,
   Angular Concepts, Dev Learning Hub, Dev Hub, and WebsiteHub itself (this site, listed
   like any other project). Only Luv2Shop is still `WIP`, waiting on its database and

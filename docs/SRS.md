@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.1 (prerendered) |
+| **Version** | 0.4.2 (prerendered) |
 | **Date** | 2026-09-11 |
 | **Status** | Live — frontend on GitHub Pages, API on Render (see [DEPLOYMENT.md](DEPLOYMENT.md)). Remaining work is incremental; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
@@ -90,15 +90,20 @@ opens each project's live app.
   `common` 32, `rxjs` 21, `platform-browser` 14) and is effectively the floor; all
   application code is ~100 kB. Routes are imported eagerly on purpose — every route
   is prerendered, so a lazy chunk would delay *hydration* of a page whose HTML had
-  already arrived, which is the wrong trade here. Lighthouse on the static build
-  served with gzip, mobile emulation, API unreachable: performance 99, accessibility
-  100, best practices 96, SEO 100; FCP 1.7 s, LCP 1.9 s, CLS 0.01; 200 kB total
-  transfer and no third-party host (fonts self-hosted, screenshots WebP with
-  `srcset`) (2026-09-04) — measured before `GithubActivity` (FR-23) existed. That widget deliberately adds exactly
-  one small, deferred, client-side call to `api.github.com` (chosen over an
-  embeddable third-party stats-image service for this reason); it never blocks
-  render, adds no bundled script, and fails silently, so its effect on the score
-  above is expected to be minor but has not been re-measured. API responses
+  already arrived, which is the wrong trade here. Lighthouse (mobile emulation)
+  against the **deployed** site on 2026-09-11: performance 100, accessibility 100,
+  best practices 96, SEO 100; FCP 1.0 s, LCP 1.0 s, CLS 0.019, TBT 10 ms, 280 kB
+  transferred and no third-party host (fonts self-hosted, screenshots WebP with
+  `srcset`). The same commit served locally over plain gzip scores 96 (FCP 2.0 s,
+  LCP 2.4 s, 277 kB): that gap is the Pages CDN, not the bundle, so the deployed run
+  is the one that counts and the local one is a pessimistic floor worth re-running
+  before a release. This supersedes the 2026-09-04 run (99 / 100 / 96 / 100, 200 kB),
+  which predated `GithubActivity` (FR-23) — that widget adds exactly one small,
+  deferred, client-side call to `api.github.com` (chosen over an embeddable
+  third-party stats-image service for this reason), never blocks render, adds no
+  bundled script and fails silently, and the re-measurement confirms it cost no
+  score. Total transfer grew over that week; the *initial bundle* did not, because
+  the budget above now caps it at build time. API responses
   are in-memory and answer in single-digit milliseconds once the JVM is warm. Cold
   starts on scale-to-zero hosting are hidden by prerendering: every page arrives
   complete from the static host even when the API is asleep.
@@ -110,6 +115,13 @@ opens each project's live app.
 - **Availability.** Best-effort; free tiers may sleep. The frontend must render full
   content from the prerendered HTML (or the deploy-time snapshot) when the API is
   cold or down, and at least its shell (nav, skeletons) when even that is missing.
+  Outbound links are a separate promise, and a louder one: a project the catalogue
+  labels `LIVE`, and every project's "Code" link, must actually answer. `npm run
+  linkcheck` checks that from Node against the deployed catalogue, where the real
+  status code is visible. The in-page `LiveStatus` dot cannot do it — a browser's
+  `no-cors` probe reads a 503 as "answered", which is why its label says
+  "Responding" and not "Up now". Checked 2026-09-11: 10 of 12 links good; the two
+  that are not need the owner (see BACKLOG, "Open — needs the owner").
 - **Accessibility.** Semantic landmarks, `aria-current`, keyboard-visible focus
   rings (2 px accent), reduced motion respected for the skeleton shimmer, the
   live-status pulse and route transitions. The command palette (FR-24) follows

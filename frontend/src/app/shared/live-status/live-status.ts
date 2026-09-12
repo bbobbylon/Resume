@@ -1,9 +1,14 @@
 import { afterNextRender, Component, DestroyRef, ElementRef, inject, input, signal } from '@angular/core';
 
 /**
- * What the probe knows. `down` means "did not answer" — the fetch is `no-cors`, so
- * an opaque response cannot distinguish a 200 from a 500; only answered-at-all from
- * did-not.
+ * What the probe knows. `up` means "answered", not "healthy": the fetch is `no-cors`,
+ * so an opaque response cannot distinguish a 200 from a 500 — only answered-at-all
+ * from did-not. `down` is the did-not.
+ *
+ * This is a browser limit, not a shortcut, which is why the label for `up` says
+ * "Responding" rather than "Up now" — it is the strongest claim the measurement
+ * actually supports. `scripts/linkcheck.mjs` runs the same check from Node, where
+ * the real status code is visible, and is what catches a link that answers badly.
  */
 export type Reachability = 'checking' | 'up' | 'down';
 
@@ -47,14 +52,14 @@ export class LiveStatus {
   readonly url = input.required<string>();
   /** Probe timeout in milliseconds. */
   readonly timeoutMs = input(6000);
-  /** Dot only, no "Checking…"/"Up now" text — for tight spaces like a landing card. */
+  /** Dot only, no "Checking…"/"Responding" text — for tight spaces like a landing card. */
   readonly compact = input(false);
 
   /** The dot's current state; starts as `checking`, which is also what the server renders. */
   protected readonly state = signal<Reachability>('checking');
   /** Human wording for {@link state}, used as visible text or as the `title` in compact mode. */
   protected readonly label = () =>
-    ({ checking: 'Checking…', up: 'Up now', down: 'Not reachable right now' })[this.state()];
+    ({ checking: 'Checking…', up: 'Responding', down: 'Not reachable right now' })[this.state()];
 
   constructor() {
     const controller = new AbortController();

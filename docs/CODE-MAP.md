@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.1 |
+| **Version** | 0.2.2 |
 | **Date** | 2026-09-11 |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [BACKLOG.md](BACKLOG.md) |
 
@@ -210,7 +210,7 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 | `shared/footer/footer.spec.ts` | The copyright line and social links, and the link row omitted in compact mode. |
 | `shared/status-tag/status-tag.spec.ts` | Live outline, WIP neutral, Archived dimmed, and the accent Featured chip. |
 | `shared/project-image/project-image.spec.ts` | The initial-letter placeholder when there is no screenshot, and the lighten blend when there is. |
-| `shared/live-status/live-status.spec.ts` | "Up now" on any answer (even opaque), "Not reachable" on failure, nothing without a URL, compact mode, and that it only probes once the dot scrolls into view. |
+| `shared/live-status/live-status.spec.ts` | "Responding" on any answer (even opaque), "Not reachable" on failure, nothing without a URL, compact mode, and that it only probes once the dot scrolls into view. |
 | `shared/github-activity/github-activity.spec.ts` | Event → linked sentence, skipping unrecognized event types, compact mode, and silence on a failed, empty or rate-limited response — plus the disclosure: the count it advertises, expanding to the rest of the history newest-first, collapsing on Escape, and never appearing in compact mode. |
 | `shared/layout-switcher/layout-switcher.spec.ts` | One link per layout, each setting `?layout=`, with the current one marked — and that each href keeps a `?tech=`/`?q=` already on the URL rather than replacing it. |
 | `shared/theme-toggle/theme-toggle.spec.ts` | A labelled button that flips the theme. |
@@ -228,6 +228,7 @@ things that do.
 | `resume-pdf.mjs` (`npm run resume:pdf`) | Regenerates `public/resume.pdf` from a rendered `/resume` using the app's own print stylesheet, so the PDF can never drift from the page. Drives Chrome through `puppeteer-core` rather than the `--print-to-pdf` flag, which hung on the CI runner. |
 | `screenshots.mjs` | `npm run shots` — captures every live project into `public/shots/` as WebP at two widths plus a JPEG social crop, and the landing page as `public/og.png`. Feeds `ProjectImage`'s `srcset` and the OG tags `PageMeta` sets. |
 | `icons.mjs` (`npm run icons`) | Renders the PWA icons (192/512/maskable) and `apple-touch-icon.png` from an inline SVG monogram via `sharp`. There is no logo asset to resize — the brand mark is a wordmark — so the glyph is drawn here, with the Nocturne background/accent as literals because this runs outside the Angular build. Re-run only if those tokens change. |
+| `linkcheck.mjs` (`npm run linkcheck`) | Requests every link the catalogue advertises — each project's live URL, each project's repo, each profile social link — and exits non-zero when one the site presents as working does not. Exists because `LiveStatus` cannot do this: its `no-cors` browser probe gets an opaque response, so a host answering 503 still reads as "Responding". Node sees the status code. Each failure is retried once after a pause, so a Render free tier waking up (a slow success) is not mistaken for a suspended one (an instant 5xx twice). Defaults to the deployed catalogue; `SITE=` or `BUILD_DIR=` aim it elsewhere. |
 | `snapshot.mjs` | Writes `public/data/{profile,projects,resume}.json` from a running backend. This is the fallback `Api` serves while a sleeping Render service wakes; the Pages workflow regenerates it every deploy, which is why `public/data/` is git-ignored. |
 | `sitemap.mjs` | `postbuild` — turns the routes `ng build` actually prerendered into `sitemap.xml`, so a new project reaches the sitemap by existing in the backend. Strips the `--base-href` prefix that the origin substitution downstream re-adds. |
 | `static-server.mjs` | A minimal static server for pointing headless Chrome at a finished `ng build` without the dev server or the backend. Models GitHub Pages closely enough to be worth trusting: `--base-href` prefixes, `<path>/index.html` for extension-less routes, and — for a path with no file — the body of `404.html` (or `index.csr.html`, which is what the deploy copies into it) with a 404 status. Without that last part, auditing a built site's not-found path silently measured *Chrome's* error page. |

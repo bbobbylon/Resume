@@ -44,6 +44,35 @@ the top of each section. Dates are when the item was added. See
 
 ## Open — needs the owner
 
+- [ ] **TesseraApp is down, and the site is advertising it as `LIVE`** (2026-09-11).
+  `https://tesseraapp.dev` — the flagship entry, first card, `LIVE` badge, an "Open
+  tesseraapp.dev" button on its detail page — answers **502/503** from Render's edge
+  (`Server: awselb/2.0` behind CloudFront), consistently, in ~150 ms. The speed is
+  the tell: a free-tier service that is only *asleep* holds the connection open for
+  something like 50 s and then serves a 200, so this is a suspended or failed
+  service, not a cold start. Four retries spread over several minutes, all 5xx.
+  Nothing in this repo can fix it — it is the Render service behind
+  `angularSpringBootFullStack`. Either bring it back (check the dashboard for a
+  failed deploy, a suspended free instance, or a spend limit) or change its `status`
+  in `InMemoryProjectRepository` so the site stops making a claim it cannot keep.
+
+  Worth knowing while it is down: **the dot cannot show this.** `LiveStatus` probes
+  from the visitor's browser with a `no-cors` fetch, and an opaque response separates
+  only "answered" from "did not" — a 503 answered, so the dot goes green. Verified on
+  the deployed detail page: `data-state="up"`. That is a browser limit, not a
+  component bug; the fix was to stop overclaiming in the label and to check it from
+  Node instead (see Done, below).
+
+- [ ] **`dev-learning-hub`'s "Code" link 404s** (suspected 2026-09-05, confirmed
+  2026-09-11). `https://github.com/bbobbylon/OOPFundamentals` returns 404 to anyone
+  who is not signed in as the owner, while its Pages site at
+  `https://bbobbylon.github.io/OOPFundamentals/app.html` serves 200 — so the card
+  works and the repository button behind it dead-ends. The repo does not appear in
+  the public listing for `bbobbylon`, which fits a private repo. Make it public,
+  point `repoUrl` at whatever repo actually holds that code, or drop the repo link
+  for that one project. `npm run linkcheck` now catches this on demand rather than
+  leaving it to be noticed.
+
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
 - [x] Enable Pages (2026-09-05): `Settings → Pages → Source: GitHub Actions` — the
@@ -121,6 +150,62 @@ the top of each section. Dates are when the item was added. See
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-09-11 — The site was telling visitors a dead project was fine. `LiveStatus`
+  labelled any answer "Up now", and `https://tesseraapp.dev` — the flagship card,
+  badged `LIVE` — has been answering **502/503**. A 5xx is still an answer, so the
+  dot went green over a broken site and a recruiter clicking through got a gateway
+  error page. Two fixes, because there are two separate problems:
+
+  1. **The label overclaimed.** "Up now" asserts health; the measurement only
+     supports reachability, since a `no-cors` fetch gets an opaque response and
+     cannot see a status code. It now says **"Responding"** — the strongest claim the
+     probe actually earns. The `Reachability` doc says why in the type itself, so the
+     next person to read it does not "fix" the wording back.
+  2. **Nothing was checking the links at all.** New `npm run linkcheck`
+     (`frontend/scripts/linkcheck.mjs`) requests every link the catalogue advertises
+     — each project's live URL, each project's repo, each profile social link — from
+     Node, where the real status code *is* visible, and exits non-zero on any link
+     the site presents as working that does not. Not-`LIVE` projects and slow-but-OK
+     hosts print as advisories, the same failing/advisory split `a11y.mjs` uses.
+     Every failure is retried once after a pause, because Render's free tier holds
+     the connection open while it wakes: a cold start is a slow success, a suspended
+     service is an instant 5xx twice. Without the retry this would cry wolf every
+     time the API had been idle.
+
+  First run, against the deployed catalogue: **10 of 12 good**, and it immediately
+  caught both bad ones — tesseraapp.dev's 502, and `dev-learning-hub`'s repository
+  link 404ing (suspected back on 2026-09-05, never confirmed until something
+  actually asked GitHub). Both need the owner; both are filed above.
+
+  Deliberately not a CI job, for the a11y reasons plus one of its own: it can fail
+  because *someone else's* service is down, and a push going red for that would
+  train the owner to ignore red — which is the exact opposite of the standing rule.
+  Promoting it to a **scheduled** (never push-triggered) workflow is a real option if
+  the owner wants the alarm; it is their call, so it is not built.
+
+  Also corrected while in there: the README claimed four Chrome-driven scripts and
+  listed `snapshot` among them. `snapshot` is plain `fetch`, and `icons` is `sharp`;
+  only `a11y`, `resume:pdf` and `shots` need a browser on the machine.
+
+- 2026-09-11 — Lighthouse re-measured, closing the stale caveat in SRS §4. That
+  section had been carrying a 2026-09-04 run (99 / 100 / 96 / 100, 200 kB) with an
+  explicit note that it predated `GithubActivity` (FR-23) and that the widget's
+  effect "has not been re-measured". It has now, twice:
+
+  | | Performance | A11y | Best practices | SEO | FCP | LCP | CLS | Transfer |
+  |---|---|---|---|---|---|---|---|---|
+  | Deployed (Pages) | **100** | 100 | 96 | 100 | 1.0 s | 1.0 s | 0.019 | 280 kB |
+  | Local `npx serve` | 96 | 100 | 96 | 100 | 2.0 s | 2.4 s | 0.019 | 277 kB |
+
+  Mobile emulation both times, same commit. The 4-point gap is the Pages CDN's
+  caching and edge compression, not the bundle — same bytes, different edge — so the
+  deployed run is the number to quote and the local one is a useful pessimistic
+  floor. `GithubActivity` cost nothing: the score went *up*. The local run's console
+  errors are an artifact too — the page calls the Render API from a `localhost`
+  origin that `ALLOWED_ORIGIN` does not whitelist, so every call is a CORS failure
+  that cannot happen on the real domain. Recorded in SRS §4, README and DEPLOYMENT §9
+  with both numbers, so the next reader does not have to rediscover why they differ.
 
 - 2026-09-11 — Accessibility is measured now, not asserted. The docs have claimed a
   WCAG 2.1 AA target since the first design pass with nothing checking it. New

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.1 |
+| **Version** | 0.4.2 |
 | **Date** | 2026-09-11 (provider limits in §1 were verified against vendor docs on 2026-09-04 — re-check before relying on them) |
 | **State** | Both halves are live: <https://bbobbylon.github.io/Resume/> and <https://bobs-resume.onrender.com>. §3 is done except the optional custom domain. |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) |
@@ -229,7 +229,13 @@ backend), then serve `dist/frontend/browser` with a gzip-capable static server
 (`npx serve -l 4334 dist/frontend/browser`) — the build points at the Render URL,
 which fails or times out, and every page is already complete from its prerendered
 HTML (`data/*.json` covers a page that was not prerendered). Verified this way on
-2026-09-04: Lighthouse mobile 99 / 100 / 96 / 100, 200 kB transferred.
+2026-09-11: Lighthouse mobile 96 / 100 / 96 / 100, 277 kB transferred (FCP 2.0 s,
+LCP 2.4 s, CLS 0.019, TBT 0 ms). Treat that as the floor, not the number to quote:
+the same commit on Pages scores 100 with FCP and LCP at 1.0 s, because `npx serve`
+has none of the CDN's caching or edge compression. Its console errors are also an
+artifact — the page is calling the Render API from a `localhost` origin that
+`ALLOWED_ORIGIN` does not whitelist, so every call is a CORS failure that would not
+happen on the real domain.
 
 ## 10. Regenerating the resume PDF, screenshots, icons and snapshot
 
@@ -301,6 +307,35 @@ Actions runner (see docs/BACKLOG.md), and a flaky gate on a repo whose standing 
 worth running before a release: it audits the exact artifact about to ship, and
 `static-server.mjs` serves its `404.html` the way Pages will.
 
+### Link check
+
+```bash
+cd frontend && npm run linkcheck                          # against the deployed catalogue
+SITE=http://localhost:4222/ npm run linkcheck             # against the dev server
+BUILD_DIR=dist/frontend/browser npm run linkcheck         # against a finished build
+```
+
+Requests every link the catalogue puts in front of a visitor — each project's live
+URL, each project's repository, each social link on the profile — and exits non-zero
+when one the site presents as working does not. A project that is not `LIVE` and a
+link that merely answers slowly are printed as advisories instead.
+
+This exists because the in-page dot cannot do the job. `LiveStatus` probes from the
+visitor's browser with a `no-cors` fetch, so the response is opaque: a host that
+returns 503 has still *answered*, and the dot says "Responding". Node sees the real
+status code. That gap is not theoretical — it is exactly how `https://tesseraapp.dev`
+came to be advertised as a working live site while returning 502/503 (BACKLOG,
+"Open — needs the owner").
+
+The retry is deliberate: Render's free tier holds the connection open while it wakes,
+so a cold start shows up as a slow success, while a suspended service answers 5xx in
+milliseconds both times. Without that, a sleeping API would look like a dead one.
+
+Not a CI job either, for the same reason as the a11y audit plus one more: it can fail
+for reasons entirely outside this repo — someone else's service being down — and a
+push going red for that would train the owner to ignore red. Promoting it to a
+scheduled (not push-triggered) workflow is an open option in BACKLOG.
+
 The API snapshot (`public/data/*.json`) is `npm run snapshot` with the backend
 running. It is git-ignored: the Pages workflow regenerates it on every deploy.
 
@@ -313,6 +348,7 @@ the API returns it.
 
 - [ ] `mvn -B verify` and `npm test -- --watch=false` green locally.
 - [ ] `npm run a11y` clean (axe-core, real Chrome, 15 page states x both themes). It is not in CI — headless Chrome has been unreliable on this repo's runner — so it only happens if someone runs it. `BUILD_DIR=dist/frontend/browser npm run a11y` audits the artifact that is actually about to ship, including its 404 page.
+- [ ] `npm run linkcheck` clean, or every failure it prints is a known one tracked in BACKLOG. A dead "Code" link or a `LIVE` badge over a 503 is the most expensive kind of bug here: it is the one a recruiter finds.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
 - [ ] `landingLayout` set to the chosen layout.
 - [ ] `resume.pdf` regenerated if resume content changed; `npm run shots` re-run if a project's UI changed.

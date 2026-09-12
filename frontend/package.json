@@ -9,6 +9,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "a11y": "node scripts/a11y.mjs",
+    "linkcheck": "node scripts/linkcheck.mjs",
     "resume:pdf": "node scripts/resume-pdf.mjs",
     "shots": "node scripts/screenshots.mjs",
     "icons": "node scripts/icons.mjs",
