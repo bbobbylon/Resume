@@ -44,34 +44,7 @@ the top of each section. Dates are when the item was added. See
 
 ## Open — needs the owner
 
-- [ ] **TesseraApp is down, and the site is advertising it as `LIVE`** (2026-09-11).
-  `https://tesseraapp.dev` — the flagship entry, first card, `LIVE` badge, an "Open
-  tesseraapp.dev" button on its detail page — answers **502/503** from Render's edge
-  (`Server: awselb/2.0` behind CloudFront), consistently, in ~150 ms. The speed is
-  the tell: a free-tier service that is only *asleep* holds the connection open for
-  something like 50 s and then serves a 200, so this is a suspended or failed
-  service, not a cold start. Four retries spread over several minutes, all 5xx.
-  Nothing in this repo can fix it — it is the Render service behind
-  `angularSpringBootFullStack`. Either bring it back (check the dashboard for a
-  failed deploy, a suspended free instance, or a spend limit) or change its `status`
-  in `InMemoryProjectRepository` so the site stops making a claim it cannot keep.
-
-  Worth knowing while it is down: **the dot cannot show this.** `LiveStatus` probes
-  from the visitor's browser with a `no-cors` fetch, and an opaque response separates
-  only "answered" from "did not" — a 503 answered, so the dot goes green. Verified on
-  the deployed detail page: `data-state="up"`. That is a browser limit, not a
-  component bug; the fix was to stop overclaiming in the label and to check it from
-  Node instead (see Done, below).
-
-- [ ] **`dev-learning-hub`'s "Code" link 404s** (suspected 2026-09-05, confirmed
-  2026-09-11). `https://github.com/bbobbylon/OOPFundamentals` returns 404 to anyone
-  who is not signed in as the owner, while its Pages site at
-  `https://bbobbylon.github.io/OOPFundamentals/app.html` serves 200 — so the card
-  works and the repository button behind it dead-ends. The repo does not appear in
-  the public listing for `bbobbylon`, which fits a private repo. Make it public,
-  point `repoUrl` at whatever repo actually holds that code, or drop the repo link
-  for that one project. `npm run linkcheck` now catches this on demand rather than
-  leaving it to be noticed.
+Nothing open right now — see Done below for the two items that closed 2026-09-13.
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
@@ -99,10 +72,20 @@ the top of each section. Dates are when the item was added. See
     runbook) — all added on branch `BranchDivergeFix`, uncommitted, alongside
     an unrelated in-flight port-bump WIP already on that branch (needs owner
     review before committing/merging). Still needs: merge to `main` (or point
-    Render at `BranchDivergeFix`), an Aiven MySQL free-tier database (Render
-    has no free managed MySQL), and the Render service itself created from
-    the Blueprint. Okta/Stripe stay inert (by design) until real accounts are
+    Render at `BranchDivergeFix`), a free-tier MySQL database (Render has no
+    free managed MySQL), and the Render service itself created from the
+    Blueprint. Okta/Stripe stay inert (by design) until real accounts are
     added later — not required to go live.
+    - [ ] **Blocked (2026-09-13): Aiven is out** — the owner has already hit
+      Aiven's per-account limit on free services from earlier work (TesseraApp's
+      DB), so Luv2Shop cannot get an Aiven MySQL instance too. Need a different
+      free-tier MySQL-compatible host (no card) before this can move — not yet
+      researched/decided. Candidates to evaluate next time this is picked up:
+      a MySQL-wire-compatible serverless option (e.g. TiDB Cloud Serverless) to
+      avoid touching the app's JDBC/Hibernate MySQL dialect, vs. switching the
+      datasource to a free Postgres host (Neon/Supabase/Render's own) which
+      would mean an actual driver/dialect/schema-syntax change. Verify current
+      free-tier terms before committing — these change often.
   - [x] **Dev Hub is LIVE** (2026-09-06) at `https://bbobbylon.github.io/dev-hub/`.
     No Render needed — it's a plain client-rendered Vite 8 + React 19 app
     (`app/`, no backend). Pushed `implement-design-handoff` and fast-forwarded
@@ -150,6 +133,22 @@ the top of each section. Dates are when the item was added. See
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-09-13 — `dev-learning-hub`'s repo link fixed by the owner: `OOPFundamentals`
+  was made public (suspected 2026-09-05, confirmed private via 404 on 2026-09-11).
+  Verified `github.com/bbobbylon/OOPFundamentals` now `200`, and re-ran
+  `npm run linkcheck` — all 12 advertised links (live sites, repos, profile) pass.
+  No repo change needed; this was purely a GitHub repo-visibility setting.
+
+- 2026-09-13 — TesseraApp is back up. Re-checked `https://tesseraapp.dev` (the
+  2026-09-11 entry below recorded it 502/503ing four times over several minutes) and
+  it now answers real HTML `200` consistently (three attempts, ~150-200ms each) — the
+  Render-side outage resolved itself or the owner fixed it outside this repo. No code
+  change needed; `InMemoryProjectRepository`'s `LIVE` status was correct the whole
+  time, it was the underlying service that was down. Removed the stale "down" item
+  above since it no longer reflects reality — the label-honesty fix (`LiveStatus` now
+  says "Responding" not "Up now") and `npm run linkcheck` stay, since both are
+  correct regardless of whether the target is currently up.
 
 - 2026-09-12 — Both workflows are off the deprecated Node 20 runtime, and the
   count of actions that needed moving was **seven, not the five Dependabot had
