@@ -76,16 +76,36 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
     free managed MySQL), and the Render service itself created from the
     Blueprint. Okta/Stripe stay inert (by design) until real accounts are
     added later — not required to go live.
-    - [ ] **Blocked (2026-09-13): Aiven is out** — the owner has already hit
-      Aiven's per-account limit on free services from earlier work (TesseraApp's
-      DB), so Luv2Shop cannot get an Aiven MySQL instance too. Need a different
-      free-tier MySQL-compatible host (no card) before this can move — not yet
-      researched/decided. Candidates to evaluate next time this is picked up:
-      a MySQL-wire-compatible serverless option (e.g. TiDB Cloud Serverless) to
-      avoid touching the app's JDBC/Hibernate MySQL dialect, vs. switching the
-      datasource to a free Postgres host (Neon/Supabase/Render's own) which
-      would mean an actual driver/dialect/schema-syntax change. Verify current
-      free-tier terms before committing — these change often.
+    - [ ] **Blocked (2026-09-13): Aiven is out, replacement decided — TiDB Cloud
+      Starter** — the owner has already hit Aiven's per-account limit on free
+      services from earlier work (TesseraApp's DB), so Luv2Shop cannot get an
+      Aiven MySQL instance too. Researched 2026-09-13: **TiDB Cloud Starter**
+      (formerly "Serverless") over a free Postgres host (Neon/Supabase/Render's
+      own), because it is MySQL-wire-compatible — `mysql-connector-j`,
+      Hibernate/JDBC and `schema.sql`'s `AUTO_INCREMENT`/backtick syntax all work
+      unmodified, only the connection string/credentials change — and it is the
+      only candidate with no inactivity pause/expiry. That last point matters
+      specifically for this app: Render's free web service already sleeps on
+      inactivity, so a database that *also* sleeps (Neon: scale-to-zero after 5
+      min; Supabase: pauses after 7 days) would stack a second cold-start on top
+      of the first. Render's own free Postgres was ruled out outright — it
+      hard-deletes the database 30 days after creation regardless of activity,
+      which fails a "stays live as a portfolio piece" bar entirely. No card
+      required, 5 GiB storage, 400 concurrent connections free.
+
+      **Gotcha to apply when this is wired up:** TiDB drops idle connections
+      after ~30 minutes, so HikariCP's pool needs `spring.datasource.hikari.
+      max-lifetime` set below that (e.g. `1500000`, 25 min) or a pooled
+      connection can go stale and throw on first use — likely to surface exactly
+      when the Render service wakes from its own sleep and reuses an
+      already-idle pool.
+
+      **Still needs the owner:** create the TiDB Cloud account/cluster (no
+      credential Claude can create on their behalf), then swap the Render secret
+      datasource values in `render.yaml`/`docs/DEPLOYMENT.md` from Aiven to
+      TiDB's connection details. Everything else prepped on `BranchDivergeFix`
+      (above) is unaffected — this only changes which host the datasource
+      secrets point at.
   - [x] **Dev Hub is LIVE** (2026-09-06) at `https://bbobbylon.github.io/dev-hub/`.
     No Render needed — it's a plain client-rendered Vite 8 + React 19 app
     (`app/`, no backend). Pushed `implement-design-handoff` and fast-forwarded
