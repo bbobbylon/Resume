@@ -22,7 +22,7 @@ export interface Stat {
  * The profile data every page reads (nav brand, hero, contact, footer). Mirrors the
  * backend's `Profile` record — see `GET /api/profile` in `ProfileController`.
  *
- * Fetched once by {@link ProfileService} and shared as a signal, so all three landing
+ * Fetched once by {@link ProfileService} and shared as a signal, so all four landing
  * layouts, the resume page, the nav and the footer read the same object.
  */
 export interface Profile {
@@ -48,6 +48,6 @@ export interface Profile {
   resumeUrl: string;
   /** Outbound profile links, in the order they should render. */
   socialLinks: SocialLink[];
-  /** Figures for Gallery's stat band; the other two layouts ignore them. */
+  /** Figures for Gallery's stat band; the other layouts ignore them. */
   stats: Stat[];
 }

@@ -5,8 +5,8 @@ REST API that serves an in-app resume and a catalogue of projects. Every project
 links **out** to its own live deployment and GitHub repo — this app never embeds
 another project's code or UI, it just points at it.
 
-Styled on the **Nocturne** design system with three interchangeable landing layouts
-(Ledger, Gallery, Dossier), a resume page and project detail pages.
+Styled on the **Nocturne** design system with four interchangeable landing layouts
+(Dossier, Folio, Ledger, Gallery), a resume page and project detail pages.
 
 | Doc | What it covers |
 |-----|----------------|
@@ -47,7 +47,7 @@ Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
 
 ```bash
 cd backend  && mvn -B verify              # JUnit 5 + MockMvc slices (13 tests)
-cd frontend && npm test -- --watch=false  # Vitest / jsdom (120 tests across 24 files)
+cd frontend && npm test -- --watch=false  # Vitest / jsdom (123 tests across 24 files)
 cd frontend && npm run build              # prerenders every route + writes sitemap.xml
 ```
 
@@ -57,7 +57,7 @@ Every view is a URL, so anything you can see you can link or bookmark.
 
 | What | How | Notes |
 |------|-----|-------|
-| Switch landing layout | The pill above the hero, or `?layout=ledger\|gallery\|dossier` | Default is `landingLayout` in `frontend/src/environments/`; an unknown value falls back to it |
+| Switch landing layout | The pill above the hero, or `?layout=dossier\|folio\|ledger\|gallery` | Default is `landingLayout` in `frontend/src/environments/` (`ledger`); an unknown value falls back to it. Folio is resume-forward — full experience/education/skills, projects condensed to a linked chip row |
 | Filter projects by technology | The chip row in the Projects section, or `?tech=Angular` | Matches by *family*, so `?tech=Angular` also matches a project listing `Angular 21`; a value no project uses shows everything rather than an empty page |
 | Search projects | The box beside the chips, or `?q=jwt` | Matches name, tagline and stack, case-insensitive; typing rewrites the URL (debounced). Starting a search adds one history entry, refining it replaces that entry, so a single Back always returns to the unfiltered list |
 | Command palette | `Ctrl+K` / `Cmd+K`, or the search button in the nav | Home, Resume, every project, both legal pages and a theme action; arrows move, Enter runs, Escape closes |
@@ -84,7 +84,7 @@ anywhere Node does.
 | `npm start` | Dev server on :4222, pre-wired to the local backend | Day-to-day work |
 | `npm run build` | Prerenders every route against the backend, then writes `sitemap.xml` (`postbuild`) | Before a release; CI runs it too |
 | `npm test -- --watch=false` | Vitest/jsdom suite | Every change |
-| `npm run a11y` | axe-core over 15 page states x both themes in real Chrome; fails on any WCAG 2.x A/AA violation | After UI or colour-token changes. Add `BUILD_DIR=dist/frontend/browser` to audit a finished build instead of the dev server |
+| `npm run a11y` | axe-core over 17 page states x both themes in real Chrome; fails on any WCAG 2.x A/AA violation | After UI or colour-token changes. Add `BUILD_DIR=dist/frontend/browser` to audit a finished build instead of the dev server |
 | `npm run linkcheck` | Requests every link the catalogue advertises (live sites, repos, social) and fails on any that a visitor would find broken | Before a release, and any time a project's hosting changes. Defaults to the deployed catalogue; `SITE=` or `BUILD_DIR=` point it elsewhere |
 | `npm run snapshot` | Captures `/api/{profile,projects,resume}` into `public/data/*.json` | Needs the backend up; the Pages deploy does it automatically |
 | `npm run resume:pdf` | Prints `/resume` to `public/resume.pdf` via headless Chrome | After resume content changes (the deploy also regenerates it, best-effort) |

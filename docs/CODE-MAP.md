@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.2.3 |
-| **Date** | 2026-09-11 |
+| **Version** | 0.2.4 |
+| **Date** | 2026-09-13 |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [BACKLOG.md](BACKLOG.md) |
 
 Every tracked source file, what it does, and what it talks to. ARCHITECTURE.md explains
@@ -130,10 +130,11 @@ pair is listed once, with the `.ts`.
 
 | File | Role |
 |---|---|
-| `landing/landing.ts` | The `/` route. Picks one of three interchangeable layouts (`environment.landingLayout`, overridable with `?layout=`; an unknown value falls back rather than erroring), renders `LayoutSwitcher` above it, and sets the site-level page metadata. |
+| `landing/landing.ts` | The `/` route. Picks one of four interchangeable layouts (`environment.landingLayout`, overridable with `?layout=`; an unknown value falls back rather than erroring), renders `LayoutSwitcher` above it, and sets the site-level page metadata. |
 | `landing/ledger/ledger.ts` (+ `.html`, `.css`) | Layout 1a — one numbered row per project, contact section at the foot. |
 | `landing/gallery/gallery.ts` (+ `.html`, `.css`) | Layout 1b — featured card, three-column grid, stat band. Owns `emptySlots`, which pads a short grid *except* under an active tech filter, where a short list is the filter's doing. |
 | `landing/dossier/dossier.ts` (+ `.html`, `.css`) | Layout 1c — sticky 360px aside (its own brand, links, theme toggle and palette trigger, hence no `Nav`) beside a projects table and an experience column read from `ResumeService`. |
+| `landing/folio/folio.ts` (+ `.html`, `.css`) | Layout 1d — the resume-forward variant, added 2026-09-13. Reuses `/resume`'s `280px │ 1fr` shell and CSS near-verbatim (aside + summary/experience/education/achievements), wrapped in the shared `Nav`/`Footer` like Ledger and Gallery. Its one addition is a condensed project section at the foot: a "See the full project list" link back to `/` (`?layout=` cleared via `queryParamsHandling="merge"`, `?tech=`/`?q=` kept) above a wrapped row of outlined chip links, one per `ProjectFilter.projects` entry, name only — deliberately no case studies, no filtering controls, because the point of this layout is the resume, not the catalogue. |
 | `project-detail/project-detail.ts` (+ `.html`, `.css`) | `/projects/:id`. Looks the id up in the list `ProjectService` already holds (`switchMap` on the param), renders hero, case study, highlights, meta lines, a Stack list whose tags link back to the landing page filtered to that technology, and a "Next project" teaser, sets per-project meta tags, and shows the not-found block for an unknown id. |
 | `resume/resume.ts` (+ `.html`, `.css`) | `/resume`. A `280px │ 1fr` grid: sticky aside (contact, skills, PDF button) beside summary, experience, projects, education and achievements. Its print stylesheet *is* the PDF layout. |
 | `legal/terms.ts` (+ `terms.html`) | The `/terms` route: what the site is, content and code ownership, links elsewhere, and fair use of the free public API. |
@@ -148,7 +149,7 @@ pair is listed once, with the `.ts`.
 | `api.ts` | **The one door to the backend.** Decides where data comes from: at build time it GETs the local backend and stores the result in `TransferState`; in the browser it emits that transferred data (or, for a non-prerendered route, the deploy-time `data/*.json` snapshot) at once *and* races a live request against `environment.apiTimeoutMs`, letting a live answer replace the fallback. This is why a sleeping free-tier API never delays a page. |
 | `profile.service.ts` | `Api.get('profile')` as a signal. Read by the nav, all three layouts, the resume page and the footer. |
 | `project.service.ts` | The catalogue as a signal, fetched once and shared; `getById` looks up that same list, so a sleeping API costs one fallback, not two. |
-| `resume.service.ts` | `Api.get('resume')` as a signal. Read by `/resume` and by Dossier's experience column. |
+| `resume.service.ts` | `Api.get('resume')` as a signal. Read by `/resume`, by Dossier's experience column, and by Folio, which renders the whole resume shape. |
 | `project-filter.ts` | Both landing filters, on one signal graph. `?tech=` derives facet chips from every project's `techStack` and matches by *family* (so `Angular` catches `Angular 21` while `React Router` stays separate from `React 19`); `?q=` matches free text against name, tagline and stack. They compose — a project must satisfy whichever are set — and `search()` owns the 200 ms debounce plus the navigation a chip gets for free from `routerLink`. That navigation is where the history rule lives: it **pushes** when `?q=` is not yet on the URL and **replaces** when it is, so Back leads to the unfiltered list rather than off the site, and refining a term does not stack one entry per pause. It also carries `fragment: 'projects'` — not cosmetic: `app.config.ts` turns on `scrollPositionRestoration`, which scrolls an anchor-less navigation to the top of the page, and this one fires mid-keystroke in a box below the fold. The chips carry the same fragment, which is why they never had the bug. `cancelSearch()` exists because the service is root-provided and outlives the box: without it a keystroke still in the debounce would fire after the visitor opened a project and drag them back to `/`. Exposes the filtered list all three layouts render, plus `active()` for the "is anything narrowing this?" question layouts ask before showing placeholder slots or a no-match message. The two axes fail **differently on purpose**: an unknown `?tech=` shows everything (a chip the visitor never chose shouldn't empty the page), while a `?q=` that matches nothing shows nothing (they typed it, so an empty result is the honest answer) — hence the no-match copy exists for search but not for tech. Only applies the filter after `afterNextRender` — `/` is prerendered with no query string, so filtering during first render would be a hydration mismatch. An unknown `?tech=` shows everything, mirroring the forgiving `?layout=` rule. |
 | `page-meta.ts` | Sets `<title>`, description, `<link rel="canonical">` and OG/Twitter tags per page, with the site-wide defaults `index.html` already ships, and owns the one `application/ld+json` block a page may carry (replaced on each navigation, removed when the next page sets none). The canonical is built from the same clean `path` as `og:url`, which is what keeps `/?layout=gallery`, `/?tech=Angular` and `/?q=api` from being indexed as rivals to `/`. `absolute()` builds the absolute URLs Open Graph, schema.org and the canonical all require, on the placeholder origin the Pages deploy rewrites. Used by the landing, resume, legal and detail pages. |
 | `theme.ts` | Dark/light as a `data-theme` attribute on `<html>`, plus the `theme-color` meta. Adopts what the pre-paint script in `index.html` chose, saves only an explicit toggle (an OS preference is re-read every visit), and touches nothing on the server. |
@@ -158,11 +159,11 @@ pair is listed once, with the `.ts`.
 
 | File | Role |
 |---|---|
-| `nav/nav.ts` (+ `.html`, `.css`) | The top nav used by Ledger, Gallery, the resume page and the detail page: brand, Projects, Resume, Contact, theme toggle, palette trigger and the PDF button. Sets `aria-current` by hand, because a fragment link's active state doesn't cover the detail routes. |
+| `nav/nav.ts` (+ `.html`, `.css`) | The top nav used by Ledger, Gallery, Folio, the resume page and the detail page: brand, Projects, Resume, Contact, theme toggle, palette trigger and the PDF button. Sets `aria-current` by hand, because a fragment link's active state doesn't cover the detail routes. |
 | `footer/footer.ts` (+ `.html`, `.css`) | Site footer in the owner's preferred shape: © line and a one-line privacy note, Terms/Privacy links (`aria-current` on the one you are reading), and Contact set apart under a hairline. `compact` (Ledger) keeps the © and the legal links only. Dossier has no `app-footer` — its inline `.foot` carries the same two links. |
 | `tech-filter/tech-filter.ts` | The chip row that drives `ProjectFilter`. Every chip is a real link setting `?tech=` (shareable, Back-friendly, merges with `?layout=`) with `fragment="projects"` so picking one doesn't scroll the visitor back to the hero. Also carries the `role="status"` summary line for **both** filters — "Showing 5 of 6 projects built with Angular matching \"api\"" — which is why the line is outside the chips' own `@if`: a search with no chips still needs it. |
 | `project-search/project-search.ts` | The search box beside the chips. A live-typed field cannot be a `routerLink`, so it writes through `ProjectFilter.search()` instead and reads `filter.queryText()` back for its value — which is what makes Back/Forward and `/?q=…` deep links move the box, not just the list. Its one piece of logic is a `DestroyRef.onDestroy` that cancels a pending search write, since `ProjectFilter` is root-provided and would otherwise navigate a visitor who has already left. |
-| `layout-switcher/layout-switcher.ts` | Three links above the landing layout, one per variant, so `?layout=` is discoverable rather than a hidden parameter. Each is `queryParamsHandling="merge"` — Angular's default replaces the whole query string, which would silently drop the visitor's `?tech=` and `?q=` on a switch that is only meant to change presentation. |
+| `layout-switcher/layout-switcher.ts` | Four links above the landing layout, one per variant, in the fixed presentation order Dossier, Folio, Ledger, Gallery — so `?layout=` is discoverable rather than a hidden parameter. Each is `queryParamsHandling="merge"` — Angular's default replaces the whole query string, which would silently drop the visitor's `?tech=` and `?q=` on a switch that is only meant to change presentation. |
 | `command-palette/command-palette.ts` (+ `.html`, `.css`) | The Ctrl+K / Cmd+K overlay. Flattens pages, projects, the legal pages and actions into one row shape, filters on label+hint, and drives selection with `aria-activedescendant` — real focus never leaves the search input, which is what makes the focus trap a one-line `Tab` swallow. That choice has a cost the component pays back explicitly: the browser will not scroll for a highlight it is not focusing, so an `afterRenderEffect` calls `scrollIntoView({ block: 'nearest' })` on the active row. Without it, ArrowUp from the first row wraps to the last and — on any window short enough for the 60vh panel to clip the list — highlights a row the visitor cannot see. Mounted once, in `App`. |
 | `command-palette-trigger/command-palette-trigger.ts` | The icon button that opens it, sized to match `ThemeToggle`; mounted in the nav and in Dossier's aside. |
 | `theme-toggle/theme-toggle.ts` | The sun/moon button over `ThemeService`. Both icons are always in the DOM and CSS picks one, so the server and browser markup match. |
@@ -183,9 +184,9 @@ contract the templates are written against.
 | `profile.model.ts` | `Profile`, `SocialLink`, `Stat`. |
 | `project.model.ts` | `Project`, `ProjectStatus`, `Highlight`, `CaseStudy`. |
 | `resume.model.ts` | `Resume`, `Experience`, `ResumeProject`, `Education`, `Achievement`, `SkillGroup`. |
-| `landing-layout.ts` | The `LandingLayout` union, the list of all three, and the `isLandingLayout` guard `Landing` uses to validate `?layout=`. Frontend-only — the backend knows nothing about layouts. |
+| `landing-layout.ts` | The `LandingLayout` union, the list of all four, and the `isLandingLayout` guard `Landing` uses to validate `?layout=`. Frontend-only — the backend knows nothing about layouts. |
 
-### 4.6 Tests — `*.spec.ts` (Vitest, 120 tests across 24 files)
+### 4.6 Tests — `*.spec.ts` (Vitest, 123 tests across 24 files)
 
 Run with `npm test` from `frontend/`. Always the full suite: `npx vitest run <file>`
 bypasses the Angular builder's setup and fails with "describe is not defined".
@@ -193,8 +194,8 @@ bypasses the Angular builder's setup and fails with "describe is not defined".
 | File | What it pins down |
 |---|---|
 | `app.spec.ts` | The root component creates and renders its router outlet, and the skip link is the page's first element, points at `#main`, and moves focus there (falling back to the plain fragment link when a route has no landmark). |
-| `pages/landing/landing.spec.ts` | Layout selection: the Ledger default, the `?layout=` override, and an unknown value ignored rather than erroring. |
-| `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column — plus, through a real navigation to `/?q=…`, that each one says "no projects match your search" rather than showing an empty catalogue or a stuck skeleton. |
+| `pages/landing/landing.spec.ts` | Layout selection: the Ledger default, the `?layout=` override (including Folio), and an unknown value ignored rather than erroring. |
+| `pages/landing/layouts.spec.ts` | Each layout renders the same data its own way: Ledger's numbered rows with Open/Source links, Gallery's lead card and padded grid, Dossier's projects table and experience column, Folio's resume shell with its condensed project chip row — plus, through a real navigation to `/?q=…`, that each one says "no projects match your search" rather than showing an empty catalogue or a stuck skeleton. |
 | `pages/project-detail/project-detail.spec.ts` | The project renders once the list resolves, its schema.org graph describes the source and the breadcrumb trail, each stack tag links to `/?tech=…#projects` with a describing `aria-label`, the meta description is the project's `description` alone rather than the tagline joined to it, and an id that is not in the list gets the not-found state. |
 | `pages/resume/resume.spec.ts` | Experience, projects, education and achievements all render from `GET /api/resume`. |
 | `pages/not-found/not-found.spec.ts` | The miss is explained and links back to the hub, and the page replaces the previous route's title, description and canonical rather than inheriting them. |
@@ -224,7 +225,7 @@ things that do.
 | File | Role |
 |---|---|
 | `chrome.mjs` | Shared helpers for the headless-Chrome scripts: finds a Chrome binary (`$CHROME` first, then the usual install paths) and lends each run a throwaway profile directory. |
-| `a11y.mjs` (`npm run a11y`) | Runs axe-core over 15 page states (every route, each landing layout, each filter axis, the no-match state, the 404) in **both themes** and exits non-zero on any WCAG 2.0/2.1 A or AA violation. Best-practice rules are printed but never fail the run — some are static heuristics that disagree with what the browser actually exposes, so they want a decision, not obedience. Points at the dev server by default, or at a finished build with `BUILD_DIR=dist/frontend/browser`. Not wired into CI: headless Chrome has been unreliable on this repo's Actions runner (see BACKLOG), so it is a release-checklist step. |
+| `a11y.mjs` (`npm run a11y`) | Runs axe-core over 17 page states (every route, each landing layout, each filter axis, the no-match state, the 404) in **both themes** and exits non-zero on any WCAG 2.0/2.1 A or AA violation. Best-practice rules are printed but never fail the run — some are static heuristics that disagree with what the browser actually exposes, so they want a decision, not obedience. Points at the dev server by default, or at a finished build with `BUILD_DIR=dist/frontend/browser`. Not wired into CI: headless Chrome has been unreliable on this repo's Actions runner (see BACKLOG), so it is a release-checklist step. |
 | `resume-pdf.mjs` (`npm run resume:pdf`) | Regenerates `public/resume.pdf` from a rendered `/resume` using the app's own print stylesheet, so the PDF can never drift from the page. Drives Chrome through `puppeteer-core` rather than the `--print-to-pdf` flag, which hung on the CI runner. |
 | `screenshots.mjs` | `npm run shots` — captures every live project into `public/shots/` as WebP at two widths plus a JPEG social crop, and the landing page as `public/og.png`. Feeds `ProjectImage`'s `srcset` and the OG tags `PageMeta` sets. |
 | `icons.mjs` (`npm run icons`) | Renders the PWA icons (192/512/maskable) and `apple-touch-icon.png` from an inline SVG monogram via `sharp`. There is no logo asset to resize — the brand mark is a wordmark — so the glyph is drawn here, with the Nocturne background/accent as literals because this runs outside the Angular build. Re-run only if those tokens change. |
@@ -260,7 +261,7 @@ things that do.
 |---|---|
 | `SRS.md` | What the site must do, as numbered functional requirements plus user stories. The place a new feature is described before it is built. |
 | `ARCHITECTURE.md` | The system: data flow, rendering strategy, directory tree, API surface, security and scaling notes. Read it before this file. |
-| `UI-DESIGN.md` | The design system: tokens, component inventory, the three landing variants, responsive rules, accessibility commitments. |
+| `UI-DESIGN.md` | The design system: tokens, component inventory, the four landing variants, responsive rules, accessibility commitments. |
 | `DEPLOYMENT.md` | How the two halves ship, the environment variables each host needs, and how to roll back. |
 | `CODE-MAP.md` | This file. |
 | `BACKLOG.md` | What is done, what is next, and what needs the owner. Also the record of decisions that turned out wrong and were corrected. |

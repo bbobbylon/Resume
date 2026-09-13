@@ -85,7 +85,8 @@ export class PageMeta {
    * Points this page at the one URL it should be indexed under.
    *
    * The landing page is reachable as `/`, `/?layout=gallery`, `/?layout=dossier`,
-   * `/?tech=Angular`, `/?q=api` and every combination of those — and those are real
+   * `/?layout=folio`, `/?tech=Angular`, `/?q=api` and every combination of those —
+   * and those are real
    * `<a href>`s in the prerendered HTML (the layout switcher, the stack chips), so a
    * crawler follows them and finds a dozen near-identical pages competing with each
    * other. The canonical link collapses them back onto `/`. It works because `path`

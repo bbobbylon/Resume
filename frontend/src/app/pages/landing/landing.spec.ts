@@ -36,6 +36,12 @@ describe('Landing', () => {
     expect(fixture.nativeElement.querySelector('app-gallery')).not.toBeNull();
   });
 
+  it('honours ?layout=folio', () => {
+    const fixture = setup('folio');
+    expect(fixture.componentInstance.layout()).toBe('folio');
+    expect(fixture.nativeElement.querySelector('app-folio')).not.toBeNull();
+  });
+
   it('ignores unknown layouts', () => {
     expect(setup('nope').componentInstance.layout()).toBe('ledger');
   });

@@ -2,10 +2,12 @@
  * Types for `GET /api/resume`. Each interface mirrors the matching Java record in
  * `com.bobbylon.websitehub.model.Resume` field-for-field.
  *
- * Two things render from these types: the `/resume` page (`ResumePage`) and, through
- * that page's print stylesheet, the committed `resume.pdf` that `scripts/resume-pdf.mjs`
- * regenerates. Dossier also reads `experience` and `education` for its right-hand
- * column, so a change here shows up on the landing page too.
+ * Three things render from these types: the `/resume` page (`ResumePage`) and,
+ * through that page's print stylesheet, the committed `resume.pdf` that
+ * `scripts/resume-pdf.mjs` regenerates. Dossier also reads `experience` and
+ * `education` for its right-hand column, and Folio reads the whole payload
+ * (everything but `projects`, which it deliberately skips in favor of the live
+ * portfolio catalogue) — so a change here shows up on two landing layouts too.
  */
 export interface Experience {
   /** Job title, `·`-separated when one post covered two roles. */

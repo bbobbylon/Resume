@@ -14,9 +14,9 @@ import { LandingLayout } from '../app/models/landing-layout';
  * soon as it arrives regardless; a live response inside this window replaces it
  * (services/api.ts), so a sleeping Render service never delays the page.
  *
- * `landingLayout` picks which of the three Nocturne landing layouts renders at `/`
- * (see LandingComponent). A `?layout=ledger|gallery|dossier` query param overrides
- * it at runtime so all three stay reviewable on the deployed site.
+ * `landingLayout` picks which of the four landing layouts renders at `/` (see
+ * LandingComponent). A `?layout=ledger|gallery|dossier|folio` query param
+ * overrides it at runtime so all four stay reviewable on the deployed site.
  */
 export const environment = {
   /** Enables Angular's production mode; also how code can tell which config it is running under. */

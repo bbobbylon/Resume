@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.3 (prerendered) |
-| **Date** | 2026-09-11 |
+| **Version** | 0.4.4 (prerendered) |
+| **Date** | 2026-09-13 |
 | **Status** | Live — frontend on GitHub Pages, API on Render (see [DEPLOYMENT.md](DEPLOYMENT.md)). Remaining work is incremental; open items in [BACKLOG.md](BACKLOG.md) |
 | **Related** | [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) · [design-handoff.md](design-handoff.md) |
 
@@ -35,7 +35,7 @@ opens each project's live app.
   deploys.
 
 **Main features.**
-- Landing page in one of three interchangeable layouts (Ledger, Gallery, Dossier).
+- Landing page in one of four interchangeable layouts (Dossier, Folio, Ledger, Gallery).
 - Finding the right project three ways: technology chips (`?tech=`), free-text search
   (`?q=`) and a Ctrl+K command palette — all of them linkable URLs.
 - Project detail pages with highlights, stack, hosting/delivery metadata and screenshots.
@@ -51,8 +51,8 @@ opens each project's live app.
 | FR-2 | `GET /api/projects` returns all projects in display order, each with id, name, tagline, description, long description, live URL (nullable), repo URL, status (`LIVE`/`WIP`/`ARCHIVED`), tech stack, image URLs, three highlights, hosting, delivery, featured flag and a problem/approach/outcome case study. | `ProjectController` |
 | FR-3 | `GET /api/projects/{id}` returns one project or HTTP 404. | `ProjectController` |
 | FR-4 | `GET /api/resume` returns summary, skills (grouped into labeled categories), experience, resume projects, education, achievements and the PDF URL. | `ResumeController` |
-| FR-5 | The landing route `/` renders the layout named by `environment.landingLayout`; a `?layout=ledger\|gallery\|dossier` query parameter overrides it. Unknown values fall back to the default. A `LayoutSwitcher` strip above the chosen layout links to the other two, so all three stay reachable to any visitor, not just reviewable via a hand-typed query param. Those links merge rather than replace the query string: a layout switch changes how the projects are shown, never which, so `?tech=` and `?q=` survive it — in the href as well as the navigation, so a copied link keeps them too. | `Landing`, `LayoutSwitcher` |
-| FR-6 | Every layout shows all projects with status tags, stack chips, an "Open <domain>" button when a live URL exists, a "Source" link, and a link to the detail page. | `Ledger`, `Gallery`, `Dossier` |
+| FR-5 | The landing route `/` renders the layout named by `environment.landingLayout`; a `?layout=ledger\|gallery\|dossier\|folio` query parameter overrides it. Unknown values fall back to the default. A `LayoutSwitcher` strip above the chosen layout links to the other three, so all four stay reachable to any visitor, not just reviewable via a hand-typed query param. Those links merge rather than replace the query string: a layout switch changes how the projects are shown, never which, so `?tech=` and `?q=` survive it — in the href as well as the navigation, so a copied link keeps them too. | `Landing`, `LayoutSwitcher` |
+| FR-6 | Ledger, Gallery and Dossier each show every (filtered) project with status tags, stack chips, an "Open <domain>" button when a live URL exists, a "Source" link, and a link to the detail page. Folio is the deliberate exception — see FR-33. | `Ledger`, `Gallery`, `Dossier` |
 | FR-7 | `/projects/:id` renders the detail page (tags, title, lede, actions, meta grid, 21:9 hero, a problem/approach/outcome case study, numbered highlights, extra screenshots, stack, "Next project" teaser) and a not-found state for unknown ids. | `ProjectDetail` |
 | FR-8 | `/resume` renders the full resume from `/api/resume`, with contact details from `/api/profile`, and a "Download PDF" link to `profile.resumeUrl`. | `ResumePage` |
 | FR-9 | `frontend/public/resume.pdf` is generated from the `/resume` page's print stylesheet (`npm run resume:pdf`). | `scripts/resume-pdf.mjs` |
@@ -79,6 +79,7 @@ opens each project's live app.
 | FR-30 | Project detail pages carry schema.org JSON-LD in the prerendered HTML — the project as `SoftwareSourceCode` (with its repository, stack and live deployment as `targetProduct`) plus a `BreadcrumbList` — built from the same data the page renders. | `ProjectDetail`, `PageMeta` |
 | FR-31 | The landing page can be narrowed by free text: a search box beside the technology chips matches a project's name, tagline or any tech-stack entry, case-insensitively, and publishes the term as a `?q=` query parameter (debounced, merged with `?layout=` and `?tech=`). History is written so that Back means one thing: starting a search **pushes** an entry, refining or clearing one **replaces** it, so a single Back returns to the unfiltered list instead of either leaving the site or walking back through every word typed. A write still inside the debounce window is cancelled when the search box is destroyed, so opening a project mid-keystroke stays open. The navigation carries the same `#projects` fragment the chips do, because `scrollPositionRestoration` (FR-5's sibling setting in `app.config.ts`) scrolls any anchor-less navigation to the top of the page — and this one fires while the visitor is typing in a box that sits below the fold. The two filter axes compose — a project must satisfy both when both are set — and each layout shows a "no match" message distinct from its empty-catalogue state. Like `?tech=`, it applies only after hydration. | `ProjectSearch`, `ProjectFilter`, `TechFilter` |
 | FR-32 | A visitor who saves the site to a home screen gets the site's own mark and a standalone window, not a screenshot thumbnail in a browser tab: a web app manifest declares the name, theme and `display: standalone`, backed by 192/512 and maskable icons plus an Apple touch icon. Scope is deliberately limited to that — there is **no service worker**, so there is no offline mode, no cache to invalidate, and no automatic Chrome install prompt (which requires one). | `manifest.webmanifest`, `index.html`, `scripts/icons.mjs` |
+| FR-33 | Landing layout "Folio" (added 2026-09-13) renders the resume ahead of the projects: the same `280px \| 1fr` sticky-aside shell as `/resume` — summary, full experience, education and achievements in the main column, identity/contact/skills in the aside, from the same `GET /api/resume` payload — with the (filtered) project catalogue condensed to a single row of linked chips (name only, no status/stack/screenshot) at the foot of the page, plus a "See the full project list" link back to the default layout. Unlike `/resume`'s own hand-picked `Resume.projects`, Folio's chip row is the live, filterable catalogue, so a `?tech=`/`?q=` set on another layout still narrows it. | `Folio` |
 
 ## 4. Non-Functional Requirements
 
@@ -128,8 +129,8 @@ opens each project's live app.
   the ARIA combobox/listbox pattern (`aria-activedescendant` tracks the
   highlighted option) and traps focus on its one real focusable control, the
   search field. Target WCAG 2.1 AA, **verified rather than assumed**: `npm run a11y`
-  drives axe-core through real Chrome over 15 page states in both themes and exits
-  non-zero on any WCAG 2.0/2.1 A or AA violation. 2026-09-11: 30/30 clean. It is a
+  drives axe-core through real Chrome over 17 page states in both themes and exits
+  non-zero on any WCAG 2.0/2.1 A or AA violation. 2026-09-13: 34/34 clean. It is a
   release-checklist step rather than a CI job, because headless Chrome has been
   unreliable on this repo's Actions runner.
 - **Responsiveness.** Usable from 360 px to 1440 px wide; breakpoints at 880 / 720 / 480 px.

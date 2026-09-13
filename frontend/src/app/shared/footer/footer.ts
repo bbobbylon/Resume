@@ -7,8 +7,8 @@ import { ProfileService } from '../../services/profile.service';
  * privacy note, links to the two legal pages, and contact set apart underneath.
  *
  * Two variants:
- * - default (Gallery / project detail / resume / the legal pages themselves) — all
- *   three blocks;
+ * - default (Gallery / Folio / project detail / resume / the legal pages themselves)
+ *   — all three blocks;
  * - `compact` (Ledger) — the © line and the legal links only, at 13px/55% text. The
  *   Ledger layout already lists the contact links in its own two-column Contact
  *   section, so repeating them here would be noise; the legal links stay, because

@@ -57,6 +57,11 @@ Rename/restyle existing components: `header` → Nocturne `.nav`; `hero`/`about`
 ### Landing variants (keep all three)
 Expose as an environment/config value `landingLayout: 'ledger' | 'gallery' | 'dossier'` (or a route query param during evaluation). Same data, three templates:
 
+> **Note (2026-09-13):** a fourth layout, **Folio**, was added after this handoff and is not
+> described here — it has no `.dc.html` mock. It is a resume-forward variant, built by reusing
+> `/resume`'s own shell rather than a new design comp. See [UI-DESIGN.md](UI-DESIGN.md)'s
+> "Landing variants" section for its shape.
+
 **1a Ledger** (`Hub Options.dc.html` → `#1a`)
 - Single column, 1120 max-width, 56px side padding. Nav: brand, Projects, Resume, Contact, `.btn.btn-primary` "Download PDF".
 - Hero: padding 112px top / 84px bottom, max-width 760px. H1 72px / line-height 1.1 / letter-spacing -0.015em / weight 500, margin-left -0.06em; two lines: "Robert Oliver, Jr." then "Builds identity that holds." in `--color-neutral-500`. Summary 17px/28px, max 58ch, 36px below. Buttons row 28px below: primary "View resume", ghost "github.com/bbobbylon".

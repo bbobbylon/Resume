@@ -4,9 +4,11 @@ import { LandingLayout } from '../../models/landing-layout';
 
 /**
  * Thin strip above the chosen landing layout with a real link to each of the
- * three interchangeable variants (docs/UI-DESIGN.md → "Landing variants"), so a
- * visitor can reach Gallery/Dossier without knowing the `?layout=` query param —
- * that param still exists underneath and is what these links set.
+ * four interchangeable variants (docs/UI-DESIGN.md → "Landing variants"), so a
+ * visitor can reach any of them without knowing the `?layout=` query param —
+ * that param still exists underneath and is what these links set. Order here
+ * (Dossier, Folio, Ledger, Gallery) is the owner's preferred reading order, not
+ * the handoff's numbering (1a/1b/1c) or `LANDING_LAYOUTS`' declaration order.
  *
  * `queryParamsHandling="merge"` matters as much as the param itself: a layout
  * switch changes *how* the projects are shown, never *which*, so `?tech=` and `?q=`
@@ -42,10 +44,11 @@ export class LayoutSwitcher {
   /** Which layout is showing, so its own link renders as `aria-current="page"` rather than a live link. */
   readonly current = input.required<LandingLayout>();
 
-  /** The three variants, in the order the design lists them. */
+  /** The four variants, in the owner's preferred reading order (2026-09-13). */
   protected readonly layouts: { id: LandingLayout; label: string }[] = [
+    { id: 'dossier', label: 'Dossier' },
+    { id: 'folio', label: 'Folio' },
     { id: 'ledger', label: 'Ledger' },
     { id: 'gallery', label: 'Gallery' },
-    { id: 'dossier', label: 'Dossier' },
   ];
 }

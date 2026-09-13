@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.2 |
-| **Date** | 2026-09-11 |
+| **Version** | 0.5.0 |
+| **Date** | 2026-09-13 |
 | **Source of truth** | `frontend/src/styles.css` (tokens + components) · [design-handoff.md](design-handoff.md) · mocks in `docs/design/*.dc.html` |
 | **Related** | [SRS.md](SRS.md) · [ARCHITECTURE.md](ARCHITECTURE.md) · [CODE-MAP.md](CODE-MAP.md) |
 
@@ -82,7 +82,7 @@ Angular components (`frontend/src/app/shared/`):
 | `CommandPaletteTrigger` | `app-command-palette-trigger` | Icon button (search glyph + "⌘K" hint chip) that opens `CommandPalette` via the shared `CommandPaletteService`; sized to match `ThemeToggle`. In the nav bar and Dossier's aside header. |
 | `TechFilter` | `app-tech-filter` | Chip row in each layout's Projects section: "All" plus one outlined chip per technology family used by two or more projects, each with a count and each a real link setting `?tech=` (merged with `?layout=`, `fragment="projects"` so a click stays put). The active chip takes the accent outline via `aria-current`. The `role="status"` line underneath covers **both** filter axes — "Showing 5 of 6 projects built with Angular", "…matching \"api\"", or both clauses — and renders whenever either is active, even on a catalogue with no chips to show. |
 | `ProjectSearch` | `app-project-search` | Search box beside the chips: magnifier glyph + a 320 px-max bordered field that takes the accent border on `:focus-within`. Writes `?q=` as you type (debounced 200 ms; the first search pushes a history entry, every edit of it replaces, so one Back returns to the unfiltered list) with a `#projects` fragment so the router's scroll restoration anchors on the section instead of throwing the page to the top mid-keystroke, and reads its value back from the URL, so Back/Forward and deep links keep the box and the list in agreement. Its label is `.sr-only`; the placeholder carries the visible affordance. |
-| `LayoutSwitcher` | `app-layout-switcher` | Centered `.seg` pill (reusing the token sheet's until-now-unused segmented-control style) linking to Ledger / Gallery / Dossier via the `?layout=` param, merged into whatever `?tech=`/`?q=` is already there so switching presentation never resets the list; the current one gets `aria-current="page"`. Rendered once by `Landing`, above the chosen layout. |
+| `LayoutSwitcher` | `app-layout-switcher` | Centered `.seg` pill (reusing the token sheet's until-now-unused segmented-control style) linking to Dossier / Folio / Ledger / Gallery, in that reading order, via the `?layout=` param, merged into whatever `?tech=`/`?q=` is already there so switching presentation never resets the list; the current one gets `aria-current="page"`. Rendered once by `Landing`, above the chosen layout. |
 | `ArrowUpRight` | `app-arrow-up-right` | Phosphor icon, `size` input. |
 | `SearchIcon` | `app-search-icon` | Phosphor magnifying-glass icon, `size` input. |
 | `DomainPipe` | `| domain` | `https://tesseraapp.dev/` → `tesseraapp.dev`; `domain:true` keeps the path. |
@@ -95,7 +95,10 @@ enabled so `/#projects` and Back behave; route changes cross-fade for 160 ms thr
 the View Transitions API where the browser supports it (skipped under reduced motion).
 
 **Landing variants** (`?layout=` or `environment.landingLayout`, default `ledger`).
-`LayoutSwitcher` sits above whichever one is chosen, with a link to the other two:
+`LayoutSwitcher` sits above whichever one is chosen, with a link to the other three,
+in the switcher's reading order: Dossier, Folio, Ledger, Gallery. The first three are
+the original Nocturne handoff numbering (1a/1b/1c); Folio was added later (2026-09-13,
+the owner's ask) and carries no handoff number of its own.
 
 - **1a Ledger** — single 1120 px column. 72 px two-line H1 (name / tagline in
   neutral-500), 17/28 summary ≤ 58ch, primary "View resume" + ghost GitHub link.
@@ -113,11 +116,21 @@ the View Transitions API where the browser supports it (skipped under reduced mo
   resume PDF", contact links) beside a `.table` of projects (#, Project + blurb ≤ 34ch,
   Stack, Status, right-aligned links) and an Experience grid `140px | 1fr` fed by
   `/api/resume`.
+- **Folio** (added 2026-09-13, not part of the original handoff) — reuses the resume
+  page's own shell verbatim (below): same `280px | 1fr` grid, aside and main. The one
+  deliberate departure is the foot of the main column, where `/resume`'s hand-picked
+  `Resume.projects` list is replaced by a "Projects" section — a `kicker` + "See the
+  full project list →" link, then a wrapped row of outlined chips (the `TechFilter`
+  chip style, one per project, name only) reading from the live, filterable
+  catalogue. No status tags, no stack chips, no screenshots, no search/filter
+  controls of its own — the point of this layout is to be read as a resume first,
+  with the portfolio one linked tap away.
 
 **Resume page.** Grid `280px | 1fr`, gap 72, padding 70/84. Sticky aside (36 px H1,
 13 px uppercase accent title, contact lines, skill chips, PDF button). Main: 17/28
 summary, Experience grid `130px | 1fr`, Projects list with ghost domain link and a
-13 px stack line, Education + Achievements side by side.
+13 px stack line, Education + Achievements side by side. Folio (above) is this same
+shell rendered as a landing layout.
 
 **Project detail.** "← All projects", header `7fr | 5fr` (tags incl. the route as a
 neutral tag, 60 px H1, 17/28 lede ≤ 52ch; actions + `auto | 1fr` meta grid for Live
@@ -142,7 +155,7 @@ them here.
 
 | Width | Behaviour |
 |-------|-----------|
-| ≤ 880 px | project rows/grids collapse to one column; heroes stack; resume and detail grids stack; container gutter 28 px; stat band 2 columns |
+| ≤ 880 px | project rows/grids collapse to one column; heroes stack; resume, Folio and detail grids stack; container gutter 28 px; stat band 2 columns |
 | ≤ 720 px | Dossier aside stacks above main and loses `position: sticky`; Stack column hidden |
 | ≤ 480 px | nav links hidden (brand + Download PDF remain); Dossier timeline single column; gutter 20 px; stat band 1 column |
 
@@ -168,13 +181,13 @@ margins. This is what `npm run resume:pdf` captures.
 
 ## 5. Accessibility
 
-- **Measured, not asserted.** `npm run a11y` runs axe-core in real Chrome over 15
-  page states — every route, each landing layout, each filter axis, the no-match
-  state and the 404 — in **both themes**, and fails on any WCAG 2.0/2.1 A or AA
-  violation. Last run 2026-09-11: **30/30 states clean**, no A/AA violations and no
-  best-practice advisories either. Both themes matter because the palettes are
-  different colours: a contrast failure can exist in one and not the other, and only
-  one is ever on screen.
+- **Measured, not asserted.** `npm run a11y` runs axe-core in real Chrome over 17
+  page states — every route, each landing layout (Folio included), each filter axis,
+  the no-match state and the 404 — in **both themes**, and fails on any WCAG 2.0/2.1 A
+  or AA violation. Last run 2026-09-13 (after Folio shipped): **34/34 states clean**,
+  no A/AA violations and no best-practice advisories either. Both themes matter
+  because the palettes are different colours: a contrast failure can exist in one and
+  not the other, and only one is ever on screen.
 - Target WCAG 2.1 AA. Text on ground: `#e9e9ed` on `#161826` ≈ 14:1; muted 78 % ≈ 9:1;
   neutral-500 on ground ≈ 5.5:1; accent `#9184d9` on ground ≈ 5.6:1. Footer text at
   55 % is decorative-level (≈ 5:1 still passes for 13 px).

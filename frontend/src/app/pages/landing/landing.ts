@@ -7,31 +7,34 @@ import { isLandingLayout, LandingLayout } from '../../models/landing-layout';
 import { Ledger } from './ledger/ledger';
 import { Gallery } from './gallery/gallery';
 import { Dossier } from './dossier/dossier';
+import { Folio } from './folio/folio';
 import { LayoutSwitcher } from '../../shared/layout-switcher/layout-switcher';
 import { PageMeta, SITE_DESCRIPTION, SITE_TITLE } from '../../services/page-meta';
 
 /**
- * The `/` route. Picks one of the three Nocturne landing layouts and renders it
- * with `@switch` (handoff → "Landing variants"):
+ * The `/` route. Picks one of the four landing layouts and renders it with
+ * `@switch`: the original three from the Nocturne handoff ("Landing variants")
+ * plus `folio`, a resume-forward addition (2026-09-13):
  *
- * 1. `?layout=ledger|gallery|dossier` in the URL wins;
- * 2. otherwise `environment.landingLayout` (the committed default).
+ * 1. `?layout=ledger|gallery|dossier|folio` in the URL wins;
+ * 2. otherwise `environment.landingLayout` (the committed default, `ledger`).
  *
  * `LayoutSwitcher` renders above the chosen layout with a real link to each of
- * the other two, so all three stay reachable to a visitor, not just reviewable
+ * the other three, so all four stay reachable to a visitor, not just reviewable
  * via a hand-typed query param.
  *
- * All three layouts read the same `ProfileService` / `ProjectService` signals;
- * only the template and styles differ.
+ * All four layouts read the same `ProfileService` / `ProjectService` /
+ * `ResumeService` signals; only the template and styles differ.
  */
 @Component({
   selector: 'app-landing',
-  imports: [Ledger, Gallery, Dossier, LayoutSwitcher],
+  imports: [Ledger, Gallery, Dossier, Folio, LayoutSwitcher],
   template: `
     <app-layout-switcher [current]="layout()" />
     @switch (layout()) {
       @case ('gallery') { <app-gallery /> }
       @case ('dossier') { <app-dossier /> }
+      @case ('folio') { <app-folio /> }
       @default { <app-ledger /> }
     }
   `,

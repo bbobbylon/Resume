@@ -295,7 +295,7 @@ BUILD_DIR=dist/frontend/browser npm run a11y              # against a finished b
 BASE_HREF=/Resume/ BUILD_DIR=dist/frontend/browser npm run a11y   # ...built for Pages
 ```
 
-Runs axe-core in real Chrome over 15 page states — every route, each landing layout,
+Runs axe-core in real Chrome over 17 page states — every route, each landing layout,
 each filter axis, the no-match state and the 404 — in both the dark and light themes,
 and exits non-zero on any WCAG 2.0/2.1 A or AA violation. Best-practice rules print as
 advisories and never fail the run: some are static heuristics that disagree with what
@@ -347,7 +347,7 @@ the API returns it.
 ## 11. Release checklist
 
 - [ ] `mvn -B verify` and `npm test -- --watch=false` green locally.
-- [ ] `npm run a11y` clean (axe-core, real Chrome, 15 page states x both themes). It is not in CI — headless Chrome has been unreliable on this repo's runner — so it only happens if someone runs it. `BUILD_DIR=dist/frontend/browser npm run a11y` audits the artifact that is actually about to ship, including its 404 page.
+- [ ] `npm run a11y` clean (axe-core, real Chrome, 17 page states x both themes). It is not in CI — headless Chrome has been unreliable on this repo's runner — so it only happens if someone runs it. `BUILD_DIR=dist/frontend/browser npm run a11y` audits the artifact that is actually about to ship, including its 404 page.
 - [ ] `npm run linkcheck` clean, or every failure it prints is a known one tracked in BACKLOG. A dead "Code" link or a `LIVE` badge over a 503 is the most expensive kind of bug here: it is the one a recruiter finds.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
 - [ ] `landingLayout` set to the chosen layout.

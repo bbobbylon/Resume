@@ -2,8 +2,8 @@
 
 | | |
 |---|---|
-| **Version** | 0.4.0 |
-| **Date** | 2026-09-11 |
+| **Version** | 0.4.1 |
+| **Date** | 2026-09-13 |
 | **Related** | [CODE-MAP.md](CODE-MAP.md) · [SRS.md](SRS.md) · [UI-DESIGN.md](UI-DESIGN.md) · [DEPLOYMENT.md](DEPLOYMENT.md) |
 
 ## 1. System Architecture
@@ -102,7 +102,7 @@ Resume/
 │           │                             theme-toggle, command-palette (+trigger), layout-switcher, tech-filter,
 │           │                             project-search, icons, pipes
 │           └── pages/
-│               ├── landing/                Landing (@switch) + ledger/ gallery/ dossier/
+│               ├── landing/                Landing (@switch) + ledger/ gallery/ dossier/ folio/
 │               ├── resume/                 ResumePage
 │               ├── project-detail/         ProjectDetail
 │               ├── legal/                  TermsPage, PrivacyPage
@@ -130,16 +130,20 @@ Resume/
   fetch-once data; `Observable` + `switchMap` only where a route parameter drives
   re-fetching. No NgRx — three endpoints do not justify a store.
 - **Layout strategy.** `Landing` is a `@switch` over a `LandingLayout` value
-  resolved from the query string, then the environment. The three layouts are plain
-  standalone components sharing `Nav`, `Footer`, `StatusTag`, `ProjectImage`,
-  `ArrowUpRight` and `DomainPipe`.
+  resolved from the query string, then the environment. The four layouts are plain
+  standalone components; Ledger and Gallery share `Nav`, `Footer`, `StatusTag`,
+  `ProjectImage`, `ArrowUpRight` and `DomainPipe`. Folio shares `Nav`/`Footer`/
+  `DomainPipe` too, but its main column is closer kin to `ResumePage` than to the
+  other three — it reads `ResumeService`, not project cards, as its primary content.
+  Dossier alone renders neither `Nav` nor `Footer` (its own sticky aside covers both).
 - **The URL is the view state.** Which layout you see (`?layout=`), which technology
   is selected (`?tech=`) and what is searched (`?q=`) all live in the query string,
   never in component state, so every view is linkable, shareable and Back-friendly.
   Two rules keep that honest: the params **merge** rather than replace each other,
   and an unrecognized value falls back to showing everything rather than erroring —
   so no layout needs a dead-end state. `ProjectFilter` is the single root service
-  that reads them and hands all three layouts one already-filtered list.
+  that reads them and hands all four layouts one already-filtered list — Folio's
+  chip row included, even though it renders no filter controls of its own.
 - **Query params apply only after hydration.** `/` is prerendered with no query
   string, so filtering during the first render would hand the browser markup that
   disagrees with the HTML it is adopting. `ProjectFilter`, `LiveStatus` and

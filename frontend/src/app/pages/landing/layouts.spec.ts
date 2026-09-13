@@ -7,6 +7,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Ledger } from './ledger/ledger';
 import { Gallery } from './gallery/gallery';
 import { Dossier } from './dossier/dossier';
+import { Folio } from './folio/folio';
 import { Project } from '../../models/project.model';
 
 const profile = {
@@ -91,6 +92,18 @@ describe('Landing layouts', () => {
     expect(el.querySelector('a.btn-block')?.getAttribute('href')).toBe('resume.pdf');
   });
 
+  it('Folio renders the resume in full and the catalogue as a condensed chip row', async () => {
+    const el = await render(Folio);
+    expect(el.textContent).toContain('Lead bullet');
+    expect(el.textContent).toContain('M.S. CS');
+    expect(el.querySelectorAll('.work-item').length).toBe(2);
+    expect(el.querySelector('.work-item')?.textContent?.trim()).toBe('TesseraApp');
+    // No project card grid or table — Folio's whole point is de-emphasizing them.
+    expect(el.querySelector('table.table')).toBeNull();
+    expect(el.querySelector('.card, .grid')).toBeNull();
+    expect(el.querySelector('a.download')?.getAttribute('href')).toBe('resume.pdf');
+  });
+
   it('Ledger shows "no match" copy, not "no projects", when a search matches nothing', async () => {
     const el = await renderAtUrl(Ledger, '/?q=nonexistent-xyz');
     expect(el.querySelectorAll('article.row').length).toBe(0);
@@ -107,6 +120,12 @@ describe('Landing layouts', () => {
   it('Dossier shows "no match" copy in the table when a search matches nothing', async () => {
     const el = await renderAtUrl(Dossier, '/?q=nonexistent-xyz');
     expect(el.querySelectorAll('table.table tbody tr').length).toBe(1);
+    expect(el.textContent).toContain('No projects match your search.');
+  });
+
+  it('Folio shows "no match" copy in the chip row when a search matches nothing', async () => {
+    const el = await renderAtUrl(Folio, '/?q=nonexistent-xyz');
+    expect(el.querySelectorAll('.work-item').length).toBe(0);
     expect(el.textContent).toContain('No projects match your search.');
   });
 });

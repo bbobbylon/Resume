@@ -10,15 +10,15 @@ describe('LayoutSwitcher', () => {
     }).compileComponents();
   });
 
-  it('links to all three layouts and marks the current one', async () => {
+  it('links to all four layouts, in the owner\'s reading order, and marks the current one', async () => {
     const fixture = TestBed.createComponent(LayoutSwitcher);
     fixture.componentRef.setInput('current', 'gallery');
     fixture.detectChanges();
     await fixture.whenStable();
 
     const links: HTMLAnchorElement[] = fixture.nativeElement.querySelectorAll('a.seg-opt');
-    expect(links.length).toBe(3);
-    expect([...links].map((l) => l.textContent?.trim())).toEqual(['Ledger', 'Gallery', 'Dossier']);
+    expect(links.length).toBe(4);
+    expect([...links].map((l) => l.textContent?.trim())).toEqual(['Dossier', 'Folio', 'Ledger', 'Gallery']);
 
     const current = fixture.nativeElement.querySelector('a[aria-current="page"]');
     expect(current.textContent?.trim()).toBe('Gallery');
@@ -37,9 +37,10 @@ describe('LayoutSwitcher', () => {
       a.getAttribute('href'),
     );
     expect(hrefs).toEqual([
+      '/?tech=Angular&q=api&layout=dossier',
+      '/?tech=Angular&q=api&layout=folio',
       '/?tech=Angular&q=api&layout=ledger',
       '/?tech=Angular&q=api&layout=gallery',
-      '/?tech=Angular&q=api&layout=dossier',
     ]);
   });
 

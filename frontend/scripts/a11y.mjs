@@ -36,7 +36,7 @@ const origin = server ? `http://127.0.0.1:${server.port}${basePath}` : 'http://l
 
 /**
  * The page states worth auditing: every route, plus the landing page in each of
- * its three layouts and under each filter axis. A filtered or searched landing
+ * its four layouts and under each filter axis. A filtered or searched landing
  * page is a different DOM from an unfiltered one — it grows a `role="status"`
  * summary and can render an empty state — so auditing only `/` would miss them.
  */
@@ -44,12 +44,14 @@ const STATES = [
   '',
   '?layout=gallery',
   '?layout=dossier',
+  '?layout=folio',
   '?tech=Angular',
   '?q=api',
   '?tech=Angular&q=api',
   '?q=nothing-matches-this',
   '?layout=gallery&q=nothing-matches-this',
   '?layout=dossier&q=nothing-matches-this',
+  '?layout=folio&q=nothing-matches-this',
   'resume',
   'projects/tesseraapp',
   'projects/websitehub',

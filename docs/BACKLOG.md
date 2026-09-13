@@ -134,6 +134,50 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
 
 ## Done
 
+- 2026-09-13 — A fourth landing layout, **Folio**, plus a switcher reorder — the
+  owner's ask: "move the Gallery View to the last option, and move the dossier to
+  the front option. For the new view, I want to focus more on the resume format and
+  not so much on the projects." Three decisions were the owner's to make, not a
+  guess: the new switcher reading order (**Dossier, Folio, Ledger, Gallery**), the
+  new layout's name (**Folio**), and whether it should become the default (**no —
+  Ledger stays default**, Folio is opt-in via `?layout=folio` like the others).
+
+  Folio's shape is a deliberate reuse, not a new design: it renders `/resume`'s own
+  `280px | 1fr` shell and CSS near-verbatim (aside + summary/experience/education/
+  achievements from `ResumeService`), wrapped in the shared `Nav`/`Footer` like
+  Ledger and Gallery rather than Dossier's bespoke chrome. The one addition is a
+  condensed "Projects" section at the foot of the main column: a "See the full
+  project list →" link back to `/` (clears `?layout=folio` via
+  `queryParamsHandling="merge"` while keeping any `?tech=`/`?q=` already on the URL)
+  above a wrapped row of outlined chip links — one per project, name only, no status
+  tags, no stack, no screenshots, sourced from `ProjectFilter.projects` like every
+  other layout's catalogue. That split is what "focus on the resume, not the
+  projects" means structurally: the resume is the page, the catalogue is one link
+  away.
+
+  `LandingLayout`/`LANDING_LAYOUTS` gained `'folio'`, `LayoutSwitcher`'s hardcoded
+  list was reordered to the four-way reading order above, and `Landing`'s
+  `@switch` gained the new case — an unknown `?layout=` still falls back to Ledger,
+  unchanged. Three new tests (`?layout=folio` honoured, Folio's own render, and its
+  no-match state) bring the suite from 120 to **123 tests across the same 24
+  files** — no new spec file, since Folio's tests live beside the other layouts' in
+  `landing.spec.ts`/`layouts.spec.ts`. Full suite green.
+
+  Verified in a real browser (`run.sh`, not just the unit tests): the switcher's
+  new order and current-state highlighting, Folio's full resume rendering pulling
+  from the live API, the condensed chip row, and the "See the full project list"
+  link landing back on Ledger with `#projects` in view and the query string
+  correctly stripped of `layout=folio` — in both themes.
+
+  `npm run a11y` was re-run rather than left stale: `STATES` in `a11y.mjs` gained
+  `?layout=folio` and `?layout=folio&q=nothing-matches-this` (15 → 17 page states,
+  34 checks across both themes). **34/34 clean** — no WCAG A/AA violations, no
+  best-practice advisories either. Docs updated to match: README, SRS (new FR-33),
+  ARCHITECTURE, UI-DESIGN (component table, Landing-variants section, responsive
+  table), CODE-MAP (new row, cross-references in `resume.service.ts`/`nav.ts`, test
+  descriptions, state/test counts) and `design-handoff.md` (a note that Folio postdates
+  the original handoff and has no `.dc.html` mock of its own).
+
 - 2026-09-13 — `dev-learning-hub`'s repo link fixed by the owner: `OOPFundamentals`
   was made public (suspected 2026-09-05, confirmed private via 404 on 2026-09-11).
   Verified `github.com/bbobbylon/OOPFundamentals` now `200`, and re-ran
