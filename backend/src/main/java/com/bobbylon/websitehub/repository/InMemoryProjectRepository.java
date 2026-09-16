@@ -89,9 +89,9 @@ public class InMemoryProjectRepository implements ProjectRepository {
                             + "server-side pagination, with a reactive Stripe checkout and Okta OIDC-protected "
                             + "order history behind a Spring Security resource server.",
                     null,
-                    "https://github.com/bbobbylon/AngularECommerceAppv2",
+                    "https://github.com/bbobbylon/AngularECommerceApp",
                     ProjectStatus.WIP,
-                    List.of("Angular 21", "Spring Boot 4", "Java 21", "MySQL", "Stripe", "Okta OIDC", "Docker"),
+                    List.of("Angular 22", "Spring Boot 4", "Java 21", "MySQL", "Stripe", "Okta OIDC", "Docker"),
                     List.of(),
                     List.of(
                             new Highlight("Catalog, search and pagination",

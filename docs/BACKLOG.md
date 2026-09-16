@@ -154,6 +154,29 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
 
 ## Done
 
+- 2026-09-16 — Confirmed **Luv2Shop's real repo** and fixed three stale/broken
+  references. A separate `AngularECommerceAppv2` repo turned out to be a single-commit,
+  2026-08-31 snapshot ("New ECommerce Udemy App", 36 Java + 35 TS files) — the actual
+  active codebase is `AngularECommerceApp` (latest commit 2026-09-13, 295 Java + 109 TS
+  files, the full 24-feature roadmap + the Angular 22 upgrade). Fixed:
+  `InMemoryProjectRepository`'s Luv2Shop entry linked `github.com/bbobbylon/AngularECommerceAppv2`
+  (the abandoned snapshot) instead of the real repo — a live, visitor-facing broken
+  link on the projects page; both `InMemoryProjectRepository` and
+  `InMemoryResumeRepository`'s Luv2Shop tech line said "Angular 21", stale since the
+  real app moved to Angular 22. Also found and fixed a real print-rendering bug while
+  regenerating `resume.pdf` to pick up the correction: the global `.skip-link`
+  (`app.ts`) is `position: fixed`, transformed off-screen on screen but NOT hidden for
+  print — Chrome's print engine doesn't honor that off-screen transform the same way
+  during pagination, so it painted visibly on top of the TesseraApp bullet text on
+  page 1. Added `@media print { .skip-link { display: none; } }` (a skip-nav control
+  is meaningless in a static PDF anyway) and confirmed the regenerated PDF is now
+  clean. The §"Bring the other repos onto Render" Luv2Shop entry below still names
+  `AngularECommerceAppv2` — that note describes prep work done directly in the
+  e-commerce repo (now confirmed lost/never committed, same as everything else on the
+  never-pushed `BranchDivergeFix` branch) and is left as historical record rather than
+  rewritten; the Aiven→TiDB blocker itself is unaffected by which repo name it's filed
+  under. 123 frontend tests + 13 backend tests pass; verified the regenerated
+  `resume.pdf` visually (both pages) after the fix.
 - 2026-09-13 — A fourth landing layout, **Folio**, plus a switcher reorder — the
   owner's ask: "move the Gallery View to the last option, and move the dossier to
   the front option. For the new view, I want to focus more on the resume format and

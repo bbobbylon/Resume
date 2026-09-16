@@ -34,6 +34,13 @@ import { CommandPalette } from './shared/command-palette/command-palette';
       font-size: 14px; text-decoration: none;
     }
     .skip-link:focus-visible { transform: translateY(0); }
+    /* Chrome's print engine repositions fixed elements per printed page
+       instead of honoring the off-screen transform, so without this the
+       link paints on top of page content in resume.pdf. A skip-navigation
+       control is meaningless in a static PDF anyway. */
+    @media print {
+      .skip-link { display: none; }
+    }
   `,
 })
 export class App {
