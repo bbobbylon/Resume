@@ -106,6 +106,31 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
       TiDB's connection details. Everything else prepped on `BranchDivergeFix`
       (above) is unaffected — this only changes which host the datasource
       secrets point at.
+
+      **Re-verified 2026-09-16, after a second dead end.** The owner tried
+      creating a *new Aiven organisation* to get around the per-account free
+      MySQL cap — that doesn't work; Aiven's free-tier ceiling (one free service
+      per service type) is tracked at the account level, not the org level, so a
+      new org under the same identity gets no new free slot. Confirmed via a
+      fresh web search (not just re-reading this note) that the TiDB Cloud
+      Starter plan above is still accurate: still no card required, still MySQL
+      wire-compatible, and its own free-tier cap (up to 5 free instances) is
+      **per TiDB Cloud organization** — since the owner has no existing TiDB
+      Cloud org, Aiven's limit has no bearing on it. Also confirmed PlanetScale
+      has had no free tier since April 2024 (not a fallback), and that the
+      remaining "always free" hosts (InfinityFree, GoogieHost, 000WebHost) are
+      shared-hosting-grade, not something to point a portfolio piece at. MongoDB
+      was raised as an alternative and ruled out: it isn't a drop-in swap the way
+      TiDB is — Luv2Shop's backend is Spring Data JDBC over a genuinely relational
+      schema (Flyway migrations, foreign keys, joins across ~24 features), so
+      moving to a document store would mean rewriting the data layer, not
+      changing a connection string. The plan is unchanged: TiDB Cloud Starter,
+      still waiting on the owner to actually create that account. Mirrored this
+      same finding into `AngularECommerceApp/docs/DEPLOYMENT.md` (a new "Render
+      (planned, free-tier)" section) and fixed a stale
+      "PlanetScale, Aiven trials" cost-table line in that repo's
+      `docs/MAINTENANCE.md`, since both pre-dated this research and would have
+      sent a future reader down the same dead end.
   - [x] **Dev Hub is LIVE** (2026-09-06) at `https://bbobbylon.github.io/dev-hub/`.
     No Render needed — it's a plain client-rendered Vite 8 + React 19 app
     (`app/`, no backend). Pushed `implement-design-handoff` and fast-forwarded
