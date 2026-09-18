@@ -165,11 +165,11 @@ public class InMemoryProjectRepository implements ProjectRepository {
             new Project(
                     "dev-hub",
                     "Dev Hub",
-                    "24 interactive learning pages with real, persisted progress.",
-                    "A learn-to-code app of 24 interactive page archetypes — lessons, quizzes, "
+                    "31 interactive learning pages with real, persisted progress.",
+                    "A learn-to-code app of 31 interactive page archetypes — lessons, quizzes, "
                             + "flashcards, visualizers and labs — with progress and spaced repetition "
                             + "that persist between visits.",
-                    "A learn-to-code app built from a Claude Design handoff: 24 interactive page "
+                    "A learn-to-code app built from a Claude Design handoff: 31 interactive page "
                             + "archetypes across Learn, Practice, Reference and Meta — a CLI lesson, "
                             + "Git branching and rebase visualizers, Big-O charts, an algorithm "
                             + "visualizer, quiz mode, flashcards, a terminal-simulator mission, a regex "
@@ -184,7 +184,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     List.of("React 19", "TypeScript", "Vite", "React Router", "Playwright"),
                     List.of("shots/dev-hub-1.webp", "shots/dev-hub-2.webp", "shots/dev-hub-3.webp"),
                     List.of(
-                            new Highlight("24 page archetypes",
+                            new Highlight("31 page archetypes",
                                     "Lessons, deep-dives, storyboards, quizzes, flashcards, visualizers, "
                                             + "labs and a progress dashboard, all on one design system and "
                                             + "filterable from a single gallery."),
@@ -218,12 +218,13 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     "angular-concepts",
                     "Angular Concepts",
                     "Angular curriculum, zero to expert",
-                    "A hands-on Angular 21 curriculum — 100 concepts, 200+ exercises and interview prep "
-                            + "from zero to expert.",
+                    "A hands-on Angular 21 curriculum — 103 lessons, a 424-question practice bank and "
+                            + "interview prep from zero to expert.",
                     "A complete, hands-on Angular 21 curriculum built with standalone components and "
-                            + "signals: 100 concepts and 100 live lessons across five difficulty tracks, "
-                            + "200+ practice exercises, 253 interview questions and project walkthroughs — "
-                            + "built while learning the framework and still live as a static site.",
+                            + "signals: 103 lessons across six difficulty tracks, a 424-question practice "
+                            + "bank feeding timed mock exams and spaced-repetition review, and project "
+                            + "walkthroughs — built while learning the framework and still live as a "
+                            + "static site.",
                     "https://bbobbylon.github.io/AngularDevelopment/",
                     "https://github.com/bbobbylon/AngularDevelopment",
                     ProjectStatus.LIVE,
@@ -231,11 +232,11 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     List.of("shots/angular-concepts-1.webp"),
                     List.of(
                             new Highlight("Zero to expert",
-                                    "100 concepts and 100 live lessons across five difficulty tracks, from "
-                                            + "Foundations and TypeScript through Expert Angular."),
+                                    "103 live lessons span six difficulty tracks, from Foundations and "
+                                            + "TypeScript through Expert Angular and hands-on Projects."),
                             new Highlight("Practice, not just reading",
-                                    "200+ practice exercises, 253 interview questions with flashcard mode, "
-                                            + "and timeboxed coding-task simulations."),
+                                    "A 424-question practice bank powers timed mock exams, spaced-repetition "
+                                            + "review and flashcards, plus 17 hands-on coding tasks."),
                             new Highlight("Angular 21, standalone, signals",
                                     "Built with the current Angular standalone-component and signals APIs, "
                                             + "shipped as a static site on GitHub Pages.")
@@ -247,11 +248,11 @@ public class InMemoryProjectRepository implements ProjectRepository {
                             "Learning a framework thoroughly needed more than reading docs — a path from "
                                     + "zero through advanced patterns, plus enough practice and interview "
                                     + "prep to make the concepts stick.",
-                            "100 concepts and 100 live lessons span five difficulty tracks from "
-                                    + "Foundations and TypeScript through Expert Angular, backed by 200+ "
-                                    + "practice exercises, 253 interview questions with flashcard mode, and "
-                                    + "timeboxed coding-task simulations — all built with Angular 21's "
-                                    + "current standalone-component and signals APIs.",
+                            "103 live lessons span six difficulty tracks from Foundations and TypeScript "
+                                    + "through Expert Angular and hands-on Projects, backed by a "
+                                    + "424-question practice bank, timed mock exams, spaced-repetition "
+                                    + "review and flashcards, and 17 timeboxed coding tasks — all built "
+                                    + "with Angular 21's current standalone-component and signals APIs.",
                             "Live as a static site on GitHub Pages, built while learning the framework "
                                     + "itself."
                     )
@@ -259,10 +260,10 @@ public class InMemoryProjectRepository implements ProjectRepository {
             new Project(
                     "dev-learning-hub",
                     "Dev Learning Hub",
-                    "515 visualizers, 34 learning tracks",
+                    "521 visualizers, 35 learning tracks",
                     "Interactive visualizers for Java, Spring Boot, Angular, TypeScript, Python and more, "
                             + "with per-account progress tracking and streaks.",
-                    "An interactive learning hub of 515 visualizers across 34 tracks — Java and OOP, "
+                    "An interactive learning hub of 521 visualizers across 35 tracks — Java and OOP, "
                             + "Spring Boot, Angular, TypeScript, Python, data structures and algorithms and "
                             + "more — organized by difficulty from beginner to expert. Progress, streaks "
                             + "and completion save per account or anonymously, with an admin dashboard for "
@@ -273,7 +274,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     List.of("Java", "Spring Boot", "Angular", "TypeScript", "Python"),
                     List.of("shots/dev-learning-hub-1.webp"),
                     List.of(
-                            new Highlight("515 visualizers, 34 tracks",
+                            new Highlight("521 visualizers, 35 tracks",
                                     "Java and OOP, Spring Boot, Angular, TypeScript, Python, data "
                                             + "structures and algorithms and more, each broken into "
                                             + "beginner-to-expert topics."),
@@ -291,7 +292,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                             "A broad set of computer-science and full-stack topics needed one place to "
                                     + "learn them interactively, organized by difficulty, without forcing an "
                                     + "account just to start.",
-                            "515 interactive visualizers span 34 tracks — Java and OOP, Spring Boot, "
+                            "521 interactive visualizers span 35 tracks — Java and OOP, Spring Boot, "
                                     + "Angular, TypeScript, Python, data structures and algorithms and more — "
                                     + "from beginner to expert; progress, streaks and completion save per "
                                     + "account or anonymously with local-only saving.",

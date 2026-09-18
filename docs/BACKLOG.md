@@ -179,6 +179,113 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
 
 ## Done
 
+- 2026-09-18 — Three more catalogue entries had gone stale the same way the
+  Luv2Shop Angular-version bug did — a linked project's own content grew and
+  `InMemoryProjectRepository`'s copy of it never followed. Found by reading each
+  linked repo's own source of truth (its README's stated counts, cross-checked
+  against the actual data file backing that count) rather than trusting the
+  README prose alone:
+  1. **Dev Learning Hub** (`OOPFundamentals`) said "515 visualizers, 34 learning
+     tracks" everywhere it appears (tagline, description, longDescription, a
+     highlight, the case study). The app's own backend now defaults
+     `app.progress.total-topics` to **521**, and `frontend/tracks-data.js` has
+     **35** track ids — both counted independently, not just quoted from that
+     repo's README. Every occurrence updated to 521/35.
+  2. **Angular Concepts** (`AngularDevelopment`) was the largest gap: the entry
+     said "100 concepts and 100 live lessons across five difficulty tracks,
+     200+ practice exercises, 253 interview questions." The repo's own
+     `curriculum.ts` has **103** lesson entries across **six** `level` values
+     (12 foundations + 13 typescript + 24 beginner + 29 intermediate + 22
+     expert + 3 projects — a track the old five-track copy never mentioned),
+     and `practice-data.ts` has **424** question entries, not two separate
+     pools of ~200 and 253 — it's one bank feeding practice, timed mock exams,
+     spaced-repetition review and flashcards. Rewrote every occurrence (tagline,
+     description, longDescription, both highlights, the case study) to the
+     real numbers and the real single-bank shape, not just a find-and-replace
+     of the old figures.
+  3. **Dev Hub** said "24 interactive learning pages" / "24 page archetypes" in
+     four places. Its own `docs/SRS.md` states "31 lesson/tool pages" today,
+     confirmed independently by counting `app/src/data/pages.ts`'s `slug:`
+     entries (32 lines match `slug:`, one of which is the `PageEntry` interface
+     field, not a page — 31 real entries). Updated the present-tense claims
+     (tagline, description, longDescription, the "N page archetypes"
+     highlight) to 31; deliberately left the case study's "Recreated the 24
+     prototype pages" untouched, since that sentence narrates the original
+     one-time port from the Claude Design handoff, not the current live
+     total — the app has since grown 7 more pages as ordinary feature work,
+     which were never part of that historical prototype set, so rewriting that
+     number to 31 would have made a true historical claim false. (Also noted
+     but deliberately not touched: Dev Hub's codebase has since grown an
+     *optional* Spring Boot sync backend — `server/`, see its own
+     `docs/ARCHITECTURE.md` §11 — but it's "not deployed anywhere; the GitHub
+     Pages build has none configured," so the live site a visitor actually
+     reaches still matches this catalogue's "no server, no account" claim
+     exactly. Nothing to fix there.)
+
+  Verified each fix reached the actual served page, not just the Java source:
+  restarted the local backend after each edit (a long-running `spring-boot:run`
+  does not pick up a source change without a restart — confirmed the hard way
+  when the first post-edit build still prerendered the old 515/34 figures),
+  rebuilt with `ng build --base-href /Resume/`, and grepped the built
+  `projects/<id>/index.html` for both the old and new numbers to confirm the
+  stale ones were gone and the corrected ones present. 13 backend + 123
+  frontend tests green throughout (no test pinned the old numbers).
+
+  Also regenerated derived artifacts while investigating whether the
+  skip-link/PDF bug's lesson ("a generated artifact can go stale even when the
+  source is correct") applied elsewhere:
+  - **`resume.pdf`** — regenerated from the corrected build; unaffected by the
+    catalogue fixes above (the resume page doesn't reference project data) but
+    confirmed fresh (new hash, same ~237 KB size — the documented signature of
+    a genuine re-render, not a stale copy) since nothing had regenerated it
+    since 2026-09-16.
+  - **WebsiteHub's own screenshots and `og.png`** — these had gone stale in
+    exactly the pattern this session was looking for. Both were last captured
+    2026-09-11, and show the **old three-way switcher** (Ledger/Gallery/
+    Dossier) — the 2026-09-13 Folio launch and switcher reorder
+    (Dossier/Folio/Ledger/Gallery) was never reflected in either image, so the
+    live site's own project card and every social-preview unfurl of the site's
+    link were showing a wrong, out-of-date nav. Regenerated `websitehub-1`/`-2`
+    (landing + resume pages) and `og.png` from the local dev server — the
+    established capture path for WebsiteHub's own shots (`SELF_URL`, not its
+    live GitHub Pages URL) — using a one-off script that forces
+    `prefers-color-scheme: dark` via CDP `emulateMediaFeatures`, since this
+    sandbox's headless Chrome defaults to light and `npm run shots`' plain
+    `--screenshot` CLI flag can't force a color scheme; without that the new
+    shots would have mismatched the still-dark `websitehub-3` in the same
+    on-page gallery. **Deliberately did not regenerate `websitehub-3`**
+    (`/projects/tesseraapp`): this sandbox's egress policy blocks
+    `tesseraapp.dev`, `api.github.com` and GitHub Pages entirely (confirmed via
+    the proxy status endpoint — organization policy denials, not a real
+    outage), so a capture taken here would have baked in a false "Not
+    reachable right now" `LiveStatus` badge on a project that is actually live
+    — replacing one stale artifact with a differently-wrong one. Left that file
+    at its last-known-good, real-network capture. The regenerated landing shot
+    similarly won't show the live `GithubActivity` strip (api.github.com is
+    blocked here) — that degrades to the same "renders nothing" state the
+    component already handles by design when the real GitHub API is
+    unreachable, not a new defect. **Follow-up for whoever next has a
+    network-connected machine:** re-run `npm run shots -- --only websitehub`
+    for full fidelity (the GitHub activity line + an accurate `websitehub-3`
+    reachability badge); the structural fix (correct switcher) here is real and
+    complete regardless.
+  - **`npm run a11y`** (34/34, both themes, 17 states) and the full **123
+    frontend + 13 backend** test suites re-run clean against the final,
+    corrected build.
+  - **`npm run linkcheck`** could not be run for real this session: this
+    sandbox's egress policy blocks `bbobbylon.github.io`, `bobs-resume
+    .onrender.com` and `api.github.com` outright (confirmed via
+    `curl -sS $HTTPS_PROXY/__agentproxy/status` — policy denials, not
+    timeouts), so neither the deployed catalogue's `data/*.json` nor any of
+    the individual project/repo/social links it checks were reachable from
+    here. Not run, not faked — this needs a network-connected environment,
+    not a repo fix.
+  - `sitemap.xml` and `robots.txt` were checked and are fine: the sitemap is
+    generated fresh from the prerendered routes on every build (10 URLs,
+    today's date, the placeholder origin the deploy workflow substitutes at
+    publish time) — there's no way for it to go stale between builds by
+    design, so there was nothing to fix.
+
 - 2026-09-16 — Confirmed **Luv2Shop's real repo** and fixed three stale/broken
   references. A separate `AngularECommerceAppv2` repo turned out to be a single-commit,
   2026-08-31 snapshot ("New ECommerce Udemy App", 36 Java + 35 TS files) — the actual
