@@ -89,7 +89,7 @@ public class InMemoryResumeRepository implements ResumeRepository {
                     ),
                     new ResumeProject(
                             "Luv2Shop — Full-Stack E-Commerce Platform",
-                            "Angular 21 · Spring Boot 4 · Java 21 · MySQL · Stripe · Okta OIDC · Docker",
+                            "Angular 22 · Spring Boot 4 · Java 21 · MySQL · Stripe · Okta OIDC · Docker",
                             List.of(
                                     "Built a full-stack store (Angular 21 standalone + Spring Boot 4 REST API) with "
                                             + "product catalog, keyword search, category filters, and server-side "
