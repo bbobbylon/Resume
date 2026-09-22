@@ -179,6 +179,133 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
 
 ## Done
 
+- 2026-09-22 — Another audit-for-real-improvements pass. Confirmed green first
+  (`mvn -B verify` 13/13, `npm test -- --watch=false` 123/123, `npm run build`
+  prerendering all 10 routes + sitemap), then checked every project entry's repo
+  link, live-URL claim and tech-stack claim against the linked repo's own current
+  state — not just re-reading this repo's own docs — plus the four landing layouts
+  for visual/accessibility regressions and every doc's numeric claims against the
+  actual test/route counts. Found and fixed three real, verified problems, all in
+  seed data or docs, none in application logic:
+
+  1. **Luv2Shop's résumé bullet still said "Angular 21" after the catalogue and the
+     subtitle line were fixed to "Angular 22" on 2026-09-16.** `git show` on that
+     commit confirms it touched the `ResumeProject` subtitle
+     (`"Angular 21 · …" → "Angular 22 · …"`) but missed the identical phrase one
+     line below, inside the first bullet's prose ("Built a full-stack store
+     (Angular 21 standalone + Spring Boot 4 REST API)…") — so the résumé project
+     entry contradicted itself, subtitle vs. bullet, on the very field the earlier
+     fix was about. Caught by reading the whole `InMemoryResumeRepository` file
+     rather than re-checking only the field the last fix touched. Fixed to
+     "Angular 22 standalone"; confirmed against `AngularECommerceApp`'s own
+     `CLAUDE.md` (Angular 22, Spring Boot 4.1, Java 21 — matches the rest of the
+     line) that 22 is still current, not a second stale guess.
+  2. **Dev Hub's page count drifted again, 31 → 38, since the last catalogue fix
+     (2026-09-18).** That entry's own repo (`bbobbylon/dev-hub`) grew seven more
+     pages after the last audit. Counted two ways, independently, the same
+     discipline as the 2026-09-18 fix: `app/src/data/pages.ts`'s `PAGES` array has
+     38 entries (24 Learn + 8 Practice + 2 Reference + 4 Meta, counted by group,
+     not just a `grep -c 'slug:'` that would also catch the `PageEntry` interface
+     field), and the repo's own `docs/SRS.md` independently states "38 standalone
+     interactive lesson/tool pages" and "39 routes (38 lesson/tool pages + the
+     gallery)" — the two counts agree. Fixed all four occurrences in
+     `InMemoryProjectRepository`'s `dev-hub` entry (tagline, description,
+     longDescription, the "N page archetypes" highlight title). Deliberately left
+     the case study's "Recreated the 24 prototype pages" untouched, same reasoning
+     as 2026-09-18: that sentence narrates the original one-time port, not the
+     current total, and rewriting it to 38 would make a true historical claim
+     false. Confirmed dev-hub's tech-stack claims (React 19.2, TypeScript, Vite
+     8.2, `react-router-dom` 7, Playwright) are all still accurate against its
+     `app/package.json`.
+  3. **Two docs quoted a stale frontend test count (120) and the README's own
+     "Status" section quoted a second, different stale count (116) and said the
+     landing was browsable "three ways," both dated 2026-09-11 — before Folio
+     shipped on 2026-09-13.** The real, currently-passing count is 123 across 24
+     files (confirmed by an actual `npm test -- --watch=false` run this session,
+     not copied from another doc). Fixed `docs/DEPLOYMENT.md` §4 and
+     `docs/SRS.md` §6 (120 → 123), and `README.md`'s Status section (116 → 123,
+     "three ways (Ledger / Gallery / Dossier…)" → "four ways (Dossier / Folio /
+     Ledger / Gallery…)" — the README's own "Using the site" table above it
+     already correctly listed all four, so the Status section below it was
+     contradicting the same document). Left the rest of that dated Status
+     section alone — it is a snapshot, and the surrounding claims (which projects
+     are `LIVE`, what screenshots exist, PWA installability) were individually
+     checked and are still accurate; only the two numbers/counts that are now
+     flatly wrong were fixed, not rewritten wholesale.
+
+  Regenerated the one derived artifact these fixes touch: **`resume.pdf`**, since
+  the Luv2Shop bullet appears on `/resume` and its print stylesheet is the PDF.
+  `npm run resume:pdf` against the rebuilt `dist/frontend/browser` (Chrome
+  available in this sandbox at a Playwright-installed path, not the usual system
+  locations `scripts/chrome.mjs` checks, so pointed at it with `CHROME=`)
+  produced a new, valid 2-page PDF with a new hash; confirmed the fix actually
+  reached it by grepping the prerendered `resume/index.html` the PDF is printed
+  from for "Angular 22 standalone" (present, 3 occurrences — visible text plus
+  meta/JSON-LD) and, since this sandbox's headless Chrome cannot screenshot a
+  local PDF file directly (blank output — a known headless-PDF-viewer
+  limitation) and no Python PDF text library would import cleanly here (a broken
+  system `cryptography`/`cffi` install broke both `pypdf` and `pdfminer.six`),
+  by screenshotting the live `/resume` page itself at full height and reading
+  the rendered "Luv2Shop — Full-Stack E-Commerce Platform" project block
+  directly: subtitle and bullet both now read "Angular 22," matching.
+
+  Checked, and did **not** change, several things that turned out fine:
+  - **Every repo link** (`angularSpringBootFullStack`, `AngularECommerceApp`,
+    `Resume`, `dev-hub`, `AngularDevelopment`, `OOPFundamentals`) resolves — all
+    six confirmed live, public, and owned by `bbobbylon` via the GitHub API
+    (`api.github.com` was reachable this session, unlike some earlier ones) and
+    via `npm run linkcheck` itself, which got a real `200` on every repo URL.
+  - **Angular Concepts'** (`angular-concepts`) claims — 103 lessons across six
+    tracks, 424-question practice bank, 17 hands-on coding tasks, Angular 21 —
+    were independently recounted against `AngularDevelopment`'s own
+    `curriculum.ts` (103 `level:` entries across foundations/typescript/
+    beginner/intermediate/expert/projects), `practice-data.ts` (425 `question:`
+    matches minus 1 interface field = 424) and `coding-tasks-data.ts` (17
+    `title:` entries), and all matched exactly. Dev Learning Hub's 521
+    visualizers / 35 tracks were re-confirmed the same way against
+    `OOPFundamentals`' `application.yml` default and `tracks-data.js`'s `TRACKS`
+    array. TesseraApp's Angular 21 / Spring Boot 4 (4.0.6) / Java 21 claims were
+    confirmed against `angularSpringBootFullStack`'s own `pom.xml` and
+    `tesseraapp/package.json` (cloned read-only via the anonymous git lane).
+  - **All four Pages deploy workflows** (Resume, dev-hub, AngularDevelopment,
+    OOPFundamentals) — the ones backing the catalogue's `LIVE` URLs — show a
+    successful most-recent run via the GitHub Actions API, and each workflow's
+    build output path was checked against the catalogue's advertised URL
+    (`OOPFundamentals` rsyncs `frontend/` — containing `app.html` — to `_site/`
+    root; `dev-hub` publishes `app/dist`; `AngularDevelopment` builds with
+    `--base-href=/AngularDevelopment/`) — all consistent with the URLs the
+    catalogue advertises.
+  - **The four landing layouts** (Dossier, Folio, Ledger, Gallery) — screenshotted
+    all four plus the full `/resume` page in a real headless Chrome session
+    against the rebuilt site; no visual defects, and `npm run a11y` (CI=true for
+    `--no-sandbox`, since this sandbox runs as root) stayed **34/34 clean**
+    across 17 page states × both themes, both before and after the fixes above
+    (the fixes are seed-data text only, no markup/CSS touched, so this was a
+    sanity check rather than an expected finding).
+  - **`https://tesseraapp.dev` and the other four catalogue `LIVE` URLs
+    (`bbobbylon.github.io/*`) could not be curled directly** — this sandbox's
+    egress policy still blocks those specific hosts outright (`CONNECT` denied,
+    confirmed via the proxy status endpoint), the same limitation recorded in the
+    2026-09-18 entry below, though `api.github.com` was reachable this session
+    where it was not before. `npm run linkcheck` therefore reported the five live
+    sites as failing (proxy-level 403, not a real response) while all seven repo
+    links passed — a false negative from the sandbox, not a real one, corroborated
+    by the green Pages-deploy runs above. Also read `angularSpringBootFullStack`'s
+    own `aws/README.md`/`render/README.md` (both dated 2026-09-12/13, its most
+    recent commit): they record a genuine AWS/ECS outage around 2026-09-11–12 and
+    a Render deployment (`tesseraapp.onrender.com`) stood up as a backup while
+    `tesseraapp.dev`'s DNS stayed pointed at AWS — consistent with, not
+    contradicting, this repo's own 2026-09-13 "TesseraApp is back up" entry below
+    (the AWS side was evidently fixed after that doc's last edit). Nothing to fix
+    here without a network-connected environment to actually re-check
+    `tesseraapp.dev`; noting it rather than guessing.
+
+  Full re-verification after all fixes: `mvn -B verify` 13/13, `npm test
+  -- --watch=false` 123/123 across the same 24 files, `npm run build` prerendering
+  the same 10 routes and writing the same 10-URL sitemap, `npm run a11y` 34/34,
+  `npm run linkcheck` 7/7 repo + social links passing (5 live-site links blocked
+  by this sandbox only, see above) — no regressions from the text-only fixes.
+
 - 2026-09-18 — Three more catalogue entries had gone stale the same way the
   Luv2Shop Angular-version bug did — a linked project's own content grew and
   `InMemoryProjectRepository`'s copy of it never followed. Found by reading each

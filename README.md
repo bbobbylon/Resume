@@ -184,10 +184,10 @@ The landing layout default is `landingLayout` in `frontend/src/environments/`.
 <https://bobs-resume.onrender.com> (`/api/projects`, `/docs`). The last push
 (`d3e482e`) was green on both `CI` and `Deploy frontend to GitHub Pages`.
 
-- Backend and frontend build and pass their tests locally (13 backend, 116 frontend)
+- Backend and frontend build and pass their tests locally (13 backend, 123 frontend)
   and in CI; the Pages deploy and Dependabot run on GitHub.
-- Landing is browsable three ways (Ledger / Gallery / Dossier via the switcher or
-  `?layout=`), filterable by technology (`?tech=`) and searchable (`?q=`), with a
+- Landing is browsable four ways (Dossier / Folio / Ledger / Gallery via the switcher
+  or `?layout=`), filterable by technology (`?tech=`) and searchable (`?q=`), with a
   Ctrl+K command palette over every page and project. A live GitHub activity strip
   in the hero shows recent public events, newest inline and up to four more behind a
   disclosure.

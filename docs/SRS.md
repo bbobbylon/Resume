@@ -164,7 +164,7 @@ opens each project's live app.
 - All three landing layouts, the resume page and the detail page render from live
   API data with no console errors (verified locally on 2026-09-04).
 - CI (`.github/workflows/ci.yml`) is green: backend `mvn verify` (13 tests) and
-  frontend `ng test` (120 tests) + `npm run build`, which must prerender every
+  frontend `ng test` (123 tests) + `npm run build`, which must prerender every
   project page. The owner's standing rule is that a red push is a defect in its own
   right, not just a signal about the change that caused it.
 - Every page's HTML carries its content and its own title, description and social

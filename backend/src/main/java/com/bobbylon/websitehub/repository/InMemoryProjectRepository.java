@@ -165,11 +165,11 @@ public class InMemoryProjectRepository implements ProjectRepository {
             new Project(
                     "dev-hub",
                     "Dev Hub",
-                    "31 interactive learning pages with real, persisted progress.",
-                    "A learn-to-code app of 31 interactive page archetypes — lessons, quizzes, "
+                    "38 interactive learning pages with real, persisted progress.",
+                    "A learn-to-code app of 38 interactive page archetypes — lessons, quizzes, "
                             + "flashcards, visualizers and labs — with progress and spaced repetition "
                             + "that persist between visits.",
-                    "A learn-to-code app built from a Claude Design handoff: 31 interactive page "
+                    "A learn-to-code app built from a Claude Design handoff: 38 interactive page "
                             + "archetypes across Learn, Practice, Reference and Meta — a CLI lesson, "
                             + "Git branching and rebase visualizers, Big-O charts, an algorithm "
                             + "visualizer, quiz mode, flashcards, a terminal-simulator mission, a regex "
@@ -184,7 +184,7 @@ public class InMemoryProjectRepository implements ProjectRepository {
                     List.of("React 19", "TypeScript", "Vite", "React Router", "Playwright"),
                     List.of("shots/dev-hub-1.webp", "shots/dev-hub-2.webp", "shots/dev-hub-3.webp"),
                     List.of(
-                            new Highlight("31 page archetypes",
+                            new Highlight("38 page archetypes",
                                     "Lessons, deep-dives, storyboards, quizzes, flashcards, visualizers, "
                                             + "labs and a progress dashboard, all on one design system and "
                                             + "filterable from a single gallery."),

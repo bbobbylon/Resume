@@ -91,7 +91,7 @@ public class InMemoryResumeRepository implements ResumeRepository {
                             "Luv2Shop — Full-Stack E-Commerce Platform",
                             "Angular 22 · Spring Boot 4 · Java 21 · MySQL · Stripe · Okta OIDC · Docker",
                             List.of(
-                                    "Built a full-stack store (Angular 21 standalone + Spring Boot 4 REST API) with "
+                                    "Built a full-stack store (Angular 22 standalone + Spring Boot 4 REST API) with "
                                             + "product catalog, keyword search, category filters, and server-side "
                                             + "pagination.",
                                     "Implemented a reactive checkout with Stripe payment intents and Okta "
