@@ -66,8 +66,12 @@
 
     <h2>Changes</h2>
     <p>
-      If this policy changes, the date at the top changes with it. Questions are welcome at
-      <a [href]="'mailto:' + email()">{{ email() }}</a>.
+      If this policy changes, the date at the top changes with it.
+      @if (email(); as addr) {
+        Questions are welcome at <a [href]="'mailto:' + addr">{{ addr }}</a>.
+      } @else {
+        Questions are welcome at the address in the footer.
+      }
     </p>
 
     <p><a class="btn btn-ghost" routerLink="/terms">Read the Terms of Use →</a></p>

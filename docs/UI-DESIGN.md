@@ -72,7 +72,7 @@ Angular components (`frontend/src/app/shared/`):
 
 | Component | Selector | Purpose |
 |-----------|----------|---------|
-| `Nav` | `app-nav` | brand → `/`, Projects → `/#projects` (current on `/` and `/projects/*`), Resume (`routerLinkActive`), Contact (mailto), primary "Download PDF". Links hide < 480 px. |
+| `Nav` | `app-nav` | brand → `/`, Projects → `/#projects` (current on `/` and `/projects/*`), Resume (`routerLinkActive`), Contact (mailto), primary "Download PDF". Links hide < 480 px, replaced there by `.menu-btn` — a disclosure button (`aria-expanded`/`aria-controls`) revealing the same three in a `.mobile-menu` dropdown. |
 | `Footer` | `app-footer` | Row 1: © + one-line privacy note left, Terms of Use / Privacy Policy right (the current one gets `aria-current`). Row 2, under a hairline: "Contact" label + Email / LinkedIn / GitHub. `compact` (Ledger) keeps row 1 without the note and drops row 2. Dossier renders no `app-footer` — its inline `.foot` carries the © and the same two links. |
 | `StatusTag` | `app-status-tag` | Live → `.tag-outline`, WIP → `.tag-neutral`, Archived → `.tag-neutral` @ 0.6, `featured` → accent "Featured". |
 | `ProjectImage` | `app-project-image` | 16:10 / 21:9 `.lighten` frame with placeholder initial; `srcset`/`sizes` derived from the file name, `priority` input for the page's LCP image. |
@@ -157,7 +157,7 @@ them here.
 |-------|-----------|
 | ≤ 880 px | project rows/grids collapse to one column; heroes stack; resume, Folio and detail grids stack; container gutter 28 px; stat band 2 columns |
 | ≤ 720 px | Dossier aside stacks above main and loses `position: sticky`; Stack column hidden |
-| ≤ 480 px | nav links hidden (brand + Download PDF remain); Dossier timeline single column; gutter 20 px; stat band 1 column |
+| ≤ 480 px | nav links hidden (brand + Download PDF remain) but reachable again via `.menu-btn`'s dropdown; Dossier timeline single column; gutter 20 px; stat band 1 column |
 
 **Print (`@media print`).** Tokens flip to a light palette, nav/footer hide, the
 resume page becomes a single column with a header block; `@page` Letter with 14 mm

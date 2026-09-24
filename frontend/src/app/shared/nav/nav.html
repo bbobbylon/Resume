@@ -4,6 +4,38 @@
   <a class="nav-link" routerLink="/resume" routerLinkActive ariaCurrentWhenActive="page">Resume</a>
   @if (profile(); as p) {
     <a class="nav-link" [href]="'mailto:' + p.email">Contact</a>
+    <div class="menu-wrap" #menuRoot>
+      <button
+        #menuButton
+        type="button"
+        class="menu-btn"
+        aria-label="Menu"
+        [attr.aria-expanded]="menuOpen()"
+        aria-controls="mobile-menu"
+        (click)="toggleMenu()"
+      >
+        <app-menu-icon [size]="16" />
+      </button>
+      @if (menuOpen()) {
+        <div id="mobile-menu" class="mobile-menu">
+          <a
+            class="mobile-menu-link"
+            routerLink="/"
+            fragment="projects"
+            [attr.aria-current]="projectsCurrent() ? 'page' : null"
+            (click)="closeMenu()"
+          >Projects</a>
+          <a
+            class="mobile-menu-link"
+            routerLink="/resume"
+            routerLinkActive
+            ariaCurrentWhenActive="page"
+            (click)="closeMenu()"
+          >Resume</a>
+          <a class="mobile-menu-link" [href]="'mailto:' + p.email" (click)="closeMenu()">Contact</a>
+        </div>
+      }
+    </div>
     <app-command-palette-trigger />
     <app-theme-toggle />
     <a class="btn btn-primary" [href]="p.resumeUrl" download>Download PDF</a>

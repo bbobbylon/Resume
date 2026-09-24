@@ -71,4 +71,35 @@ describe('legal pages', () => {
   it('the privacy page links back to the terms', async () => {
     expect((await visit('/privacy')).querySelector('a[href="/terms"]')).not.toBeNull();
   });
+
+  // Both legal pages read the contact address from the same profile() signal Nav and
+  // Footer use; before that HTTP call resolves, email() is '' and the "Changes" section
+  // falls back to plain text instead of an <a href="mailto:"> with nothing after the colon.
+  it('does not render an empty mailto link on Terms before the profile has loaded', async () => {
+    const harness = await RouterTestingHarness.create('/terms');
+    harness.detectChanges();
+    const el = harness.routeNativeElement as HTMLElement;
+
+    expect(el.querySelector('a[href^="mailto:"]')).toBeNull();
+    expect(el.textContent).toContain('the address in the footer');
+
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne((r) => r.url.endsWith('/api/profile')).flush(PROFILE);
+    harness.detectChanges();
+    http.verify({ ignoreCancelled: true });
+  });
+
+  it('does not render an empty mailto link on Privacy before the profile has loaded', async () => {
+    const harness = await RouterTestingHarness.create('/privacy');
+    harness.detectChanges();
+    const el = harness.routeNativeElement as HTMLElement;
+
+    expect(el.querySelector('a[href^="mailto:"]')).toBeNull();
+    expect(el.textContent).toContain('the address in the footer');
+
+    const http = TestBed.inject(HttpTestingController);
+    http.expectOne((r) => r.url.endsWith('/api/profile')).flush(PROFILE);
+    harness.detectChanges();
+    http.verify({ ignoreCancelled: true });
+  });
 });

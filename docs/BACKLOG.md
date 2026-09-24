@@ -179,6 +179,92 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
 
 ## Done
 
+- 2026-09-21 — Mailto guard on the legal pages. Closes the gap the 2026-09-20
+  entry below surfaced but left for a decision: `terms.html` and `privacy.html`
+  each rendered `<a [href]="'mailto:' + email()">{{ email() }}</a>` with no
+  guard, so any moment `email()` is `''` — profile not loaded yet, or never
+  loaded at all — left an `<a href="mailto:">` with no text: the `link-name`
+  WCAG violation `npm run a11y` had flagged four times. `Footer`'s own mailto
+  link was never at risk, since it already sits behind
+  `@if (!compact() && profile(); as p)`; these two pages just hadn't followed
+  that pattern yet.
+
+  Fixed with the same `@if`/`@else` idiom already used throughout the app
+  (`Nav`'s skeleton state, `Footer`'s guard): `@if (email(); as addr) { ...the
+  real mailto link... } @else { ...plain text... }`. The fallback reuses
+  wording the Privacy page already had elsewhere on the same page — "the
+  address in the footer" answers the same question its own "If you email me"
+  section does — rather than inventing new copy or leaving the sentence
+  dangling. `LEGAL_UPDATED` was not bumped: the policies' substance is
+  unchanged, only what renders during the moment (or, in a backend-down build,
+  indefinitely) that the profile hasn't loaded.
+
+  Two tests added, one per page (127/127 now, still 24 files): each visits the
+  route without flushing the `/api/profile` request, checks that no
+  `a[href^="mailto:"]` exists and the fallback text is present, then flushes
+  and verifies no other request was made. Verified the same way as the
+  2026-09-20 entry below, since this session still can't reach this machine's
+  own installed Chrome/npm: staged the frontend source into a clean Linux
+  environment, ran `npm ci` + `npm test -- --watch=false` (127/127 green) +
+  `npm run build`. That build has no backend to reach either, which turned out
+  to be exactly the condition this bug needed — grepping the prerendered
+  `dist/frontend/browser/terms/index.html` and `.../privacy/index.html`
+  confirmed it directly: zero `mailto` anchors in either file (previously an
+  empty one apiece), "Questions are welcome at the address in the footer." in
+  their place instead. Main bundle moved from 416.88 kB/105.28 kB (raw/
+  transferred) before this fix to 417.24 kB/105.29 kB after — the added
+  fallback markup, nothing else. A real push through GitHub Actions (which
+  does start the backend first, per the entry below) is still this repo's own
+  CI to confirm, per the standing green-push rule.
+
+- 2026-09-20 — Phone-width nav menu. The owner asked to focus a mobile-polish pass
+  on “mobile / responsive feel”; checking `nav.css`/`nav.html`/`docs/UI-DESIGN.md`
+  directly (not guessing) confirmed a real, if deliberate and documented, gap: below
+  480px `.nav-link` hides Projects, Resume and Contact entirely, leaving only the
+  brand, the command palette's icon-only trigger (labelled “Search (Ctrl+K)” — a
+  shortcut a touchscreen cannot use) and Download PDF. A recruiter opening the site
+  on a phone had no visible path to the resume or the project list unless they
+  discovered that the magnifying glass opens a navigation overlay.
+
+  Fixed with a small disclosure control rather than a second nav bar: `Nav` gained
+  a `.menu-btn` (a plain hand-drawn three-bar glyph, `MenuIcon` — not claimed as
+  Phosphor like `SearchIcon`, since this session could not verify an exact upstream
+  path before shipping one), visible only at the same ≤480px breakpoint where
+  `.nav-link` disappears, with `aria-expanded`/`aria-controls` over a `.mobile-menu`
+  dropdown holding the same three links. Follows the WAI-ARIA disclosure pattern
+  (not `menu`/`menuitem`, since these are ordinary page links) — closes on Escape,
+  on an outside click, or on picking a link, and returns focus to the button on an
+  Escape close. Dossier needed no change: its own `.side-nav` never hides its links
+  at any width, so only Ledger/Gallery/Folio and the resume/detail pages (everything
+  that renders the shared `Nav`) had the gap.
+
+  Two frontend tests added (125/125 now, same 24 files): opening the menu and
+  reading back the revealed links, and closing it via Escape / outside click / a
+  link's own click handler. Verified beyond the unit tests, since the session doing
+  this work could reach npm but not this machine's own installed Chrome: staged just
+  the frontend source into a clean Linux environment, ran a fresh `npm ci` +
+  `npm test -- --watch=false` (125/125 green) + `npm run build` there. The build
+  succeeded end-to-end (bundle 416.88 kB raw / 105.28 kB transferred, in line with
+  the existing budget) and server-rendered the new markup without error on every
+  static route it could reach — it could not prerender the project-id routes or
+  fetch real data, since that sandbox cannot reach `localhost:8420` or Maven
+  Central, so a real push through GitHub Actions is still this repo's own CI to
+  confirm, per the standing green-push rule.
+
+  Also surfaced, not fixed: running `npm run a11y` against that same no-backend
+  build turned up 4 WCAG violations (`link-name`) on `/terms` and `/privacy` —
+  `<a [href]="'mailto:' + email()">{{ email() }}</a>` has no fallback for
+  `email()` being `''`, unlike `Footer`'s own mailto link, which is fully guarded
+  behind `@if (profile(); as p)`. Almost certainly never hit a real visitor, since
+  this repo's real CI starts the backend before building — but it is a genuine,
+  unguarded gap the moment that ever isn't true, and `npm run a11y` is not a CI
+  gate here, so nothing would catch it if it were. Left for the owner to decide
+  whether it is worth a one-line guard.
+
+  Docs updated to match: `UI-DESIGN.md` (the `Nav` component row and the ≤480px
+  breakpoint row), `CODE-MAP.md` (`nav/` row, new `icons/menu.ts` row), README
+  (test count).
+
 - 2026-09-18 — Three more catalogue entries had gone stale the same way the
   Luv2Shop Angular-version bug did — a linked project's own content grew and
   `InMemoryProjectRepository`'s copy of it never followed. Found by reading each
@@ -309,6 +395,7 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
   rewritten; the Aiven→TiDB blocker itself is unaffected by which repo name it's filed
   under. 123 frontend tests + 13 backend tests pass; verified the regenerated
   `resume.pdf` visually (both pages) after the fix.
+
 - 2026-09-13 — A fourth landing layout, **Folio**, plus a switcher reorder — the
   owner's ask: "move the Gallery View to the last option, and move the dossier to
   the front option. For the new view, I want to focus more on the resume format and
