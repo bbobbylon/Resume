@@ -44,7 +44,14 @@ the top of each section. Dates are when the item was added. See
 
 ## Open — needs the owner
 
-Nothing open right now — see Done below for the two items that closed 2026-09-13.
+One open item, logged 2026-09-23; the checked items below are history.
+
+- [ ] **`ubuntu-latest` becomes Ubuntu 26 on 2026-10-19** (GitHub's own `notice`
+  annotation on every job, seen on the 2026-09-23 push). Both workflows run on the
+  unpinned label, so they will move with it. Nothing to do now — but the first run
+  after that date is worth watching rather than assuming, since this repo's CI
+  installs a JDK, a Node toolchain and a headless Chrome. Pin to `ubuntu-24.04` only
+  if it actually breaks; pinning pre-emptively just defers the same migration.
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
@@ -213,9 +220,25 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
   empty one apiece), "Questions are welcome at the address in the footer." in
   their place instead. Main bundle moved from 416.88 kB/105.28 kB (raw/
   transferred) before this fix to 417.24 kB/105.29 kB after — the added
-  fallback markup, nothing else. A real push through GitHub Actions (which
-  does start the backend first, per the entry below) is still this repo's own
-  CI to confirm, per the standing green-push rule.
+  fallback markup, nothing else.
+
+  **Shipped 2026-09-23** (this and the 2026-09-20 entry below, in one commit):
+  re-verified first on the owner's own machine, which this time could reach both
+  its npm and its installed Chrome — 127/127 tests across 24 files, a clean build
+  (417.24 kB raw / 105.29 kB transferred, matching the sandbox figure above), and
+  `BUILD_DIR=dist/frontend/browser npm run a11y` over 17 page states x 2 themes
+  reporting **no WCAG A/AA violations**. That last run is the direct confirmation
+  the sandbox could not get: it audits the same no-backend build whose empty
+  anchors were the four `link-name` failures. Rebased onto the four commits that
+  had landed meanwhile (PR #16 — only `BACKLOG.md` conflicted, both sides purely
+  additive to `## Done`), re-ran the suite on the merged tree, then pushed. CI and
+  Deploy-to-Pages both green, every job, carrying no annotations beyond GitHub's
+  own `notice` that `ubuntu-latest` migrates to Ubuntu 26 on 2026-10-19 (logged
+  under Open above). The live site confirms both fixes end-to-end: `/terms` serves
+  real `mailto:` links and zero empty anchors — CI does start the backend, so what
+  ships is the guard's populated branch, not the fallback — and the landing page's
+  prerendered HTML carries the `.menu-btn` with `aria-expanded="false"` and
+  `aria-controls="mobile-menu"`.
 
 - 2026-09-20 — Phone-width nav menu. The owner asked to focus a mobile-polish pass
   on “mobile / responsive feel”; checking `nav.css`/`nav.html`/`docs/UI-DESIGN.md`
@@ -248,8 +271,9 @@ Nothing open right now — see Done below for the two items that closed 2026-09-
   the existing budget) and server-rendered the new markup without error on every
   static route it could reach — it could not prerender the project-id routes or
   fetch real data, since that sandbox cannot reach `localhost:8420` or Maven
-  Central, so a real push through GitHub Actions is still this repo's own CI to
-  confirm, per the standing green-push rule.
+  Central. **Shipped 2026-09-23**, in the same commit as the mailto guard — see
+  that entry's "Shipped" paragraph above for the local re-verification and the
+  green CI/Pages runs that confirmed it.
 
   Also surfaced, not fixed: running `npm run a11y` against that same no-backend
   build turned up 4 WCAG violations (`link-name`) on `/terms` and `/privacy` —
