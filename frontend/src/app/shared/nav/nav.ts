@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { ProfileService } from '../../services/profile.service';
+import { CommandPaletteService } from '../../services/command-palette';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { CommandPaletteTrigger } from '../command-palette-trigger/command-palette-trigger';
 import { MenuIcon } from '../icons/menu';
@@ -28,6 +29,10 @@ import { MenuIcon } from '../icons/menu';
  * `.menu-btn`/`.mobile-menu` markup in `nav.html` are what put those three links
  * back within reach on a phone: a small disclosure button, visible only at that
  * same breakpoint, that reveals them in a dropdown instead of a second nav bar.
+ * The dropdown also carries a "Search projects" row ({@link openSearch}), because
+ * adding this button made the bar itself overflow a 320–360px viewport — so below
+ * 480px `nav.css` hides {@link CommandPaletteTrigger} and the menu opens the
+ * palette instead.
  * It follows the WAI-ARIA "disclosure" pattern (a plain `aria-expanded` button
  * plus the region it controls) rather than a `menu`/`menuitem` widget, because
  * these are ordinary page links, not an application menu.
@@ -43,6 +48,12 @@ export class Nav {
   private readonly router = inject(Router);
   /** Supplies the brand mark, the mailto address and the resume PDF link. */
   protected readonly profile = inject(ProfileService).profile;
+  /**
+   * The same shared open signal {@link CommandPaletteTrigger} sets. Injected here because
+   * below 480px that trigger is hidden and the menu's "Search projects" row takes over —
+   * see {@link openSearch}.
+   */
+  private readonly palette = inject(CommandPaletteService);
 
   /**
    * The current URL as a signal. `routerLinkActive` cannot express "current on `/`
@@ -75,6 +86,21 @@ export class Nav {
   /** Flips {@link menuOpen}. The only thing that calls this is the button itself. */
   protected toggleMenu(): void {
     this.menuOpen.update((open) => !open);
+  }
+
+  /**
+   * Opens the command palette from the menu's "Search projects" row, which is how search
+   * is reached at phone width: `nav.css` hides {@link CommandPaletteTrigger} below 480px,
+   * because all five bar controls together overflowed a 320–360px viewport.
+   *
+   * Closes the menu *before* opening the overlay, and in that order deliberately:
+   * {@link closeMenu} puts focus back on `.menu-btn`, and the palette then records
+   * whatever has focus as the element to restore to when it closes — so dismissing the
+   * palette returns the visitor to the button they opened it from, not to nothing.
+   */
+  protected openSearch(): void {
+    this.closeMenu();
+    this.palette.show();
   }
 
   /** Closes the menu (a no-op if it is already closed) and returns focus to the button that opened it. */

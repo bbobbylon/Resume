@@ -28,10 +28,25 @@
 }
 .mobile-menu-link:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
 .mobile-menu-link[aria-current='page'] { color: var(--color-accent); }
+/* The Search row opens the palette overlay instead of navigating, so it is a <button> and
+   needs the UA button defaults stripped back to what .mobile-menu-link above draws.
+   font-size is deliberately not set here — .mobile-menu-link already carries it. */
+.mobile-menu-action {
+  width: 100%; margin-top: 4px; padding-top: 14px; text-align: left; cursor: pointer;
+  border: 0; border-top: 1px solid var(--color-divider); border-radius: 0;
+  background: transparent; font-family: inherit;
+}
 @media (prefers-reduced-motion: reduce) { .menu-btn { transition: none; } }
 
 @media (max-width: 480px) {
   .nav { padding: 12px 20px; }
   .nav-link { display: none; }   /* brand + Download PDF remain; .menu-btn below reaches Projects/Resume/Contact */
   .menu-wrap { display: inline-flex; }
+  /* All five controls (brand 79 + menu 34 + palette 34 + theme 34 + Download PDF 89, with
+     18px gaps) do not fit a 320–360px viewport: measured with real Chrome, this bar forced
+     the whole document to scroll to 370px on every page. The palette trigger is the one
+     that leaves, because its Ctrl+K affordance is the least useful of the five on a
+     touchscreen — .mobile-menu carries a "Search projects" row that opens the same overlay.
+     Scoped to nav.css, so Dossier's own aside trigger is untouched. */
+  app-command-palette-trigger { display: none; }
 }

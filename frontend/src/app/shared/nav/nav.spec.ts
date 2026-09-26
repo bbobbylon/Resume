@@ -3,6 +3,7 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Nav } from './nav';
+import { CommandPaletteService } from '../../services/command-palette';
 
 describe('Nav', () => {
   beforeEach(async () => {
@@ -59,6 +60,33 @@ describe('Nav', () => {
     expect(el.querySelector('.mobile-menu')).toBeNull();
     expect(document.activeElement).toBe(button);
 
+    http.verify({ ignoreCancelled: true });
+  });
+
+  // Below 480px nav.css hides the palette trigger (all five bar controls overflowed a
+  // 320-360px viewport), so this row is the only way to reach search on a phone. jsdom
+  // does no layout and never applies that media query, so what is testable here is the
+  // behaviour: the row opens the same shared overlay the hidden button would have.
+  it('opens the command palette from the menu instead of the hidden trigger button', async () => {
+    const { fixture, http } = await setup();
+    const el: HTMLElement = fixture.nativeElement;
+    const palette = TestBed.inject(CommandPaletteService);
+    expect(palette.open()).toBe(false);
+
+    (el.querySelector('.menu-btn') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const search = el.querySelector('.mobile-menu-action') as HTMLButtonElement;
+    expect(search.textContent?.trim()).toBe('Search projects');
+
+    search.click();
+    fixture.detectChanges();
+    expect(palette.open()).toBe(true);
+    // The menu closes behind the overlay rather than staying open underneath it, and
+    // focus is back on the button the palette will return the visitor to on dismiss.
+    expect(el.querySelector('.mobile-menu')).toBeNull();
+    expect(document.activeElement).toBe(el.querySelector('.menu-btn'));
+
+    palette.hide();
     http.verify({ ignoreCancelled: true });
   });
 

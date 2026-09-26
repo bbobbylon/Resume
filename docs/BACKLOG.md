@@ -186,6 +186,60 @@ One open item, logged 2026-09-23; the checked items below are history.
 
 ## Done
 
+- 2026-09-26 — Nav bar overflowed at phone width, and hid the fix's own escape
+  hatch. Continuing the mobile-polish pass (2026-09-20/23 entries below): a one-off
+  `mobile-audit.mjs` (not added to `scripts/` — a throwaway Puppeteer sweep of all
+  10 page states across 320/360/390px, checking document overflow, touch-target
+  size and text size) found that the nav bar's five controls no longer fit a
+  320–360px viewport — brand (79px) + `.menu-btn` (34) + the command-palette
+  trigger (34) + theme toggle (34) + "Download PDF" (89), with four 18px gaps and
+  40px of padding, forced the whole document to scroll to 370px on every page.
+  That fifth control, the palette trigger, was the 2026-09-20 fix's own addition,
+  so the phone-nav work had regressed the phone-nav work.
+
+  Fixed by removing the trigger rather than shrinking anything: `nav.css` hides
+  `app-command-palette-trigger` at the same ≤480px breakpoint `.nav-link` already
+  disappears at (scoped to `nav.css`, so Dossier's own aside trigger is untouched),
+  and `.mobile-menu` gained a "Search projects" row (`Nav.openSearch()`) that opens
+  `CommandPalette` via the shared `CommandPaletteService` instead. The trigger's
+  Ctrl+K affordance was already the least useful of the five on a touchscreen, and
+  a row in the menu that already exists to hold Projects/Resume/Contact was
+  cheaper than a second control. `openSearch()` calls `closeMenu()` before
+  `palette.show()` deliberately: closing first returns focus to `.menu-btn`, and
+  the palette records whatever has focus as what to restore on dismiss — so
+  Escape from the palette lands back on the button, not on nothing.
+
+  One test added (128 total, still 24 files): opens the menu, clicks "Search
+  projects", and asserts the palette opened, the menu closed behind it, and focus
+  landed on `.menu-btn`. Verified beyond the unit test with real Chrome on the
+  owner's own machine (this session could reach both, unlike the sandboxed
+  sessions behind the 2026-09-20/23 entries): a `navprobe.mjs` one-off confirmed
+  `document.scrollWidth` now equals the viewport at all of 320/360/390/414px
+  (previously overflowing), and a `searchprobe.mjs` one-off drove the full flow at
+  360×740 — trigger measures a 0×0 box (hidden), the menu row reads "Search
+  projects", clicking it opens the palette and closes the menu, typing narrows the
+  list, and Escape closes it and returns focus to `.menu-btn`. Both scripts and
+  `mobile-audit.mjs` deleted after use, per the same one-off convention as the
+  2026-09-18 entry's screenshot script. `UI-DESIGN.md` (`Nav` row, ≤480px
+  breakpoint row) and `CODE-MAP.md` (`nav/` row, `nav.spec.ts` row, test count)
+  updated to match; README's test count too.
+
+  Also surfaced, not fixed: the same audit's other two checks turned up findings
+  unrelated to this overflow bug and far larger in scope — **183** interactive
+  elements below the WCAG 2.5.8 AA 24×24 CSS px touch-target minimum (footer's
+  "Terms of Use"/"Privacy Policy" links, `GithubActivity`'s activity/"+N more"
+  row, project-detail tag links, the search input's height, several project-card
+  title links) and **177** instances of visible text under 12px (chip/tag counts,
+  "Featured"/"Live" tags, resume sub-labels), summed across all three viewports
+  and ten page states. Both categories touch nearly every shared component on the
+  site, not the nav specifically, so this is a separate pass, not a follow-on to
+  this one — filed here rather than fixed opportunistically, since `npm run a11y`
+  itself doesn't gate on target size (axe treats it as a best-practice advisory,
+  not a WCAG A/AA violation) and nothing has caught it before now. Worth a
+  decision on scope before starting: whether to raise the affected elements to
+  24px, rely on the 2.5.8 spacing exception (a small control counts if a 24px
+  circle centred on it touches no neighbour's), or a mix per component.
+
 - 2026-09-21 — Mailto guard on the legal pages. Closes the gap the 2026-09-20
   entry below surfaced but left for a decision: `terms.html` and `privacy.html`
   each rendered `<a [href]="'mailto:' + email()">{{ email() }}</a>` with no
