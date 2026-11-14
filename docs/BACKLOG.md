@@ -44,7 +44,7 @@ the top of each section. Dates are when the item was added. See
 
 ## Open — needs the owner
 
-Two open items; the checked items below are history.
+One open item, logged 2026-11-13; the checked items below are history.
 
 - [ ] **`tesseraapp.dev` doesn't resolve at all** (found 2026-11-13, running
   `npm run linkcheck`). Not a 502/503 like the 2026-09-11/13 entries below — this
@@ -54,14 +54,14 @@ Two open items; the checked items below are history.
   is currently a dead link on the live site. Needs the owner to check the domain's
   registration/DNS, not something this repo's code can fix.
 
-- [ ] **`ubuntu-latest` becomes Ubuntu 26 on 2026-10-19** (GitHub's own `notice`
+- [x] **`ubuntu-latest` becomes Ubuntu 26 on 2026-10-19** (GitHub's own `notice`
   annotation on every job, seen on the 2026-09-23 push). Both workflows run on the
-  unpinned label, so they will move with it. Nothing to do now — but the first run
-  after that date is worth watching rather than assuming, since this repo's CI
-  installs a JDK, a Node toolchain and a headless Chrome. Pin to `ubuntu-24.04` only
-  if it actually breaks; pinning pre-emptively just defers the same migration. Not
-  yet actually exercised: no push landed on `main` between 2026-09-26 and the
-  2026-11-13 push below, so that push is the first real test of the new image.
+  unpinned label, so they move with it. **Confirmed safe 2026-11-13**: the first
+  real push since 2026-09-26 (the LinkedIn/scripts entry above) went green on all
+  four jobs, same as before — the same `notice` still prints (GitHub reprints it
+  regardless of whether today is past the date, not a sign the migration hasn't
+  happened), but nothing in CI's JDK/Node/headless-Chrome install broke. Nothing
+  to pin.
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
@@ -239,12 +239,12 @@ Two open items; the checked items below are history.
   recovered from; not investigated further here, since it is a different repo's
   hosting and out of scope for this change — logged below under Open).
 
-  Not yet proven: the live site still answers with GitHub only (confirmed via
-  `curl` before shipping), since none of this had been pushed. Push happens
-  alongside this commit; `./scripts/verify-deploy.sh` is the way to re-check the
-  live profile afterward. Also unproven: `ubuntu-latest` migrated to Ubuntu 26 on
-  2026-10-19 (logged in Open below) and no real push has landed on `main` since
-  2026-09-26 — this push is the first one to actually run on the new image.
+  Pushed and confirmed: CI and Deploy-to-Pages both green (no new annotations
+  beyond the standing `ubuntu-latest` notice — see that item below, now checked
+  off), and `./scripts/verify-deploy.sh` against the real URLs afterward passed
+  all 11 checks, LinkedIn included. This was also the first real push since
+  2026-09-26, so it doubled as the first live test of the post-2026-10-19 Ubuntu
+  26 runner — clean.
 
 - 2026-09-26 — Nav bar overflowed at phone width, and hid the fix's own escape
   hatch. Continuing the mobile-polish pass (2026-09-20/23 entries below): a one-off
