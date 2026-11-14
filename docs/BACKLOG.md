@@ -44,14 +44,24 @@ the top of each section. Dates are when the item was added. See
 
 ## Open — needs the owner
 
-One open item, logged 2026-09-23; the checked items below are history.
+Two open items; the checked items below are history.
+
+- [ ] **`tesseraapp.dev` doesn't resolve at all** (found 2026-11-13, running
+  `npm run linkcheck`). Not a 502/503 like the 2026-09-11/13 entries below — this
+  time it's `ENOTFOUND`, i.e. DNS for the domain itself isn't answering, which
+  points at the domain/DNS registration rather than the Render-side app behind it.
+  `InMemoryProjectRepository` still marks TesseraApp `LIVE`, so the flagship card
+  is currently a dead link on the live site. Needs the owner to check the domain's
+  registration/DNS, not something this repo's code can fix.
 
 - [ ] **`ubuntu-latest` becomes Ubuntu 26 on 2026-10-19** (GitHub's own `notice`
   annotation on every job, seen on the 2026-09-23 push). Both workflows run on the
   unpinned label, so they will move with it. Nothing to do now — but the first run
   after that date is worth watching rather than assuming, since this repo's CI
   installs a JDK, a Node toolchain and a headless Chrome. Pin to `ubuntu-24.04` only
-  if it actually breaks; pinning pre-emptively just defers the same migration.
+  if it actually breaks; pinning pre-emptively just defers the same migration. Not
+  yet actually exercised: no push landed on `main` between 2026-09-26 and the
+  2026-11-13 push below, so that push is the first real test of the new image.
 
 - [x] Push the repo (2026-09-04) and create the Render service — live as
   `bobs-resume` at `https://bobs-resume.onrender.com`.
@@ -185,6 +195,56 @@ One open item, logged 2026-09-23; the checked items below are history.
   Optional; DEPLOYMENT.md §8 has the steps whenever it's revisited.
 
 ## Done
+
+- 2026-11-13 — LinkedIn restored to the profile, plus two verification scripts that
+  had been drafted 2026-10-16 and never shipped. A real vanity URL now exists
+  (`https://www.linkedin.com/in/robert-c-oliver-jr-b929bb1a3/`), so
+  `InMemoryProfileRepository` adds it back to `socialLinks` — the placeholder slug
+  was removed outright back on 2026-09-06 rather than link to a fake profile; this
+  is that gap filled with the real thing, not a reversion.
+
+  The same pass added `scripts/docker-smoke-test.sh` (builds the backend image,
+  boots it via `docker compose`, and checks `/actuator/health`, `/api/profile`
+  (both social links), `/api/projects`, CORS for an allowed vs. a stranger's
+  origin, `/docs`, and that only `/actuator/health` is exposed — `SKIP_DOCKER=1`
+  runs the same checks against an already-running backend) and
+  `scripts/verify-deploy.sh` (post-deploy: polls the live Render API through its
+  free-tier cold start, checks the profile contains both social links and the
+  right CORS header, then the five public routes and that `resume.pdf` serves as
+  a real PDF). Both referenced from `README.md`'s new "Verifying the Docker image
+  and the live deploy" section and `DEPLOYMENT.md`'s release checklist.
+
+  `frontend/scripts/linkcheck.mjs` needed one change for the new link: LinkedIn
+  answers every non-browser client with HTTP 999 ("Request Denied"), so the script
+  can never prove that link works from Node — any host it runs from looks like a
+  bot to LinkedIn, this repo's CI included. It's now listed but advisory rather
+  than required, the same failing/advisory split the script already uses for
+  slow-but-OK hosts.
+
+  This had sat uncommitted on the owner's machine for four weeks with no backlog
+  entry — found and finished at the start of a later session that was asked to get
+  "brought up to speed" on the repo. Verified before shipping: `mvn verify` (backend)
+  and `npm test -- --watch=false` (128/128, frontend) both still pass after the
+  Dependabot merges that landed on `main` in the gap (Angular group, Spring Boot,
+  springdoc). `docker-smoke-test.sh` itself couldn't be run against a real Docker
+  build (Docker Desktop wasn't running in this session) — ran `SKIP_DOCKER=1`
+  against the backend started directly instead, which exercises every check but the
+  image build itself; all 11 passed, including both social links and the CORS
+  pair. `npm run snapshot` + a full `npm run build` (prerendering against that same
+  local backend) confirmed the built HTML carries the LinkedIn link on every page,
+  and a `BUILD_DIR=`-pointed `npm run linkcheck` against that build confirmed the
+  999-advisory path fires exactly as written — the only hard failure it reported
+  was `tesseraapp.dev` (ENOTFOUND, DNS not resolving at all this time, not just a
+  5xx — worse than the 502/503 the 2026-09-11/13 entries below recorded and
+  recovered from; not investigated further here, since it is a different repo's
+  hosting and out of scope for this change — logged below under Open).
+
+  Not yet proven: the live site still answers with GitHub only (confirmed via
+  `curl` before shipping), since none of this had been pushed. Push happens
+  alongside this commit; `./scripts/verify-deploy.sh` is the way to re-check the
+  live profile afterward. Also unproven: `ubuntu-latest` migrated to Ubuntu 26 on
+  2026-10-19 (logged in Open below) and no real push has landed on `main` since
+  2026-09-26 — this push is the first one to actually run on the new image.
 
 - 2026-09-26 — Nav bar overflowed at phone width, and hid the fix's own escape
   hatch. Continuing the mobile-polish pass (2026-09-20/23 entries below): a one-off

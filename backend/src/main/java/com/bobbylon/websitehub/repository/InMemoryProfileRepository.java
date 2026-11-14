@@ -11,10 +11,10 @@ import java.util.List;
  * Hard-coded {@link ProfileRepository} — the site owner's identity block.
  *
  * <p>The content here is the real profile copy from the design handoff
- * ({@code docs/UI-DESIGN.md}). LinkedIn is omitted until a real vanity URL is
- * available (a placeholder slug shipped briefly and was removed rather than link out
- * to a fake profile). {@code resumeUrl} points at a PDF expected at the site root
- * ({@code frontend/public/resume.pdf}).
+ * ({@code docs/UI-DESIGN.md}). LinkedIn was omitted while only a placeholder slug
+ * existed (it was removed rather than link out to a fake profile) and was added back
+ * on 2026-10-16 with the real profile URL. {@code resumeUrl} points at a PDF expected
+ * at the site root ({@code frontend/public/resume.pdf}).
  */
 @Repository
 public class InMemoryProfileRepository implements ProfileRepository {
@@ -39,7 +39,8 @@ public class InMemoryProfileRepository implements ProfileRepository {
             "Kaua‘i, Hawai‘i, USA",
             "resume.pdf",
             List.of(
-                    new SocialLink("GitHub", "https://github.com/bbobbylon")
+                    new SocialLink("GitHub", "https://github.com/bbobbylon"),
+                    new SocialLink("LinkedIn", "https://www.linkedin.com/in/robert-c-oliver-jr-b929bb1a3/")
             ),
             List.of(
                     new Stat("2022 —", "Deloitte DTTL, Full Stack"),

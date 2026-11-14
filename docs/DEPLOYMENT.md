@@ -347,6 +347,7 @@ the API returns it.
 ## 11. Release checklist
 
 - [ ] `mvn -B verify` and `npm test -- --watch=false` green locally.
+- [ ] `./scripts/docker-smoke-test.sh` passes (image builds, boots, serves profile + projects, CORS and actuator locked down).
 - [ ] `npm run a11y` clean (axe-core, real Chrome, 17 page states x both themes). It is not in CI — headless Chrome has been unreliable on this repo's runner — so it only happens if someone runs it. `BUILD_DIR=dist/frontend/browser npm run a11y` audits the artifact that is actually about to ship, including its 404 page.
 - [ ] `npm run linkcheck` clean, or every failure it prints is a known one tracked in BACKLOG. A dead "Code" link or a `LIVE` badge over a 503 is the most expensive kind of bug here: it is the one a recruiter finds.
 - [ ] `ALLOWED_ORIGIN` in `render.yaml` lists every production frontend origin; `API_BASE_URL` set if the Render URL differs from the placeholder.
@@ -354,7 +355,7 @@ the API returns it.
 - [ ] `resume.pdf` regenerated if resume content changed; `npm run shots` re-run if a project's UI changed.
 - [ ] If a new outbound request was added (any new host the visitor's browser contacts), `/privacy` lists it — see SRS FR-27.
 - [ ] The build log's `prerendered:` line lists every project id in `InMemoryProjectRepository` (`sitemap.xml` follows from it).
-- [ ] Push to `main` → CI green → Pages deploy green (including no `::warning::` from the resume.pdf step) → Render deploy green → smoke-test the five pages on the real domain, once with the API awake and once after it slept.
+- [ ] Push to `main` → CI green → Pages deploy green (including no `::warning::` from the resume.pdf step) → Render deploy green → smoke-test the five pages on the real domain, once with the API awake and once after it slept. `./scripts/verify-deploy.sh` automates the status/CORS/PDF part of that.
 - [ ] Standing rule from the owner: a push that lands red is a defect in itself. Confirm the real run went green, not just the local test.
 
 ## 12. Cost flags outside this repo

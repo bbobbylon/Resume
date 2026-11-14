@@ -59,7 +59,11 @@ async function targets() {
     if (project.repoUrl) out.push({ url: project.repoUrl, what: `${project.id} repo`, required: true });
   }
   for (const link of profile.socialLinks ?? []) {
-    out.push({ url: link.url, what: `profile: ${link.platform}`, required: true });
+    // LinkedIn answers every non-browser client with HTTP 999 ("Request Denied"), so a
+    // script can never prove that link works. Keep it listed but advisory - a human
+    // clicks it once after changing it.
+    const botBlocked = new URL(link.url).hostname.endsWith('linkedin.com');
+    out.push({ url: link.url, what: `profile: ${link.platform}`, required: !botBlocked });
   }
   return out;
 }

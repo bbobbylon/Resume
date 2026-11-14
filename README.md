@@ -42,6 +42,28 @@ Pages to try: `/`, `/resume`, `/projects/tesseraapp`, `/terms`, `/privacy`,
 `/projects/nope` (not-found state), `/any/typo` (not-found page).
 
 `docker compose up --build` runs the backend as a container the way the hosts will.
+The frontend is deliberately not containerized: it is a static site in production
+(GitHub Pages), and `npm start` gives hot reload.
+
+**Verifying the Docker image and the live deploy**
+
+Two scripts in `scripts/` (run from Git Bash; both exit non-zero if any check fails):
+
+```bash
+# Local / Docker: builds the backend image, starts it, and checks health, /api/profile
+# (GitHub + LinkedIn links), /api/projects, CORS (allowed vs. disallowed origin),
+# /docs, and that only /actuator/health is exposed. Needs Docker Desktop running.
+./scripts/docker-smoke-test.sh
+SKIP_DOCKER=1 ./scripts/docker-smoke-test.sh   # same checks against an already-running backend (e.g. ./run.sh)
+
+# Cloud: after a push to main has gone green on CI, Pages and Render, check the LIVE
+# URLs (retries up to 3 minutes for the free-tier API cold start).
+./scripts/verify-deploy.sh
+```
+
+Deploying itself needs no script: pushing to `main` runs CI, publishes the frontend via
+`deploy-pages.yml`, and Render rebuilds the API from `backend/Dockerfile`
+(`docs/DEPLOYMENT.md` §3 and §11 have the full runbook and release checklist).
 
 **Tests**
 
@@ -163,6 +185,7 @@ Resume/
 ├── .github/                       workflows (ci.yml, deploy-pages.yml), actions/start-backend, dependabot.yml
 ├── render.yaml                    Render Blueprint (no-card hosting option)
 ├── docker-compose.yml · run.sh    local convenience
+├── scripts/                       docker-smoke-test.sh (image checks) · verify-deploy.sh (live-site checks)
 ```
 
 ## Editing content
